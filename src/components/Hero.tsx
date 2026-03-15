@@ -1,8 +1,8 @@
 "use client";
 import { useEffect } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { type Variants, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 // ─── Animation variants ──────────────────────────────────────────────────────
-const container = {
+const container: Variants = {
   hidden: {},
   show: {
     transition: {
@@ -11,7 +11,7 @@ const container = {
     },
   },
 };
-const slideUp = {
+const slideUp: Variants = {
   hidden: { opacity: 0, y: 32 },
   show: {
     opacity: 1,
@@ -19,14 +19,14 @@ const slideUp = {
     transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
   },
 };
-const fadeIn = {
+const fadeIn: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: { duration: 0.65, ease: "easeOut" },
   },
 };
-const subtleFade = {
+const subtleFade: Variants = {
   hidden: { opacity: 0, y: 10 },
   show: {
     opacity: 1,
