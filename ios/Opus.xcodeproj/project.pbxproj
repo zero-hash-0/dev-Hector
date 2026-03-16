@@ -7,23 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F88C005A8E0BD5E83B1264F /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82ABF212BACB4A77FD35F737 /* KeychainManager.swift */; };
 		36CCD0E82E9DF2AB45D31E90 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6B0A984BB6C6341A08275A /* ContentView.swift */; };
 		388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FDAE91A43597090B1CD8384 /* OfflineView.swift */; };
 		644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */; };
+		7748651778770C7D4F8954BE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5EF88EF8E84C3446F643E7 /* Task.swift */; };
+		89CE2BCBA1DFBED38D90A55A /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CB14625CC370DABDE71E0A /* TaskRow.swift */; };
 		A7848C8670836B14DC6AFB6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BDEF695C7858ED47E181146 /* Assets.xcassets */; };
 		B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358FABC8A6CA55FC301ACE84 /* OpusApp.swift */; };
 		C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */; };
+		E5585EBC203ED63F88738E62 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BC6382C4295B3835290FEE /* DashboardView.swift */; };
+		EBC3AE64818BA983E6CB140B /* StatsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4241B9C73841E229B3573B82 /* StatsCard.swift */; };
+		F36019374C16306DA81F75DB /* BottomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		21BC6382C4295B3835290FEE /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		2BDEF695C7858ED47E181146 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		358FABC8A6CA55FC301ACE84 /* OpusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusApp.swift; sourceTree = "<group>"; };
+		4241B9C73841E229B3573B82 /* StatsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCard.swift; sourceTree = "<group>"; };
+		4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomNavigationBar.swift; sourceTree = "<group>"; };
 		4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWebView.swift; sourceTree = "<group>"; };
-		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		742B65583B15ACAE6B5BF440 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FDAE91A43597090B1CD8384 /* OfflineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineView.swift; sourceTree = "<group>"; };
+		82ABF212BACB4A77FD35F737 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		89CB14625CC370DABDE71E0A /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		8D6B0A984BB6C6341A08275A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BF5EF88EF8E84C3446F643E7 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -33,6 +45,14 @@
 				583C31028B8A683F4B27FFDE /* Opus.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3CC353A7576B20586EF35A4F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BF5EF88EF8E84C3446F643E7 /* Task.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		483273D9E74DA56E86D4E955 /* Opus */ = {
@@ -45,8 +65,19 @@
 				7FDAE91A43597090B1CD8384 /* OfflineView.swift */,
 				358FABC8A6CA55FC301ACE84 /* OpusApp.swift */,
 				4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */,
+				3CC353A7576B20586EF35A4F /* Models */,
+				486539F395F746E1EBB3B58C /* Security */,
+				B437AF2DFF7E70D769E55E47 /* Views */,
 			);
 			path = Opus;
+			sourceTree = "<group>";
+		};
+		486539F395F746E1EBB3B58C /* Security */ = {
+			isa = PBXGroup;
+			children = (
+				82ABF212BACB4A77FD35F737 /* KeychainManager.swift */,
+			);
+			path = Security;
 			sourceTree = "<group>";
 		};
 		6B74230602D7CF10EEB5C393 = {
@@ -55,6 +86,17 @@
 				483273D9E74DA56E86D4E955 /* Opus */,
 				1830644642610856E23C1A83 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		B437AF2DFF7E70D769E55E47 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */,
+				21BC6382C4295B3835290FEE /* DashboardView.swift */,
+				4241B9C73841E229B3573B82 /* StatsCard.swift */,
+				89CB14625CC370DABDE71E0A /* TaskRow.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,9 +127,10 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2630;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					9350C7EEDBE93AFBE7F080ED = {
+						DevelopmentTeam = 8NL37K4349;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -127,11 +170,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F36019374C16306DA81F75DB /* BottomNavigationBar.swift in Sources */,
 				36CCD0E82E9DF2AB45D31E90 /* ContentView.swift in Sources */,
+				E5585EBC203ED63F88738E62 /* DashboardView.swift in Sources */,
+				1F88C005A8E0BD5E83B1264F /* KeychainManager.swift in Sources */,
 				644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */,
 				388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */,
 				B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */,
 				C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */,
+				EBC3AE64818BA983E6CB140B /* StatsCard.swift in Sources */,
+				7748651778770C7D4F8954BE /* Task.swift in Sources */,
+				89CE2BCBA1DFBED38D90A55A /* TaskRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,13 +221,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -187,13 +234,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -207,11 +253,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8NL37K4349;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -235,11 +282,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8NL37K4349;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -289,13 +337,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -310,14 +356,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
