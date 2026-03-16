@@ -5,7 +5,7 @@ const VALID_CODES = (process.env.NEXT_PUBLIC_BETA_INVITE_CODES || '')
   .map(c => c.trim().toUpperCase())
   .filter(Boolean);
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Only gate /opus/app and all sub-paths
