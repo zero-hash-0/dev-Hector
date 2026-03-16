@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
@@ -11,6 +9,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
+    // Lazily instantiate Resend so missing key doesn't crash at build time
+    const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'beta@opus.app';
     const founderEmail = process.env.RESEND_FOUNDER_EMAIL;
 
