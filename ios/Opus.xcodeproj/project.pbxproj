@@ -20,7 +20,7 @@
 		33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		358FABC8A6CA55FC301ACE84 /* OpusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusApp.swift; sourceTree = "<group>"; };
 		4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWebView.swift; sourceTree = "<group>"; };
-		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		742B65583B15ACAE6B5BF440 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FDAE91A43597090B1CD8384 /* OfflineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineView.swift; sourceTree = "<group>"; };
 		8D6B0A984BB6C6341A08275A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -87,6 +87,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					9350C7EEDBE93AFBE7F080ED = {
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 1297EB45C52D90F3C7A992CE /* Build configuration list for PBXProject "Opus" */;
@@ -200,8 +203,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -227,8 +232,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
