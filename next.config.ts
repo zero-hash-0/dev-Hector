@@ -8,5 +8,5 @@ export default withSentryConfig(nextConfig, {
   project: process.env.SENTRY_PROJECT || "opus",
   silent: true,
   widenClientFileUpload: true,
-  hideSourceMaps: true,
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
 });
