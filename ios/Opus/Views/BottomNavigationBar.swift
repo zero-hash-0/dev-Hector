@@ -55,6 +55,8 @@ struct BottomNavigationBar: View {
                 }
             }
             .buttonStyle(FABButtonStyle())
+            .frame(width: 56, height: 56)     // lock to circle size — prevents full-width hit steal
+            .contentShape(Circle())           // only the circle is tappable
             .accessibilityLabel("Add task")
             .zIndex(1)
 
