@@ -20,6 +20,7 @@ struct ProfileView: View {
     let streak: Int
     let momentum: Int
     let completedCount: Int
+    var history: [HistoryEntry] = []
     let geo: GeometryProxy
 
     // MARK: Body
@@ -29,6 +30,7 @@ struct ProfileView: View {
                 profileHero
                 statsRow
                 activityCard
+                if !history.isEmpty { historyCard }
                 achievementsCard
                 Spacer().frame(height: geo.safeAreaInsets.bottom + 140)
             }
@@ -280,6 +282,75 @@ struct ProfileView: View {
                 .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
         }
         .padding(.horizontal, 16)
+    }
+
+    // MARK: History Card
+    private var historyCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Past Days")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(.white)
+                Spacer()
+                Text("\(history.count) days logged")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.32))
+            }
+
+            VStack(spacing: 8) {
+                ForEach(history.prefix(7)) { entry in
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(formattedDate(entry.date))
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                            Text("\(entry.tasks.count) task\(entry.tasks.count == 1 ? "" : "s") completed")
+                                .font(.system(size: 11))
+                                .foregroundColor(.white.opacity(0.35))
+                        }
+                        Spacer()
+                        HStack(spacing: 4) {
+                            ForEach(entry.tasks.prefix(4)) { task in
+                                Circle()
+                                    .fill(task.category.color)
+                                    .frame(width: 7, height: 7)
+                            }
+                            if entry.tasks.count > 4 {
+                                Text("+\(entry.tasks.count - 4)")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
+                        }
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(Color(hex: "#34D399").opacity(0.75))
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(hex: "#141416"))
+                            .overlay(RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.05), lineWidth: 0.5))
+                    }
+                }
+            }
+        }
+        .padding(18)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(hex: "#1A1A1E"))
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
+        }
+        .padding(.horizontal, 16)
+    }
+
+    private func formattedDate(_ iso: String) -> String {
+        let fmt = ISO8601DateFormatter(); fmt.formatOptions = [.withFullDate]
+        guard let date = fmt.date(from: iso) else { return iso }
+        let out = DateFormatter(); out.dateFormat = "EEEE, MMM d"
+        return out.string(from: date)
     }
 
     // MARK: Helpers

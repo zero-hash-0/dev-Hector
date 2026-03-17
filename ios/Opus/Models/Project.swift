@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Project Model
-struct Project: Identifiable {
+struct Project: Identifiable, Codable {
     let id: UUID
     var name: String
     var emoji: String
