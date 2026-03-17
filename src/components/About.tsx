@@ -1,55 +1,28 @@
-const highlights = [
-  { label: "Degree", value: "BAS, St. Petersburg College" },
-  { label: "Background", value: "Cybersecurity & Systems Architecture" },
-  { label: "Focus", value: "Security-first Design" },
-  { label: "Location", value: "Florida, USA" },
-];
-
 export default function About() {
   return (
-    <section id="about" className="py-20 px-6 max-w-5xl mx-auto">
-      <div className="grid md:grid-cols-2 gap-12 items-start">
-        <div className="space-y-6">
-          <p className="font-mono text-xs text-accent tracking-[0.2em] uppercase">
-            About
+    <section id="about" className="py-24 px-6 max-w-4xl mx-auto">
+      <div className="space-y-8 max-w-2xl">
+        <p className="font-mono text-xs tracking-[0.2em] uppercase" style={{ color: "#8a4af3" }}>
+          About
+        </p>
+        <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-[1.08]">
+          Precision meets<br />design-led thinking.
+        </h2>
+        <div className="space-y-5 leading-[1.75] text-muted text-[1.05rem]">
+          <p>
+            I care about the intersection of security, performance, and design — the
+            belief that robust systems and beautiful products aren&apos;t at odds.
+            They reinforce each other.
           </p>
-          <h2 className="text-4xl font-semibold tracking-tight">
-            Precision meets
-            <br />
-            design-led thinking.
-          </h2>
-          <div className="space-y-4 text-muted leading-relaxed">
-            <p>
-              I&apos;m Hector, a developer and product builder with a background
-              in cybersecurity and systems architecture. I care deeply about the
-              intersection of security, performance, and design.
-            </p>
-            <p>
-              My approach starts with a security-first foundation and layers
-              clean architecture on top. Whether it&apos;s a native iOS experience
-              or a full-stack web product, I prioritize systems that are both
-              robust and beautiful.
-            </p>
-            <p>
-              I studied at St. Petersburg College where I earned a BAS, and
-              I&apos;ve been building products at the intersection of design and
-              engineering ever since.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {highlights.map((item) => (
-            <div
-              key={item.label}
-              className="card-glow flex items-start gap-4 p-4 rounded-xl border border-border bg-surface"
-            >
-              <span className="font-mono text-xs text-muted w-24 shrink-0 pt-0.5 uppercase tracking-wider">
-                {item.label}
-              </span>
-              <span className="text-sm text-foreground">{item.value}</span>
-            </div>
-          ))}
+          <p>
+            My work starts from a security-first foundation, then layers clean
+            architecture and purposeful UX on top. Whether that&apos;s a native iOS
+            experience, a real-time web platform, or a system-level tool — the
+            standard is the same.
+          </p>
+          <p>
+            I build things that are fast, honest, and built to last.
+          </p>
         </div>
       </div>
     </section>

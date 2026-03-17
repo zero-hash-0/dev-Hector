@@ -3,7 +3,7 @@ const projects = [
     name: "Opus",
     status: "Beta",
     description:
-      "An AI-powered task manager for iOS built around momentum — not just lists. Features home screen widgets, lock screen glanceable data, recurring tasks, and a streak system that keeps you in flow. 25 founding member spots available.",
+      "A task manager for iOS built around momentum — not just lists. Features home screen widgets, lock screen glanceable data, recurring tasks, and a streak system that keeps you in flow. 25 founding member spots available.",
     tech: ["Swift", "SwiftUI", "WidgetKit", "Next.js", "TypeScript"],
     type: "iOS App",
     link: "/beta",
@@ -23,7 +23,7 @@ const projects = [
     name: "Cipher",
     status: "Prototype",
     description:
-      "A security monitoring dashboard that surfaces threat signals in a clean, actionable interface. Designed around the principle that security tooling should be as well-crafted as consumer software.",
+      "A security monitoring dashboard that surfaces threat signals in a clean, actionable interface. Security tooling should be as well-crafted as consumer software.",
     tech: ["React", "TypeScript", "Tailwind CSS"],
     type: "Dashboard",
     link: null,
@@ -32,18 +32,18 @@ const projects = [
 ];
 
 const statusColors: Record<string, string> = {
-  Beta: "text-blue-400 border-blue-400/30 bg-blue-400/5",
+  Beta:        "text-[#8a4af3] border-[#8a4af3]/30 bg-[#8a4af3]/5",
+  Shipped:     "text-[#6ee7b7] border-[#6ee7b7]/30 bg-[#6ee7b7]/5",
+  Prototype:   "text-zinc-500 border-zinc-600/30 bg-zinc-600/5",
   "In Progress": "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
-  Shipped: "text-accent border-accent/30 bg-accent/5",
-  Prototype: "text-zinc-400 border-zinc-600/30 bg-zinc-600/5",
 };
 
 export default function Projects() {
   return (
-    <section id="projects" className="py-20 px-6 max-w-5xl mx-auto">
+    <section id="projects" className="py-24 px-6 max-w-4xl mx-auto">
       <div className="space-y-10">
         <div className="space-y-3">
-          <p className="font-mono text-xs text-accent tracking-[0.2em] uppercase">
+          <p className="font-mono text-xs tracking-[0.2em] uppercase" style={{ color: "#8a4af3" }}>
             Projects
           </p>
           <h2 className="text-4xl font-semibold tracking-tight">
@@ -84,11 +84,23 @@ export default function Projects() {
                     </span>
                   ))}
                 </div>
-
                 {project.link && (
                   <a
                     href={project.link}
-                    className="font-mono text-xs px-4 py-2 rounded-full border border-blue-400/40 text-blue-400 bg-blue-400/5 hover:bg-blue-400/10 hover:border-blue-400/60 transition-all duration-200 shrink-0"
+                    className="font-mono text-xs px-4 py-2 rounded-full border transition-all duration-200 shrink-0"
+                    style={{
+                      borderColor: "rgba(138,74,243,0.4)",
+                      color: "#8a4af3",
+                      background: "rgba(138,74,243,0.05)",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(138,74,243,0.12)";
+                      (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,74,243,0.6)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(138,74,243,0.05)";
+                      (e.currentTarget as HTMLElement).style.borderColor = "rgba(138,74,243,0.4)";
+                    }}
                   >
                     {project.linkLabel}
                   </a>

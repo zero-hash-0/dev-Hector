@@ -1,10 +1,10 @@
-import Nav from "@/components/Nav";
-import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Skills from "@/components/Skills";
+import Nav      from "@/components/Nav";
+import Hero     from "@/components/Hero";
+import About    from "@/components/About";
 import Projects from "@/components/Projects";
-import Contact from "@/components/Contact";
-import Footer from "@/components/Footer";
+import Skills   from "@/components/Skills";
+import Contact  from "@/components/Contact";
+import Footer   from "@/components/Footer";
 
 export default function Home() {
   return (
@@ -13,8 +13,8 @@ export default function Home() {
       <main className="relative">
         <Hero />
         <About />
-        <Skills />
         <Projects />
+        <Skills />
         <Contact />
       </main>
       <Footer />

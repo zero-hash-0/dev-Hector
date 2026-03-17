@@ -1,45 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { type Variants, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 
-// ── Animation variants ────────────────────────────────────────────────────────
-const container: Variants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.1, delayChildren: 0.06 },
-  },
-};
-
-const slideUp: Variants = {
-  hidden: { opacity: 0, y: 32 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
-};
-
-const fadeIn: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.65, ease: "easeOut" as const } },
-};
-
-const subtleFade: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
-};
-
-const terminalFade: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] } },
-};
-
-// ── Grain overlay ─────────────────────────────────────────────────────────────
+// ── Grain ─────────────────────────────────────────────────────────────────────
 function GrainOverlay() {
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 select-none"
       style={{
-        opacity: 0.025,
+        opacity: 0.022,
         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
         backgroundRepeat: "repeat",
         backgroundSize: "180px 180px",
@@ -52,64 +24,37 @@ function GrainOverlay() {
 function AmbientGlow() {
   const mouseX = useMotionValue(0.4);
   const mouseY = useMotionValue(0.35);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
-  const x = useTransform(springX, [0, 1], ["-10%", "30%"]);
-  const y = useTransform(springY, [0, 1], ["-20%", "20%"]);
+  const sx = useSpring(mouseX, { stiffness: 35, damping: 22 });
+  const sy = useSpring(mouseY, { stiffness: 35, damping: 22 });
+  const x  = useTransform(sx, [0, 1], ["-15%", "25%"]);
+  const y  = useTransform(sy, [0, 1], ["-15%", "25%"]);
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: fine)");
     if (!mq.matches) return;
-    const onMove = (e: MouseEvent) => {
+    const fn = (e: MouseEvent) => {
       mouseX.set(e.clientX / window.innerWidth);
       mouseY.set(e.clientY / window.innerHeight);
     };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", fn);
+    return () => window.removeEventListener("mousemove", fn);
   }, [mouseX, mouseY]);
 
   return (
-    <motion.div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      style={{ x, y }}
-    >
+    <motion.div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden" style={{ x, y }}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.85 }}
+        initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2.2, ease: "easeOut" }}
-        className="absolute top-[-10%] left-[-5%] h-[500px] w-[700px]"
+        transition={{ duration: 2.5, ease: "easeOut" }}
+        className="absolute top-[-20%] left-[-10%] h-[600px] w-[800px]"
         style={{
-          background:
-            "radial-gradient(ellipse 60% 55% at 40% 45%, rgba(110,231,183,0.07) 0%, transparent 70%)",
-          filter: "blur(40px)",
+          background: "radial-gradient(ellipse 55% 50% at 40% 45%, rgba(138,74,243,0.09) 0%, transparent 70%)",
+          filter: "blur(50px)",
         }}
       />
     </motion.div>
   );
 }
-
-// ── Social links ──────────────────────────────────────────────────────────────
-const socials = [
-  {
-    label: "GitHub",
-    href: "https://github.com/zero-hash-0",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-      </svg>
-    ),
-  },
-  {
-    label: "X",
-    href: "https://x.com/notT0KY0",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-      </svg>
-    ),
-  },
-];
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 export default function Hero() {
@@ -118,115 +63,122 @@ export default function Hero() {
       <GrainOverlay />
       <AmbientGlow />
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pt-24 pb-14 md:px-8 md:pt-32 md:pb-24">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-28 pb-20 md:px-8 md:pt-36 md:pb-28">
+        <div className="flex flex-col items-center text-center gap-6 mb-12">
 
-          {/* ── Left: text content ── */}
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="flex flex-col gap-8"
+          {/* eyebrow */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="font-mono text-[11px] uppercase tracking-[0.18em]"
+            style={{ color: "#8a4af3" }}
           >
-            <motion.p
-              variants={fadeIn}
-              className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted"
-            >
-              Based in Florida
-            </motion.p>
+            Based in Florida
+          </motion.p>
 
-            <motion.div variants={slideUp} className="flex flex-col gap-1.5 md:gap-2">
-              <h1 className="text-[clamp(3rem,8vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-foreground">
-                Hector
-              </h1>
-              <p className="text-[clamp(1.2rem,3vw,2.2rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-muted">
-                Developer &amp; Product Builder
-              </p>
-            </motion.div>
-
-            <motion.div variants={fadeIn} className="max-w-[520px]">
-              <p className="text-[0.95rem] leading-[1.65] text-muted">
-                I build high-performance digital products with a security-first
-                mindset — spanning iOS apps, real-time platforms, and full-stack
-                systems. Background in cybersecurity and systems architecture.
-              </p>
-            </motion.div>
-
-            {/* Badges */}
-            <motion.div variants={subtleFade} className="flex flex-wrap gap-2">
-              {["Swift / SwiftUI", "React / Next.js", "Cybersecurity", "Product Design"].map((tag) => (
-                <span
-                  key={tag}
-                  className="font-mono text-[11px] px-3 py-1 rounded-full border border-border text-muted tracking-wide"
-                >
-                  {tag}
-                </span>
-              ))}
-            </motion.div>
-
-            {/* CTAs */}
-            <motion.div variants={subtleFade} className="flex flex-wrap items-center gap-3">
-              <motion.a
-                href="#projects"
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-accent px-6 py-3 text-sm font-semibold text-background"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              >
-                <span className="relative z-10">View Work</span>
-                <motion.span
-                  className="relative z-10 inline-block"
-                  whileHover={{ x: 3 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                >
-                  →
-                </motion.span>
-                <span className="absolute inset-0 bg-accent-dim opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-              </motion.a>
-
-              <motion.a
-                href="#contact"
-                className="inline-flex items-center rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-zinc-600 hover:text-foreground"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              >
-                Let&apos;s Build Something
-              </motion.a>
-            </motion.div>
-
-            {/* Socials */}
-            <motion.div variants={container} className="flex items-center gap-5 pt-1">
-              {socials.map((s) => (
-                <motion.a
-                  key={s.label}
-                  variants={subtleFade}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  className="text-muted transition-colors duration-200 hover:text-foreground"
-                  whileHover={{ scale: 1.12, y: -1 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 22 }}
-                >
-                  {s.icon}
-                </motion.a>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          {/* ── Right: terminal ── */}
-          <motion.div
-            variants={terminalFade}
-            initial="hidden"
-            animate="show"
-            className="hidden md:block"
+          {/* name */}
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[clamp(3.8rem,11vw,8rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-foreground"
           >
-            <TerminalWindow />
-          </motion.div>
+            Hector
+          </motion.h1>
+
+          {/* tagline */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[clamp(1.1rem,3vw,1.55rem)] font-medium tracking-[-0.02em]"
+            style={{ color: "#52525b" }}
+          >
+            Developer &amp; Product Builder
+          </motion.p>
 
         </div>
+
+        {/* ── Terminal — full width, centered ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <TerminalWindow />
+        </motion.div>
+
+        {/* ── CTAs ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-wrap items-center justify-center gap-3 mt-10"
+        >
+          <motion.a
+            href="#projects"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold text-white"
+            style={{ background: "#8a4af3" }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            View Work
+            <motion.span
+              whileHover={{ x: 3 }}
+              transition={{ type: "spring", stiffness: 500, damping: 25 }}
+            >
+              →
+            </motion.span>
+            <span
+              className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              style={{ background: "#6e6bf5" }}
+            />
+          </motion.a>
+
+          <motion.a
+            href="#contact"
+            className="inline-flex items-center rounded-full border border-border px-7 py-3 text-sm text-muted transition-all duration-200 hover:text-foreground"
+            style={{ borderColor: "#1e1b26" }}
+            whileHover={{ scale: 1.03, borderColor: "#3a3450" }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            Let&apos;s Build Something
+          </motion.a>
+
+          {/* Socials inline */}
+          <div className="flex items-center gap-4 pl-2">
+            <motion.a
+              href="https://github.com/zero-hash-0"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="text-muted hover:text-foreground transition-colors"
+              whileHover={{ scale: 1.12, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+              </svg>
+            </motion.a>
+            <motion.a
+              href="https://x.com/notT0KY0"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="X"
+              className="text-muted hover:text-foreground transition-colors"
+              whileHover={{ scale: 1.12, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </motion.a>
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );

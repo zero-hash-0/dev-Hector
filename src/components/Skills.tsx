@@ -1,23 +1,23 @@
 const categories = [
   {
-    title: "Frontend",
-    items: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+    title: "iOS / Apple",
+    items: ["Swift", "SwiftUI", "WidgetKit", "Live Activities", "ActivityKit"],
   },
   {
-    title: "iOS / Apple",
-    items: ["Swift", "SwiftUI", "Live Activities", "ActivityKit", "WidgetKit"],
+    title: "Frontend",
+    items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
   },
   {
     title: "Backend",
-    items: ["Node.js", "PostgreSQL"],
+    items: ["Node.js", "PostgreSQL", "REST APIs"],
+  },
+  {
+    title: "Security",
+    items: ["Systems Architecture", "Threat Modeling", "Security-first Design"],
   },
   {
     title: "Design",
     items: ["Figma", "Design Systems", "Interaction Design", "Brand Strategy"],
-  },
-  {
-    title: "Security",
-    items: ["Systems Architecture", "Security-first Design", "Threat Modeling"],
   },
   {
     title: "Product",
@@ -27,10 +27,10 @@ const categories = [
 
 export default function Skills() {
   return (
-    <section id="skills" className="py-20 px-6 max-w-5xl mx-auto">
+    <section id="skills" className="py-24 px-6 max-w-4xl mx-auto">
       <div className="space-y-10">
         <div className="space-y-3">
-          <p className="font-mono text-xs text-accent tracking-[0.2em] uppercase">
+          <p className="font-mono text-xs tracking-[0.2em] uppercase" style={{ color: "#8a4af3" }}>
             Skills
           </p>
           <h2 className="text-4xl font-semibold tracking-tight">
@@ -44,7 +44,7 @@ export default function Skills() {
               key={cat.title}
               className="card-glow p-5 rounded-2xl border border-border bg-surface space-y-4"
             >
-              <h3 className="font-mono text-xs text-accent tracking-widest uppercase">
+              <h3 className="font-mono text-xs tracking-widest uppercase" style={{ color: "#8a4af3" }}>
                 {cat.title}
               </h3>
               <ul className="space-y-2">
