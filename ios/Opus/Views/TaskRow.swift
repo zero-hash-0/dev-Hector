@@ -17,6 +17,14 @@ struct TaskRow: View {
                 }
             }) {
                 ZStack {
+                    // Glow halo behind ring (only when completed)
+                    if task.isCompleted {
+                        Circle()
+                            .fill(Color(hex: "#34D399").opacity(0.20))
+                            .frame(width: 32, height: 32)
+                            .blur(radius: 6)
+                    }
+
                     Circle()
                         .stroke(
                             task.isCompleted
@@ -25,6 +33,10 @@ struct TaskRow: View {
                             lineWidth: 1.5
                         )
                         .frame(width: 24, height: 24)
+                        .shadow(
+                            color: task.isCompleted ? Color(hex: "#34D399").opacity(0.65) : .clear,
+                            radius: 6, x: 0, y: 0
+                        )
 
                     if task.isCompleted {
                         Circle()

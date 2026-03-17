@@ -33,73 +33,81 @@ struct BottomNavigationBar: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
-        ZStack(alignment: .bottom) {
+    private let leftTabs:  [AppTab] = [.today, .projects]
+    private let rightTabs: [AppTab] = [.focus, .profile]
 
-            // ── Floating pill tab bar ──
-            HStack(spacing: 0) {
-                ForEach(AppTab.allCases, id: \.self) { tab in
-                    if tab == .focus {
-                        // Gap for FAB
-                        Spacer().frame(width: 72)
-                    }
-                    TabBarItem(
-                        tab: tab,
-                        isSelected: selectedTab == tab,
-                        reduceMotion: reduceMotion
-                    ) {
-                        withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
-                            selectedTab = tab
+    var body: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                // ── Pill background ──
+                Capsule().fill(.ultraThinMaterial)
+                Capsule().fill(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                )
+                Capsule().stroke(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.40), Color.white.opacity(0.08)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    ), lineWidth: 1
+                )
+
+                // ── Two tabs on each side, FAB gap in center ──
+                HStack(spacing: 0) {
+                    // Left: Today + Projects — equal half of remaining space
+                    HStack(spacing: 0) {
+                        ForEach(leftTabs, id: \.self) { tab in
+                            TabBarItem(tab: tab, isSelected: selectedTab == tab, reduceMotion: reduceMotion) {
+                                withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedTab = tab
+                                }
+                            }
                         }
                     }
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 14)
-            .padding(.bottom, 14)
-            .background {
-                ZStack {
-                    Capsule().fill(.ultraThinMaterial)
-                    Capsule().fill(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)],
-                            startPoint: .top, endPoint: .bottom
-                        )
-                    )
-                    Capsule().stroke(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.40), Color.white.opacity(0.08)],
-                            startPoint: .topLeading, endPoint: .bottomTrailing
-                        ), lineWidth: 1
-                    )
-                }
-                .shadow(color: .black.opacity(0.55), radius: 32, x: 0, y: 14)
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24) // float above home indicator
+                    .frame(maxWidth: .infinity)
 
-            // ── FAB — raised above pill center ──
-            Button(action: onAdd) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
+                    // Center gap for FAB
+                    Spacer().frame(width: 72)
+
+                    // Right: Focus + Profile — equal half of remaining space
+                    HStack(spacing: 0) {
+                        ForEach(rightTabs, id: \.self) { tab in
+                            TabBarItem(tab: tab, isSelected: selectedTab == tab, reduceMotion: reduceMotion) {
+                                withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedTab = tab
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 14)
+
+                // ── FAB centered ──
+                Button(action: onAdd) {
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(
                                 colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 58, height: 58)
-                        .shadow(color: Color(hex: "#F5A623").opacity(0.55), radius: 18, x: 0, y: 6)
-
-                    Image(systemName: "plus")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(.white)
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 56, height: 56)
+                            .shadow(color: Color(hex: "#F5A623").opacity(0.55), radius: 18, x: 0, y: 4)
+                        Image(systemName: "plus")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
                 }
+                .buttonStyle(FABButtonStyle())
+                .offset(y: -36)
+                .accessibilityLabel("Add task")
             }
-            .buttonStyle(FABButtonStyle())
-            .offset(y: -52) // raised well above the pill
-            .accessibilityLabel("Add task")
+            .shadow(color: .black.opacity(0.5), radius: 28, x: 0, y: 10)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
         }
     }
 }
