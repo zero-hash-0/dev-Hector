@@ -14,9 +14,13 @@
 		7748651778770C7D4F8954BE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5EF88EF8E84C3446F643E7 /* Task.swift */; };
 		89CE2BCBA1DFBED38D90A55A /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CB14625CC370DABDE71E0A /* TaskRow.swift */; };
 		A7848C8670836B14DC6AFB6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BDEF695C7858ED47E181146 /* Assets.xcassets */; };
+		AFE4609F167FD71711E8DE00 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78FD0A300CA2D37F03B3A4D /* Project.swift */; };
 		B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358FABC8A6CA55FC301ACE84 /* OpusApp.swift */; };
+		BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */; };
 		C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */; };
+		DEF3B37D10399ABD99446964 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B54AF5127B993A392CA1CF /* ProjectsView.swift */; };
 		E5585EBC203ED63F88738E62 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BC6382C4295B3835290FEE /* DashboardView.swift */; };
+		E6143ACB671B7180A0AA40F4 /* FocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5796CAE373DF4A0D3ED1193C /* FocusView.swift */; };
 		EBC3AE64818BA983E6CB140B /* StatsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4241B9C73841E229B3573B82 /* StatsCard.swift */; };
 		F36019374C16306DA81F75DB /* BottomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */; };
 /* End PBXBuildFile section */
@@ -29,13 +33,17 @@
 		4241B9C73841E229B3573B82 /* StatsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCard.swift; sourceTree = "<group>"; };
 		4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomNavigationBar.swift; sourceTree = "<group>"; };
 		4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWebView.swift; sourceTree = "<group>"; };
+		5796CAE373DF4A0D3ED1193C /* FocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusView.swift; sourceTree = "<group>"; };
 		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		742B65583B15ACAE6B5BF440 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FDAE91A43597090B1CD8384 /* OfflineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineView.swift; sourceTree = "<group>"; };
 		82ABF212BACB4A77FD35F737 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		89CB14625CC370DABDE71E0A /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		8D6B0A984BB6C6341A08275A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		99B54AF5127B993A392CA1CF /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
 		BF5EF88EF8E84C3446F643E7 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		C78FD0A300CA2D37F03B3A4D /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -50,6 +58,7 @@
 		3CC353A7576B20586EF35A4F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C78FD0A300CA2D37F03B3A4D /* Project.swift */,
 				BF5EF88EF8E84C3446F643E7 /* Task.swift */,
 			);
 			path = Models;
@@ -93,6 +102,9 @@
 			children = (
 				4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */,
 				21BC6382C4295B3835290FEE /* DashboardView.swift */,
+				5796CAE373DF4A0D3ED1193C /* FocusView.swift */,
+				8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */,
+				99B54AF5127B993A392CA1CF /* ProjectsView.swift */,
 				4241B9C73841E229B3573B82 /* StatsCard.swift */,
 				89CB14625CC370DABDE71E0A /* TaskRow.swift */,
 			);
@@ -173,11 +185,15 @@
 				F36019374C16306DA81F75DB /* BottomNavigationBar.swift in Sources */,
 				36CCD0E82E9DF2AB45D31E90 /* ContentView.swift in Sources */,
 				E5585EBC203ED63F88738E62 /* DashboardView.swift in Sources */,
+				E6143ACB671B7180A0AA40F4 /* FocusView.swift in Sources */,
 				1F88C005A8E0BD5E83B1264F /* KeychainManager.swift in Sources */,
 				644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */,
 				388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */,
 				B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */,
 				C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */,
+				BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */,
+				AFE4609F167FD71711E8DE00 /* Project.swift in Sources */,
+				DEF3B37D10399ABD99446964 /* ProjectsView.swift in Sources */,
 				EBC3AE64818BA983E6CB140B /* StatsCard.swift in Sources */,
 				7748651778770C7D4F8954BE /* Task.swift in Sources */,
 				89CE2BCBA1DFBED38D90A55A /* TaskRow.swift in Sources */,

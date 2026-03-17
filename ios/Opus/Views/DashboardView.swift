@@ -90,11 +90,16 @@ struct DashboardView: View {
                             .padding(.top, geo.safeAreaInsets.top + 16)
                         }
                     case .projects:
-                        placeholderTab(icon: "square.grid.2x2.fill", title: "Projects",    subtitle: "Your projects will appear here.", geo: geo)
+                        ProjectsView(geo: geo)
                     case .focus:
-                        placeholderTab(icon: "scope",                 title: "Focus Mode",  subtitle: "Stay locked in. Coming soon.",    geo: geo)
+                        FocusView(geo: geo)
                     case .profile:
-                        placeholderTab(icon: "person.circle.fill",    title: "Profile",     subtitle: "Your stats and settings.",        geo: geo)
+                        ProfileView(
+                            streak: vm.streak,
+                            momentum: vm.momentum,
+                            completedCount: vm.completedTasks.count,
+                            geo: geo
+                        )
                     }
                 }
                 .animation(reduceMotion ? .none : .easeInOut(duration: 0.22), value: selectedTab)
@@ -679,37 +684,6 @@ struct DashboardView: View {
         .preferredColorScheme(.dark)
     }
 
-    // MARK: - Placeholder Tab
-    @ViewBuilder
-    private func placeholderTab(icon: String, title: String, subtitle: String, geo: GeometryProxy) -> some View {
-        VStack(spacing: 0) {
-            Spacer()
-            VStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.system(size: 52, weight: .thin))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
-                            startPoint: .topLeading, endPoint: .bottomTrailing
-                        )
-                    )
-                Text(title)
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.white)
-                Text(subtitle)
-                    .font(.system(size: 15))
-                    .foregroundColor(.white.opacity(0.40))
-                    .multilineTextAlignment(.center)
-            }
-            .padding(40)
-            .liquidGlass(cornerRadius: 24)
-            .padding(.horizontal, 32)
-            Spacer()
-            Spacer().frame(height: geo.safeAreaInsets.bottom + 120)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, geo.safeAreaInsets.top)
-    }
 }
 
 // MARK: - Preview
