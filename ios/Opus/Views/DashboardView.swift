@@ -36,6 +36,7 @@ final class DashboardViewModel: ObservableObject {
 struct DashboardView: View {
     @StateObject private var vm = DashboardViewModel()
     @State private var selectedTab: AppTab = .today
+    @State private var showSettings = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var greeting: String {
@@ -107,6 +108,7 @@ struct DashboardView: View {
             .ignoresSafeArea(edges: .all)
         }
         .sheet(isPresented: $vm.showAddTask) { addTaskSheet }
+        .sheet(isPresented: $showSettings) { settingsSheet }
         .preferredColorScheme(.dark)
     }
 
@@ -168,7 +170,7 @@ struct DashboardView: View {
             Spacer()
 
             Button {
-                // Settings action
+                showSettings = true
             } label: {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 18, weight: .regular))
@@ -311,6 +313,85 @@ struct DashboardView: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
+    }
+
+    // MARK: - Settings Sheet
+    private var settingsSheet: some View {
+        NavigationStack {
+            ZStack {
+                Color(hex: "#0F0E11").ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    // Profile section
+                    VStack(spacing: 12) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 72, height: 72)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.white)
+                            )
+
+                        Text("Hector")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.top, 8)
+
+                    // Settings options
+                    VStack(spacing: 0) {
+                        ForEach([
+                            ("bell.fill", "Notifications"),
+                            ("moon.fill", "Focus Preferences"),
+                            ("chart.bar.fill", "Statistics"),
+                            ("shield.fill", "Privacy"),
+                            ("info.circle.fill", "About Opus")
+                        ], id: \.1) { icon, title in
+                            HStack(spacing: 14) {
+                                Image(systemName: icon)
+                                    .font(.system(size: 15))
+                                    .foregroundColor(Color(hex: "#F5A623"))
+                                    .frame(width: 28)
+                                Text(title)
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.85))
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.25))
+                            }
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 14)
+
+                            if title != "About Opus" {
+                                Divider()
+                                    .background(Color.white.opacity(0.06))
+                                    .padding(.horizontal, 18)
+                            }
+                        }
+                    }
+                    .liquidGlass(cornerRadius: 20)
+                    .padding(.horizontal, 16)
+
+                    Spacer()
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { showSettings = false }
+                        .foregroundColor(Color(hex: "#F5A623"))
+                }
+            }
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - Add Task Sheet
