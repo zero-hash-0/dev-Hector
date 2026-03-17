@@ -1,11 +1,13 @@
 const projects = [
   {
-    name: "PulseArt",
-    status: "In Progress",
+    name: "Opus",
+    status: "Beta",
     description:
-      "A native iOS sports experience built with SwiftUI and Live Activities. Delivers real-time game updates directly to the lock screen and Dynamic Island using ActivityKit.",
-    tech: ["Swift", "SwiftUI", "ActivityKit", "WidgetKit", "Live Activities"],
+      "An AI-powered task manager for iOS built around momentum — not just lists. Features home screen widgets, lock screen glanceable data, recurring tasks, and a streak system that keeps you in flow. 25 founding member spots available.",
+    tech: ["Swift", "SwiftUI", "WidgetKit", "Next.js", "TypeScript"],
     type: "iOS App",
+    link: "/beta",
+    linkLabel: "Join Beta →",
   },
   {
     name: "Strata",
@@ -14,6 +16,8 @@ const projects = [
       "A productivity and project tracking web app designed for teams that need clarity without clutter. Built with a focus on clean UX and reliable data architecture.",
     tech: ["React", "Node.js", "PostgreSQL", "TypeScript"],
     type: "Web App",
+    link: null,
+    linkLabel: null,
   },
   {
     name: "Cipher",
@@ -22,10 +26,13 @@ const projects = [
       "A security monitoring dashboard that surfaces threat signals in a clean, actionable interface. Designed around the principle that security tooling should be as well-crafted as consumer software.",
     tech: ["React", "TypeScript", "Tailwind CSS"],
     type: "Dashboard",
+    link: null,
+    linkLabel: null,
   },
 ];
 
 const statusColors: Record<string, string> = {
+  Beta: "text-blue-400 border-blue-400/30 bg-blue-400/5",
   "In Progress": "text-yellow-400 border-yellow-400/30 bg-yellow-400/5",
   Shipped: "text-accent border-accent/30 bg-accent/5",
   Prototype: "text-zinc-400 border-zinc-600/30 bg-zinc-600/5",
@@ -66,15 +73,26 @@ export default function Projects() {
                 {project.description}
               </p>
 
-              <div className="flex flex-wrap gap-2">
-                {project.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="font-mono text-xs px-3 py-1 rounded-full border border-border text-muted"
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap gap-2">
+                  {project.tech.map((t) => (
+                    <span
+                      key={t}
+                      className="font-mono text-xs px-3 py-1 rounded-full border border-border text-muted"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                {project.link && (
+                  <a
+                    href={project.link}
+                    className="font-mono text-xs px-4 py-2 rounded-full border border-blue-400/40 text-blue-400 bg-blue-400/5 hover:bg-blue-400/10 hover:border-blue-400/60 transition-all duration-200 shrink-0"
                   >
-                    {t}
-                  </span>
-                ))}
+                    {project.linkLabel}
+                  </a>
+                )}
               </div>
             </div>
           ))}
