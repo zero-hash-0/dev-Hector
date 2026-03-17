@@ -8,9 +8,11 @@ final class DashboardViewModel: ObservableObject {
     @Published var completedHistory: [HistoryEntry] = [] { didSet { saveHistory() } }
     @Published var momentum: Int = 0 { didSet { UserDefaults.standard.set(momentum, forKey: "momentum") } }
     @Published var streak:   Int = 0 { didSet { UserDefaults.standard.set(streak,   forKey: "streak")   } }
-    @Published var showLater:    Bool   = false
-    @Published var showAddTask:  Bool   = false
-    @Published var newTaskTitle: String = ""
+    @Published var showLater:       Bool         = false
+    @Published var showAddTask:     Bool         = false
+    @Published var newTaskTitle:    String       = ""
+    @Published var newTaskCategory: TaskCategory = .work
+    @Published var newTaskSchedule: TaskSchedule = .today
 
     private let todayKey   = "todayTasks_v1"
     private let laterKey   = "laterTasks_v1"
@@ -41,10 +43,18 @@ final class DashboardViewModel: ObservableObject {
     func addTask() {
         guard InputValidator.isValidTaskTitle(newTaskTitle) else { return }
         let title = InputValidator.sanitizeTaskTitle(newTaskTitle)
-        let task = OpusTask(title: title, category: .work, schedule: .today, dueLabel: "today")
-        todayTasks.append(task)
-        newTaskTitle = ""
-        showAddTask = false
+        let task  = OpusTask(
+            title:    title,
+            category: newTaskCategory,
+            schedule: newTaskSchedule,
+            dueLabel: newTaskSchedule == .today ? "today" : nil
+        )
+        if newTaskSchedule == .today { todayTasks.append(task) }
+        else                         { laterTasks.append(task) }
+        newTaskTitle    = ""
+        newTaskCategory = .work
+        newTaskSchedule = .today
+        showAddTask     = false
     }
 
     // MARK: - Daily Reset
@@ -168,7 +178,7 @@ struct DashboardView: View {
                     case .projects:
                         ProjectsView(geo: geo)
                     case .focus:
-                        FocusView(geo: geo)
+                        FocusView(tasks: vm.todayTasks, geo: geo)
                     case .profile:
                         ProfileView(
                             streak: vm.streak,
@@ -446,11 +456,15 @@ struct DashboardView: View {
                     Label("Delete", systemImage: "trash.fill")
                 }
             }
-            .onTapGesture {
-                withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
-                    focusedTask = task
+            // simultaneousGesture lets the ScrollView scroll without delay;
+            // a plain .onTapGesture would block scroll recognition on the first touch
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
+                        focusedTask = task
+                    }
                 }
-            }
+            )
     }
 
     // MARK: - Task Detail Card (matchedGeometryEffect destination)
@@ -760,43 +774,138 @@ struct DashboardView: View {
             ZStack {
                 Color(hex: "#0D0D10").ignoresSafeArea()
 
-                VStack(spacing: 20) {
-                    TextField("Task title", text: $vm.newTaskTitle)
-                        .font(.system(size: 17))
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.white.opacity(0.06))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color(hex: "#8A4AF3").opacity(0.3), lineWidth: 1)
-                        )
-                        .onChange(of: vm.newTaskTitle) { _, new in
-                            if new.count > InputValidator.maxTaskTitleLength {
-                                vm.newTaskTitle = String(new.prefix(InputValidator.maxTaskTitleLength))
+                VStack(spacing: 0) {
+                    VStack(spacing: 20) {
+
+                        // ── Title field ──
+                        TextField("Task title", text: $vm.newTaskTitle)
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.white.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color(hex: "#8A4AF3").opacity(0.3), lineWidth: 1)
+                            )
+                            .onChange(of: vm.newTaskTitle) { _, new in
+                                if new.count > InputValidator.maxTaskTitleLength {
+                                    vm.newTaskTitle = String(new.prefix(InputValidator.maxTaskTitleLength))
+                                }
+                            }
+
+                        // ── Category picker ──
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Category")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.35))
+                                .kerning(0.5)
+
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ForEach(TaskCategory.allCases) { cat in
+                                        Button {
+                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                            vm.newTaskCategory = cat
+                                        } label: {
+                                            HStack(spacing: 6) {
+                                                Circle()
+                                                    .fill(cat.color)
+                                                    .frame(width: 7, height: 7)
+                                                Text(cat.rawValue)
+                                                    .font(.system(size: 13, weight: .semibold))
+                                                    .foregroundColor(
+                                                        vm.newTaskCategory == cat
+                                                            ? cat.color
+                                                            : .white.opacity(0.45)
+                                                    )
+                                            }
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 9)
+                                            .background(
+                                                vm.newTaskCategory == cat
+                                                    ? cat.color.opacity(0.15)
+                                                    : Color.white.opacity(0.06),
+                                                in: Capsule()
+                                            )
+                                            .overlay(
+                                                Capsule().stroke(
+                                                    vm.newTaskCategory == cat
+                                                        ? cat.color.opacity(0.45)
+                                                        : Color.clear,
+                                                    lineWidth: 1
+                                                )
+                                            )
+                                            .animation(.spring(response: 0.3), value: vm.newTaskCategory)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
                             }
                         }
 
-                    Button(action: vm.addTask) {
-                        Text("Add Task")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
-                                    startPoint: .leading, endPoint: .trailing
+                        // ── Schedule toggle ──
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Schedule")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.35))
+                                .kerning(0.5)
+
+                            HStack(spacing: 8) {
+                                ForEach([TaskSchedule.today, TaskSchedule.later], id: \.self) { sched in
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        vm.newTaskSchedule = sched
+                                    } label: {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: sched == .today ? "sun.max.fill" : "moon.fill")
+                                                .font(.system(size: 12))
+                                            Text(sched.rawValue.capitalized)
+                                                .font(.system(size: 14, weight: .semibold))
+                                        }
+                                        .foregroundColor(vm.newTaskSchedule == sched ? .white : .white.opacity(0.40))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 11)
+                                        .background(
+                                            vm.newTaskSchedule == sched
+                                                ? LinearGradient(
+                                                    colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                                    startPoint: .leading, endPoint: .trailing)
+                                                : LinearGradient(
+                                                    colors: [Color.white.opacity(0.07), Color.white.opacity(0.07)],
+                                                    startPoint: .leading, endPoint: .trailing),
+                                            in: RoundedRectangle(cornerRadius: 11)
+                                        )
+                                        .animation(.spring(response: 0.3), value: vm.newTaskSchedule)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+
+                        // ── Add button ──
+                        Button(action: vm.addTask) {
+                            Text("Add Task")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                        startPoint: .leading, endPoint: .trailing
+                                    )
                                 )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                                .shadow(color: Color(hex: "#8A4AF3").opacity(0.4), radius: 14, x: 0, y: 6)
+                        }
+                        .disabled(vm.newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .opacity(vm.newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.4 : 1)
                     }
-                    .disabled(vm.newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .opacity(vm.newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.4 : 1)
+                    .padding(20)
 
                     Spacer()
                 }
-                .padding(20)
             }
             .navigationTitle("New Task")
             .navigationBarTitleDisplayMode(.inline)
@@ -807,7 +916,7 @@ struct DashboardView: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
     }
