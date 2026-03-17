@@ -3,7 +3,7 @@ import PhotosUI
 
 // MARK: - Profile View
 struct ProfileView: View {
-    @AppStorage("userName")        private var userName       = "Hector"
+    @AppStorage("userName")        private var userName       = ""
     @AppStorage("userHandle")      private var userHandle     = "@hector"
     @AppStorage("userBio")         private var userBio        = "Building things that matter."
     @AppStorage("profileImgData")  private var imgData: Data  = Data()
@@ -127,7 +127,7 @@ struct ProfileView: View {
             VStack(spacing: 6) {
                 // Name
                 if isEditingName {
-                    TextField("Name", text: $editedName)
+                    TextField("Your name", text: $editedName)
                         .font(.system(size: 24, weight: .bold))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
@@ -136,9 +136,25 @@ struct ProfileView: View {
                 } else {
                     Button { editedName = userName; isEditingName = true } label: {
                         HStack(spacing: 8) {
-                            Text(userName)
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.white)
+                            // ── Username — red for founders, gold for everyone else ──
+                            if isEarlyTester {
+                                Text(userName.isEmpty ? "Set your name" : userName)
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(Color(hex: "#FF3B30"))
+                                    .shadow(color: Color(hex: "#FF3B30").opacity(0.7), radius: 10, x: 0, y: 0)
+                                    .shadow(color: Color(hex: "#FF3B30").opacity(0.35), radius: 22, x: 0, y: 0)
+                            } else {
+                                Text(userName.isEmpty ? "Set your name" : userName)
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [Color(hex: "#FCD34D"), Color(hex: "#F59E0B")],
+                                            startPoint: .topLeading, endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: Color(hex: "#F59E0B").opacity(0.65), radius: 10, x: 0, y: 0)
+                                    .shadow(color: Color(hex: "#F59E0B").opacity(0.3), radius: 22, x: 0, y: 0)
+                            }
 
                             if isEarlyTester {
                                 Text("FOUNDER")

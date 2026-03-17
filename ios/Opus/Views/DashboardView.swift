@@ -925,9 +925,12 @@ struct DashboardView: View {
                             Text("Opus")
                                 .font(.system(size: 22, weight: .bold))
                                 .foregroundColor(.white)
+                            Text(storedName.isEmpty ? "Welcome" : "Hi, \(storedName.split(separator: " ").first.map(String.init) ?? storedName)")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(.white.opacity(0.45))
                             Text("Version 1.0 (Build 4)")
-                                .font(.system(size: 13))
-                                .foregroundColor(.white.opacity(0.32))
+                                .font(.system(size: 12))
+                                .foregroundColor(.white.opacity(0.25))
                         }
                         .padding(.top, 12)
 
@@ -1395,7 +1398,7 @@ struct DashboardView: View {
                     .padding(.top, 20)
 
                     VStack(spacing: 0) {
-                        aboutRow(label: "Developer", value: "Hector Ruiz")
+                        aboutRow(label: "Developer", value: storedName.isEmpty ? "Unknown" : storedName)
                         Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
                         aboutRow(label: "Platform", value: "iOS 17+")
                         Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
