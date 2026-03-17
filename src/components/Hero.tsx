@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import TerminalWindow from "./TerminalWindow";
 
@@ -66,11 +67,47 @@ export default function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-28 pb-20 md:px-8 md:pt-36 md:pb-28">
         <div className="flex flex-col items-center text-center gap-6 mb-12">
 
+          {/* ── Avatar with glow ring ── */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="relative"
+          >
+            {/* outer glow */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: "radial-gradient(circle, rgba(138,74,243,0.35) 0%, transparent 70%)",
+                filter: "blur(18px)",
+                transform: "scale(1.25)",
+              }}
+            />
+            {/* ring */}
+            <div
+              className="relative rounded-full p-[3px]"
+              style={{
+                background: "linear-gradient(135deg, #8a4af3, #6e6bf5, #8a4af3aa)",
+              }}
+            >
+              <div className="rounded-full overflow-hidden w-24 h-24 bg-surface">
+                <Image
+                  src="/hector.jpg"
+                  alt="Hector"
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover"
+                  priority
+                />
+              </div>
+            </div>
+          </motion.div>
+
           {/* eyebrow */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
             className="font-mono text-[11px] uppercase tracking-[0.18em]"
             style={{ color: "#8a4af3" }}
           >
@@ -81,7 +118,7 @@ export default function Hero() {
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.85, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="text-[clamp(3.8rem,11vw,8rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-foreground"
           >
             Hector
@@ -91,7 +128,7 @@ export default function Hero() {
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className="text-[clamp(1.1rem,3vw,1.55rem)] font-medium tracking-[-0.02em]"
             style={{ color: "#52525b" }}
           >
@@ -100,11 +137,11 @@ export default function Hero() {
 
         </div>
 
-        {/* ── Terminal — full width, centered ── */}
+        {/* ── Terminal ── */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}
         >
           <TerminalWindow />
         </motion.div>
@@ -125,30 +162,23 @@ export default function Hero() {
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
             View Work
-            <motion.span
-              whileHover={{ x: 3 }}
-              transition={{ type: "spring", stiffness: 500, damping: 25 }}
-            >
+            <motion.span whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 500, damping: 25 }}>
               →
             </motion.span>
-            <span
-              className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-              style={{ background: "#6e6bf5" }}
-            />
+            <span className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ background: "#6e6bf5" }} />
           </motion.a>
 
           <motion.a
             href="#contact"
-            className="inline-flex items-center rounded-full border border-border px-7 py-3 text-sm text-muted transition-all duration-200 hover:text-foreground"
+            className="inline-flex items-center rounded-full border px-7 py-3 text-sm text-muted transition-all duration-200 hover:text-foreground"
             style={{ borderColor: "#1e1b26" }}
-            whileHover={{ scale: 1.03, borderColor: "#3a3450" }}
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
             Let&apos;s Build Something
           </motion.a>
 
-          {/* Socials inline */}
           <div className="flex items-center gap-4 pl-2">
             <motion.a
               href="https://github.com/zero-hash-0"
