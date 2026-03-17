@@ -101,7 +101,7 @@ targets:
         DEVELOPMENT_TEAM: 8NL37K4349
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_ENTITLEMENTS: OpusWidget/OpusWidget.entitlements
-        APPLICATION_EXTENSION_API_ONLY: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
       configs:
         Debug:
           DEBUG_INFORMATION_FORMAT: dwarf

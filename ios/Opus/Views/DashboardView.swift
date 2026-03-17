@@ -217,16 +217,18 @@ struct HistoryEntry: Identifiable, Codable {
     }
 }
 
+// MARK: - Settings sub-sheet routing
+enum SettingsSubSheet: String, Identifiable {
+    case notifications, focusPrefs, statistics, privacy, about
+    var id: String { rawValue }
+}
+
 // MARK: - Dashboard View
 struct DashboardView: View {
     @StateObject private var vm           = DashboardViewModel()
     @State private var selectedTab: AppTab = .today
     @State private var showSettings       = false
-    @State private var showNotifSettings  = false
-    @State private var showFocusPrefs     = false
-    @State private var showStatsSheet     = false
-    @State private var showPrivacySheet   = false
-    @State private var showAboutSheet     = false
+    @State private var activeSubSheet: SettingsSubSheet? = nil
     @State private var focusedTask: OpusTask? = nil
     @State private var filterCategory: TaskCategory? = nil
     @Namespace private var cardNS
@@ -937,23 +939,23 @@ struct DashboardView: View {
                         // ── Settings rows ──
                         VStack(spacing: 0) {
                             settingsRow(icon: "bell.fill", label: "Notifications", color: "#FF6B6B") {
-                                showNotifSettings = true
+                                activeSubSheet = .notifications
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
                             settingsRow(icon: "moon.fill", label: "Focus Preferences", color: "#6E6BF5") {
-                                showFocusPrefs = true
+                                activeSubSheet = .focusPrefs
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
                             settingsRow(icon: "chart.bar.fill", label: "Statistics", color: "#34D399") {
-                                showStatsSheet = true
+                                activeSubSheet = .statistics
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
                             settingsRow(icon: "shield.fill", label: "Privacy", color: "#60A5FA") {
-                                showPrivacySheet = true
+                                activeSubSheet = .privacy
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
                             settingsRow(icon: "info.circle.fill", label: "About Opus", color: "#A78BFA") {
-                                showAboutSheet = true
+                                activeSubSheet = .about
                             }
                         }
                         .background(Color(hex: "#1A1A1E"))
@@ -973,12 +975,16 @@ struct DashboardView: View {
                         .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
-            // ── Sub-sheets ──
-            .sheet(isPresented: $showNotifSettings)  { notificationsSheet }
-            .sheet(isPresented: $showFocusPrefs)     { focusPrefsSheet }
-            .sheet(isPresented: $showStatsSheet)     { statisticsSheet }
-            .sheet(isPresented: $showPrivacySheet)   { privacySheet }
-            .sheet(isPresented: $showAboutSheet)     { aboutSheet }
+            // ── Sub-sheets (single item-based sheet to guarantee presentation) ──
+            .sheet(item: $activeSubSheet) { sub in
+                switch sub {
+                case .notifications: notificationsSheet
+                case .focusPrefs:    focusPrefsSheet
+                case .statistics:    statisticsSheet
+                case .privacy:       privacySheet
+                case .about:         aboutSheet
+                }
+            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
@@ -1104,7 +1110,7 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showNotifSettings = false }
+                    Button("Done") { activeSubSheet = nil }
                         .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
@@ -1156,7 +1162,7 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showFocusPrefs = false }
+                    Button("Done") { activeSubSheet = nil }
                         .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
@@ -1277,7 +1283,7 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showStatsSheet = false }
+                    Button("Done") { activeSubSheet = nil }
                         .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
@@ -1362,7 +1368,7 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showPrivacySheet = false }
+                    Button("Done") { activeSubSheet = nil }
                         .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
@@ -1424,7 +1430,7 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showAboutSheet = false }
+                    Button("Done") { activeSubSheet = nil }
                         .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }

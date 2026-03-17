@@ -83,7 +83,7 @@ struct OpusProvider: TimelineProvider {
                     WidgetTask(id: UUID(), title: "Update portfolio",       isCompleted: false, category: "Side"),
                     WidgetTask(id: UUID(), title: "Read chapter 4",         isCompleted: false, category: "Learn"),
                   ],
-                  userName: "Hector")
+                  userName: "")
     }
 }
 
