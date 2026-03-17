@@ -17,6 +17,7 @@
 		89CE2BCBA1DFBED38D90A55A /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CB14625CC370DABDE71E0A /* TaskRow.swift */; };
 		97E85F6423C3050C700DEAF4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 729E8E0EA9170AD1E6A98929 /* WidgetKit.framework */; };
 		A7848C8670836B14DC6AFB6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BDEF695C7858ED47E181146 /* Assets.xcassets */; };
+		AC4BD2F3EC1C463203FC7842 /* OpusWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DDB8FD444C09577477DCA30A /* OpusWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AFE4609F167FD71711E8DE00 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78FD0A300CA2D37F03B3A4D /* Project.swift */; };
 		B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358FABC8A6CA55FC301ACE84 /* OpusApp.swift */; };
 		BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */; };
@@ -27,13 +28,39 @@
 		E6143ACB671B7180A0AA40F4 /* FocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5796CAE373DF4A0D3ED1193C /* FocusView.swift */; };
 		EBC3AE64818BA983E6CB140B /* StatsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4241B9C73841E229B3573B82 /* StatsCard.swift */; };
 		F36019374C16306DA81F75DB /* BottomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */; };
+		FD73DC7EDDDA5182D9A03AA6 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32318EC35CE39735E1E1817E /* NotificationManager.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2579DD58B22A421C7C569283 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1169B63C2BC10832380E61A9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7F2AB55237837AF5FE868D5F;
+			remoteInfo = OpusWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E9030A7687DC1822828CB13A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AC4BD2F3EC1C463203FC7842 /* OpusWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0DE587C256DAC290D702E9F5 /* Opus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Opus.entitlements; sourceTree = "<group>"; };
 		21BC6382C4295B3835290FEE /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		2BDEF695C7858ED47E181146 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2ECD0DCCC9BDBEB805E4C139 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		32318EC35CE39735E1E1817E /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		358FABC8A6CA55FC301ACE84 /* OpusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusApp.swift; sourceTree = "<group>"; };
 		36EFE5A40B985A0DF05F2C81 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -101,6 +128,7 @@
 				358FABC8A6CA55FC301ACE84 /* OpusApp.swift */,
 				4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */,
 				3CC353A7576B20586EF35A4F /* Models */,
+				5E3EBC16129AC5365C65E6DF /* Notifications */,
 				486539F395F746E1EBB3B58C /* Security */,
 				B437AF2DFF7E70D769E55E47 /* Views */,
 			);
@@ -113,6 +141,14 @@
 				82ABF212BACB4A77FD35F737 /* KeychainManager.swift */,
 			);
 			path = Security;
+			sourceTree = "<group>";
+		};
+		5E3EBC16129AC5365C65E6DF /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				32318EC35CE39735E1E1817E /* NotificationManager.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		6B74230602D7CF10EEB5C393 = {
@@ -186,10 +222,12 @@
 			buildPhases = (
 				9E9D22657124158E9826F0C4 /* Sources */,
 				E43FD2205DB04BAEC9FA4435 /* Resources */,
+				E9030A7687DC1822828CB13A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				854C5288CF2A13D561C331C3 /* PBXTargetDependency */,
 			);
 			name = Opus;
 			packageProductDependencies = (
@@ -267,6 +305,7 @@
 				E6143ACB671B7180A0AA40F4 /* FocusView.swift in Sources */,
 				1F88C005A8E0BD5E83B1264F /* KeychainManager.swift in Sources */,
 				644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */,
+				FD73DC7EDDDA5182D9A03AA6 /* NotificationManager.swift in Sources */,
 				388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */,
 				E2853CFFCE89FC982E42B7F3 /* OnboardingView.swift in Sources */,
 				B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */,
@@ -281,6 +320,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		854C5288CF2A13D561C331C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7F2AB55237837AF5FE868D5F /* OpusWidget */;
+			targetProxy = 2579DD58B22A421C7C569283 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		04E57D13C49A7FFD4FC1BB02 /* Release */ = {
