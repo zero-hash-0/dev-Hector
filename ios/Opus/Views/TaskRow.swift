@@ -5,7 +5,6 @@ struct TaskRow: View {
     let onToggle: () -> Void
     var onDelete: (() -> Void)? = nil
 
-    @State  private var isPressed = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let toggleHaptic = UIImpactFeedbackGenerator(style: .medium)
@@ -91,13 +90,6 @@ struct TaskRow: View {
         .padding(.vertical, 13)
         .padding(.horizontal, 4)
         .contentShape(Rectangle())
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(reduceMotion ? .none : .spring(response: 0.2, dampingFraction: 0.8), value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded   { _ in isPressed = false }
-        )
     }
 }
 

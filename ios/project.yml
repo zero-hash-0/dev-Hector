@@ -70,3 +70,4 @@ targets:
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: "1"
         ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: "Choose a profile photo"
