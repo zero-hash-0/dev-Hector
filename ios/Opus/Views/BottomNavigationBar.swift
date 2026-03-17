@@ -36,15 +36,13 @@ struct BottomNavigationBar: View {
     var body: some View {
         ZStack(alignment: .bottom) {
 
-            // Bar background
+            // ── Floating pill tab bar ──
             HStack(spacing: 0) {
                 ForEach(AppTab.allCases, id: \.self) { tab in
-                    // Skip center slot for FAB
                     if tab == .focus {
-                        Spacer()
-                            .frame(maxWidth: .infinity)
+                        // Center gap for FAB
+                        Spacer().frame(width: 64)
                     }
-
                     TabBarItem(
                         tab: tab,
                         isSelected: selectedTab == tab,
@@ -56,23 +54,28 @@ struct BottomNavigationBar: View {
                     }
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.top, 10)
-            .padding(.bottom, 4)
-            .background(
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Rectangle()
-                            .fill(Color.white.opacity(0.04))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background {
+                ZStack {
+                    Capsule().fill(.ultraThinMaterial)
+                    Capsule().fill(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)],
+                            startPoint: .top, endPoint: .bottom
+                        )
                     )
-                    .overlay(alignment: .top) {
-                        Rectangle()
-                            .fill(Color.white.opacity(0.07))
-                            .frame(height: 0.5)
-                    }
-                    .ignoresSafeArea(edges: .bottom)
-            )
+                    Capsule().stroke(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.40), Color.white.opacity(0.08)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        ), lineWidth: 1
+                    )
+                }
+                .shadow(color: .black.opacity(0.55), radius: 32, x: 0, y: 14)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 8)
 
             // ── FAB ──
             Button(action: onAdd) {
@@ -85,16 +88,16 @@ struct BottomNavigationBar: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 52, height: 52)
-                        .shadow(color: Color(hex: "#F5A623").opacity(0.4), radius: 12, x: 0, y: 4)
+                        .frame(width: 56, height: 56)
+                        .shadow(color: Color(hex: "#F5A623").opacity(0.5), radius: 16, x: 0, y: 6)
 
                     Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.white)
                 }
             }
             .buttonStyle(FABButtonStyle())
-            .offset(y: -24)
+            .offset(y: -8)
             .accessibilityLabel("Add task")
         }
     }
