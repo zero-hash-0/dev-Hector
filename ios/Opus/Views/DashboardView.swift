@@ -83,9 +83,9 @@ struct DashboardView: View {
                             // ── Later Section ──
                             laterSection
 
-                            // Bottom padding for nav bar + home indicator
+                            // Bottom padding for floating nav bar + FAB + home indicator
                             Spacer()
-                                .frame(height: geo.safeAreaInsets.bottom + 88)
+                                .frame(height: geo.safeAreaInsets.bottom + 140)
                         }
                         .padding(.top, geo.safeAreaInsets.top + 16)
                     }
