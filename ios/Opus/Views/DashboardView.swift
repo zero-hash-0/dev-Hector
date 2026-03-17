@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 // MARK: - Dashboard ViewModel
 @MainActor
@@ -6,8 +7,8 @@ final class DashboardViewModel: ObservableObject {
     @Published var todayTasks:       [OpusTask] = [] { didSet { save() } }
     @Published var laterTasks:       [OpusTask] = [] { didSet { save() } }
     @Published var completedHistory: [HistoryEntry] = [] { didSet { saveHistory() } }
-    @Published var momentum: Int = 0 { didSet { UserDefaults.standard.set(momentum, forKey: "momentum") } }
-    @Published var streak:   Int = 0 { didSet { UserDefaults.standard.set(streak,   forKey: "streak")   } }
+    @Published var momentum: Int = 0 { didSet { UserDefaults.standard.set(momentum, forKey: "momentum"); syncShared() } }
+    @Published var streak:   Int = 0 { didSet { UserDefaults.standard.set(streak,   forKey: "streak");   syncShared() } }
     @Published var showLater:       Bool         = false
     @Published var showAddTask:     Bool         = false
     @Published var newTaskTitle:    String       = ""
@@ -134,15 +135,24 @@ final class DashboardViewModel: ObservableObject {
     }
 
     // MARK: - Persistence
+    // Write to BOTH standard and shared suite so the widget can read fresh data
+    private static let sharedSuite = "group.com.opus.betaapp"
+    private var shared: UserDefaults { UserDefaults(suiteName: Self.sharedSuite) ?? .standard }
+
     private func save() {
         let enc = JSONEncoder()
-        if let d = try? enc.encode(todayTasks) { UserDefaults.standard.set(d, forKey: todayKey) }
-        if let d = try? enc.encode(laterTasks) { UserDefaults.standard.set(d, forKey: laterKey) }
+        if let d = try? enc.encode(todayTasks) {
+            UserDefaults.standard.set(d, forKey: todayKey)
+            shared.set(d, forKey: todayKey)           // widget reads this
+        }
+        if let d = try? enc.encode(laterTasks) {
+            UserDefaults.standard.set(d, forKey: laterKey)
+        }
+        reloadWidget()
     }
 
     private func saveHistory() {
         let enc = JSONEncoder()
-        // Keep last 90 days
         let trimmed = Array(completedHistory.prefix(90))
         if let d = try? enc.encode(trimmed) { UserDefaults.standard.set(d, forKey: historyKey) }
     }
@@ -157,6 +167,22 @@ final class DashboardViewModel: ObservableObject {
            let h = try? dec.decode([HistoryEntry].self, from: d) { completedHistory = h }
         momentum = UserDefaults.standard.integer(forKey: "momentum")
         streak   = UserDefaults.standard.integer(forKey: "streak")
+        // Mirror streak/momentum to shared suite for widget
+        shared.set(momentum, forKey: "momentum")
+        shared.set(streak,   forKey: "streak")
+        if let n = UserDefaults.standard.string(forKey: "userName") { shared.set(n, forKey: "userName") }
+    }
+
+    // Keep momentum/streak mirrored in shared suite
+    private func syncShared() {
+        shared.set(momentum, forKey: "momentum")
+        shared.set(streak,   forKey: "streak")
+        if let n = UserDefaults.standard.string(forKey: "userName") { shared.set(n, forKey: "userName") }
+        reloadWidget()
+    }
+
+    private func reloadWidget() {
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

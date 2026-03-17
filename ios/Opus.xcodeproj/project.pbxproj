@@ -11,15 +11,18 @@
 		36CCD0E82E9DF2AB45D31E90 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6B0A984BB6C6341A08275A /* ContentView.swift */; };
 		388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FDAE91A43597090B1CD8384 /* OfflineView.swift */; };
 		644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */; };
+		724CBBDBADEEB676791952D7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 522B23527B8FFD529D103B51 /* SwiftUI.framework */; };
 		7748651778770C7D4F8954BE /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5EF88EF8E84C3446F643E7 /* Task.swift */; };
+		80FD790219B3994DBA64B3C7 /* OpusWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0C418D7D5CDEA1D8ECCB7F /* OpusWidget.swift */; };
 		89CE2BCBA1DFBED38D90A55A /* TaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CB14625CC370DABDE71E0A /* TaskRow.swift */; };
+		97E85F6423C3050C700DEAF4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 729E8E0EA9170AD1E6A98929 /* WidgetKit.framework */; };
 		A7848C8670836B14DC6AFB6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BDEF695C7858ED47E181146 /* Assets.xcassets */; };
 		AFE4609F167FD71711E8DE00 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78FD0A300CA2D37F03B3A4D /* Project.swift */; };
 		B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358FABC8A6CA55FC301ACE84 /* OpusApp.swift */; };
 		BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */; };
-		CC1A2B3D4E5F60718293A4B5 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B3C4D5E6F70819203B4C5 /* OnboardingView.swift */; };
 		C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */; };
 		DEF3B37D10399ABD99446964 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B54AF5127B993A392CA1CF /* ProjectsView.swift */; };
+		E2853CFFCE89FC982E42B7F3 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EFE5A40B985A0DF05F2C81 /* OnboardingView.swift */; };
 		E5585EBC203ED63F88738E62 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BC6382C4295B3835290FEE /* DashboardView.swift */; };
 		E6143ACB671B7180A0AA40F4 /* FocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5796CAE373DF4A0D3ED1193C /* FocusView.swift */; };
 		EBC3AE64818BA983E6CB140B /* StatsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4241B9C73841E229B3573B82 /* StatsCard.swift */; };
@@ -27,32 +30,52 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0DE587C256DAC290D702E9F5 /* Opus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Opus.entitlements; sourceTree = "<group>"; };
 		21BC6382C4295B3835290FEE /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		2BDEF695C7858ED47E181146 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2ECD0DCCC9BDBEB805E4C139 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		358FABC8A6CA55FC301ACE84 /* OpusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusApp.swift; sourceTree = "<group>"; };
+		36EFE5A40B985A0DF05F2C81 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		4241B9C73841E229B3573B82 /* StatsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCard.swift; sourceTree = "<group>"; };
 		4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomNavigationBar.swift; sourceTree = "<group>"; };
 		4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWebView.swift; sourceTree = "<group>"; };
+		522B23527B8FFD529D103B51 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		5796CAE373DF4A0D3ED1193C /* FocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusView.swift; sourceTree = "<group>"; };
-		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		729E8E0EA9170AD1E6A98929 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		742B65583B15ACAE6B5BF440 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FDAE91A43597090B1CD8384 /* OfflineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineView.swift; sourceTree = "<group>"; };
 		82ABF212BACB4A77FD35F737 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		89CB14625CC370DABDE71E0A /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		8D6B0A984BB6C6341A08275A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		DD2B3C4D5E6F70819203B4C5 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		99B54AF5127B993A392CA1CF /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
+		9A0C418D7D5CDEA1D8ECCB7F /* OpusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWidget.swift; sourceTree = "<group>"; };
+		BA13384981E7EC8D3A8F66D8 /* OpusWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpusWidget.entitlements; sourceTree = "<group>"; };
 		BF5EF88EF8E84C3446F643E7 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		C78FD0A300CA2D37F03B3A4D /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		DDB8FD444C09577477DCA30A /* OpusWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = OpusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4E44E3B4414D739CCD0D6F37 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97E85F6423C3050C700DEAF4 /* WidgetKit.framework in Frameworks */,
+				724CBBDBADEEB676791952D7 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		1830644642610856E23C1A83 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				583C31028B8A683F4B27FFDE /* Opus.app */,
+				DDB8FD444C09577477DCA30A /* OpusWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -74,6 +97,7 @@
 				742B65583B15ACAE6B5BF440 /* Info.plist */,
 				33D19A3BB2C122B39CAE39E4 /* LaunchScreen.swift */,
 				7FDAE91A43597090B1CD8384 /* OfflineView.swift */,
+				0DE587C256DAC290D702E9F5 /* Opus.entitlements */,
 				358FABC8A6CA55FC301ACE84 /* OpusApp.swift */,
 				4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */,
 				3CC353A7576B20586EF35A4F /* Models */,
@@ -95,8 +119,19 @@
 			isa = PBXGroup;
 			children = (
 				483273D9E74DA56E86D4E955 /* Opus */,
+				CCFAB00DA0A99FE944E0F557 /* OpusWidget */,
+				783C2B744360A46BD613F145 /* Frameworks */,
 				1830644642610856E23C1A83 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		783C2B744360A46BD613F145 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				522B23527B8FFD529D103B51 /* SwiftUI.framework */,
+				729E8E0EA9170AD1E6A98929 /* WidgetKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		B437AF2DFF7E70D769E55E47 /* Views */ = {
@@ -105,7 +140,7 @@
 				4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */,
 				21BC6382C4295B3835290FEE /* DashboardView.swift */,
 				5796CAE373DF4A0D3ED1193C /* FocusView.swift */,
-				DD2B3C4D5E6F70819203B4C5 /* OnboardingView.swift */,
+				36EFE5A40B985A0DF05F2C81 /* OnboardingView.swift */,
 				8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */,
 				99B54AF5127B993A392CA1CF /* ProjectsView.swift */,
 				4241B9C73841E229B3573B82 /* StatsCard.swift */,
@@ -114,9 +149,37 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		CCFAB00DA0A99FE944E0F557 /* OpusWidget */ = {
+			isa = PBXGroup;
+			children = (
+				2ECD0DCCC9BDBEB805E4C139 /* Info.plist */,
+				BA13384981E7EC8D3A8F66D8 /* OpusWidget.entitlements */,
+				9A0C418D7D5CDEA1D8ECCB7F /* OpusWidget.swift */,
+			);
+			path = OpusWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		7F2AB55237837AF5FE868D5F /* OpusWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 456EFE298581154C0AFE4DAC /* Build configuration list for PBXNativeTarget "OpusWidget" */;
+			buildPhases = (
+				09024C006831A0CE1EE83968 /* Sources */,
+				4E44E3B4414D739CCD0D6F37 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OpusWidget;
+			packageProductDependencies = (
+			);
+			productName = OpusWidget;
+			productReference = DDB8FD444C09577477DCA30A /* OpusWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9350C7EEDBE93AFBE7F080ED /* Opus */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 705027EE4BF17704672281F0 /* Build configuration list for PBXNativeTarget "Opus" */;
@@ -144,7 +207,12 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					7F2AB55237837AF5FE868D5F = {
+						DevelopmentTeam = 8NL37K4349;
+						ProvisioningStyle = Automatic;
+					};
 					9350C7EEDBE93AFBE7F080ED = {
+						DevelopmentTeam = 8NL37K4349;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -164,6 +232,7 @@
 			projectRoot = "";
 			targets = (
 				9350C7EEDBE93AFBE7F080ED /* Opus */,
+				7F2AB55237837AF5FE868D5F /* OpusWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -180,6 +249,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		09024C006831A0CE1EE83968 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				80FD790219B3994DBA64B3C7 /* OpusWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9E9D22657124158E9826F0C4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -191,7 +268,7 @@
 				1F88C005A8E0BD5E83B1264F /* KeychainManager.swift in Sources */,
 				644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */,
 				388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */,
-				CC1A2B3D4E5F60718293A4B5 /* OnboardingView.swift in Sources */,
+				E2853CFFCE89FC982E42B7F3 /* OnboardingView.swift in Sources */,
 				B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */,
 				C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */,
 				BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */,
@@ -265,16 +342,43 @@
 			};
 			name = Release;
 		};
+		2D171C21BEEE690CE563BC56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
+				CODE_SIGN_ENTITLEMENTS = OpusWidget/OpusWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8NL37K4349;
+				INFOPLIST_FILE = OpusWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.opus.betaapp.widget;
+				PRODUCT_NAME = OpusWidget;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 		591D9657B2848A2953ED0EA4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Opus/Opus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
+				DEVELOPMENT_TEAM = 8NL37K4349;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -299,11 +403,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Opus/Opus.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
+				DEVELOPMENT_TEAM = 8NL37K4349;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -321,6 +426,33 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
+		};
+		74AAC8C651E2CB6D0E2B7383 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = NO;
+				CODE_SIGN_ENTITLEMENTS = OpusWidget/OpusWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8NL37K4349;
+				INFOPLIST_FILE = OpusWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.opus.betaapp.widget;
+				PRODUCT_NAME = OpusWidget;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
 		};
 		9BEFFA257B6AE81877D57971 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -396,6 +528,15 @@
 			buildConfigurations = (
 				9BEFFA257B6AE81877D57971 /* Debug */,
 				04E57D13C49A7FFD4FC1BB02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		456EFE298581154C0AFE4DAC /* Build configuration list for PBXNativeTarget "OpusWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D171C21BEEE690CE563BC56 /* Debug */,
+				74AAC8C651E2CB6D0E2B7383 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
