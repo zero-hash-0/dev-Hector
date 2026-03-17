@@ -3,10 +3,12 @@ import PhotosUI
 
 // MARK: - Profile View
 struct ProfileView: View {
-    @AppStorage("userName")      private var userName     = "Hector"
-    @AppStorage("userHandle")    private var userHandle   = "@hector"
-    @AppStorage("userBio")       private var userBio      = "Building things that matter."
-    @AppStorage("profileImgData") private var imgData: Data = Data()
+    @AppStorage("userName")        private var userName       = "Hector"
+    @AppStorage("userHandle")      private var userHandle     = "@hector"
+    @AppStorage("userBio")         private var userBio        = "Building things that matter."
+    @AppStorage("profileImgData")  private var imgData: Data  = Data()
+    @AppStorage("isEarlyTester")   private var isEarlyTester  = false
+    @AppStorage("earlyTesterSlot") private var earlyTesterSlot = 0
 
     @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var profileImage: UIImage? = nil
@@ -95,6 +97,30 @@ struct ProfileView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.white)
                 }
+            }
+
+            // ── Early Tester badge ──
+            if isEarlyTester {
+                HStack(spacing: 7) {
+                    Text("🥇")
+                        .font(.system(size: 14))
+                    Text("Founding Member")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Color(hex: "#EAB308"))
+                    if earlyTesterSlot > 0 {
+                        Text("· #\(earlyTesterSlot)")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Color(hex: "#EAB308").opacity(0.6))
+                    }
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(Color(hex: "#EAB308").opacity(0.1))
+                        .overlay(Capsule().stroke(Color(hex: "#EAB308").opacity(0.32), lineWidth: 1))
+                )
+                .shadow(color: Color(hex: "#EAB308").opacity(0.2), radius: 10, x: 0, y: 4)
             }
 
             // Name + handle + bio
