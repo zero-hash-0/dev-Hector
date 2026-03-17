@@ -61,34 +61,38 @@ struct DashboardView: View {
                 // ── Background ──
                 backgroundLayer
 
-                // ── Content ──
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
+                // ── Content — switches on selectedTab ──
+                Group {
+                    switch selectedTab {
+                    case .today:
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 24) {
+                                headerSection
+                                StatsCard(
+                                    momentum: vm.momentum,
+                                    streak: vm.streak,
+                                    tasksCompleted: vm.completedTasks.count,
+                                    tasksTotal: vm.todayTasks.count
+                                )
+                                .padding(.horizontal, 20)
+                                taskListSection
+                                laterSection
+                                Spacer().frame(height: geo.safeAreaInsets.bottom + 140)
+                            }
+                            .padding(.top, geo.safeAreaInsets.top + 16)
+                        }
 
-                        // ── Header ──
-                        headerSection
+                    case .projects:
+                        placeholderTab(icon: "square.grid.2x2.fill", title: "Projects", subtitle: "Your projects will appear here.", geo: geo)
 
-                        // ── Stats Card ──
-                        StatsCard(
-                            momentum: vm.momentum,
-                            streak: vm.streak,
-                            tasksCompleted: vm.completedTasks.count,
-                            tasksTotal: vm.todayTasks.count
-                        )
-                        .padding(.horizontal, 20)
+                    case .focus:
+                        placeholderTab(icon: "scope", title: "Focus Mode", subtitle: "Stay locked in. Coming soon.", geo: geo)
 
-                        // ── Task List ──
-                        taskListSection
-
-                        // ── Later Section ──
-                        laterSection
-
-                        // Bottom padding for floating nav bar + FAB + home indicator
-                        Spacer()
-                            .frame(height: geo.safeAreaInsets.bottom + 140)
+                    case .profile:
+                        placeholderTab(icon: "person.circle.fill", title: "Profile", subtitle: "Your stats and settings.", geo: geo)
                     }
-                    .padding(.top, geo.safeAreaInsets.top + 16)
                 }
+                .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: selectedTab)
 
                 // ── Bottom Navigation ──
                 // Placed directly in ZStack so no wrapper Spacer can steal taps
@@ -445,6 +449,38 @@ struct DashboardView: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
+    }
+
+    // MARK: - Placeholder Tab
+    @ViewBuilder
+    private func placeholderTab(icon: String, title: String, subtitle: String, geo: GeometryProxy) -> some View {
+        VStack(spacing: 0) {
+            Spacer()
+            VStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.system(size: 52, weight: .thin))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        )
+                    )
+                Text(title)
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.system(size: 15))
+                    .foregroundColor(.white.opacity(0.45))
+                    .multilineTextAlignment(.center)
+            }
+            .padding(40)
+            .liquidGlass(cornerRadius: 24)
+            .padding(.horizontal, 32)
+            Spacer()
+            Spacer().frame(height: geo.safeAreaInsets.bottom + 120)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.top, geo.safeAreaInsets.top)
     }
 }
 
