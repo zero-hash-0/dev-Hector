@@ -280,6 +280,10 @@ struct ProjectDetailSheet: View {
     let onSave: (Project) -> Void
     @Environment(\.dismiss) private var dismiss
 
+    @State private var showAddTask    = false
+    @State private var newTaskTitle   = ""
+    @State private var newTaskCategory: TaskCategory = .work
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -321,41 +325,90 @@ struct ProjectDetailSheet: View {
 
                         // Task list
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Tasks")
-                                .font(.system(size: 17, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-
-                            VStack(spacing: 8) {
-                                ForEach(project.tasks) { task in
-                                    HStack(spacing: 12) {
-                                        Button {
-                                            if let idx = project.tasks.firstIndex(where: { $0.id == task.id }) {
-                                                project.tasks[idx].isCompleted.toggle()
-                                                onSave(project)
-                                            }
-                                        } label: {
-                                            Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                                                .font(.system(size: 20))
-                                                .foregroundColor(task.isCompleted ? Color(hex: "#34D399") : .white.opacity(0.3))
-                                        }
-                                        Text(task.title)
-                                            .font(.system(size: 15, weight: .medium))
-                                            .foregroundColor(task.isCompleted ? .white.opacity(0.35) : .white.opacity(0.9))
-                                            .strikethrough(task.isCompleted, color: .white.opacity(0.2))
-                                        Spacer()
-                                    }
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 12)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 14)
-                                            .fill(Color(hex: "#1A1A1E"))
-                                            .overlay(RoundedRectangle(cornerRadius: 14)
-                                                .stroke(Color.white.opacity(0.06), lineWidth: 0.5))
-                                    }
+                            HStack {
+                                Text("Tasks")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Button { showAddTask = true } label: {
+                                    Label("Add Task", systemImage: "plus")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(Color(hex: "#8A4AF3"))
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 7)
+                                        .background(Color(hex: "#8A4AF3").opacity(0.12))
+                                        .clipShape(Capsule())
+                                        .overlay(Capsule().stroke(Color(hex: "#8A4AF3").opacity(0.3), lineWidth: 1))
                                 }
                             }
-                            .padding(.horizontal, 16)
+                            .padding(.horizontal, 20)
+
+                            if project.tasks.isEmpty {
+                                VStack(spacing: 10) {
+                                    Image(systemName: "tray")
+                                        .font(.system(size: 32, weight: .thin))
+                                        .foregroundColor(.white.opacity(0.2))
+                                    Text("No tasks yet")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.white.opacity(0.3))
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(32)
+                            } else {
+                                VStack(spacing: 8) {
+                                    ForEach(project.tasks) { task in
+                                        HStack(spacing: 12) {
+                                            Button {
+                                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                                if let idx = project.tasks.firstIndex(where: { $0.id == task.id }) {
+                                                    project.tasks[idx].isCompleted.toggle()
+                                                    onSave(project)
+                                                }
+                                            } label: {
+                                                ZStack {
+                                                    if task.isCompleted {
+                                                        Circle().fill(Color(hex: "#34D399").opacity(0.15)).frame(width: 24, height: 24)
+                                                    }
+                                                    Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                                                        .font(.system(size: 20))
+                                                        .foregroundColor(task.isCompleted ? Color(hex: "#34D399") : .white.opacity(0.25))
+                                                }
+                                            }
+                                            Circle().fill(task.category.color).frame(width: 6, height: 6)
+                                            Text(task.title)
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundColor(task.isCompleted ? .white.opacity(0.32) : .white.opacity(0.9))
+                                                .strikethrough(task.isCompleted, color: .white.opacity(0.2))
+                                                .lineLimit(1)
+                                            Spacer()
+                                            Text(task.category.rawValue)
+                                                .font(.system(size: 10, weight: .semibold))
+                                                .foregroundColor(task.category.color)
+                                                .padding(.horizontal, 7)
+                                                .padding(.vertical, 3)
+                                                .background(task.category.color.opacity(0.12))
+                                                .clipShape(Capsule())
+                                        }
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 12)
+                                        .background {
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .fill(Color(hex: "#1A1A1E"))
+                                                .overlay(RoundedRectangle(cornerRadius: 14)
+                                                    .stroke(Color.white.opacity(0.06), lineWidth: 0.5))
+                                        }
+                                        .contextMenu {
+                                            Button(role: .destructive) {
+                                                project.tasks.removeAll { $0.id == task.id }
+                                                onSave(project)
+                                            } label: {
+                                                Label("Delete", systemImage: "trash.fill")
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                            }
                         }
 
                         Spacer().frame(height: 40)
@@ -371,7 +424,84 @@ struct ProjectDetailSheet: View {
                 }
             }
         }
+        .sheet(isPresented: $showAddTask) { addTaskToProjectSheet }
         .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .preferredColorScheme(.dark)
+    }
+
+    // MARK: - Add task to project sheet
+    private var addTaskToProjectSheet: some View {
+        NavigationStack {
+            ZStack {
+                Color(hex: "#0D0D10").ignoresSafeArea()
+                VStack(spacing: 20) {
+                    TextField("Task title", text: $newTaskTitle)
+                        .font(.system(size: 17))
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color(hex: "#8A4AF3").opacity(0.3), lineWidth: 1))
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(TaskCategory.allCases) { cat in
+                                Button {
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    newTaskCategory = cat
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Circle().fill(cat.color).frame(width: 7, height: 7)
+                                        Text(cat.rawValue)
+                                            .font(.system(size: 13, weight: .semibold))
+                                            .foregroundColor(newTaskCategory == cat ? cat.color : .white.opacity(0.45))
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 9)
+                                    .background(newTaskCategory == cat ? cat.color.opacity(0.15) : Color.white.opacity(0.06), in: Capsule())
+                                    .overlay(Capsule().stroke(newTaskCategory == cat ? cat.color.opacity(0.45) : Color.clear, lineWidth: 1))
+                                    .animation(.spring(response: 0.3), value: newTaskCategory)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    Button {
+                        guard !newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        let task = OpusTask(title: newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines),
+                                           category: newTaskCategory, schedule: .today)
+                        project.tasks.append(task)
+                        onSave(project)
+                        newTaskTitle    = ""
+                        newTaskCategory = .work
+                        showAddTask     = false
+                    } label: {
+                        Text("Add Task")
+                            .font(.system(size: 16, weight: .semibold)).foregroundColor(.white)
+                            .frame(maxWidth: .infinity).padding()
+                            .background(LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                                       startPoint: .leading, endPoint: .trailing))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .disabled(newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .opacity(newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.4 : 1)
+
+                    Spacer()
+                }
+                .padding(20)
+            }
+            .navigationTitle("Add Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { showAddTask = false }.foregroundColor(.white.opacity(0.55))
+                }
+            }
+        }
+        .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
     }
