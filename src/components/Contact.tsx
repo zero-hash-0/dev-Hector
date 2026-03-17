@@ -21,10 +21,7 @@ export default function Contact() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="mailto:hello@dev-hector.com"
-            className="inline-flex items-center gap-2 text-sm font-medium px-8 py-3 rounded-full text-white transition-all duration-200"
-            style={{ background: "#8a4af3" }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#6e6bf5")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#8a4af3")}
+            className="inline-flex items-center gap-2 text-sm font-medium px-8 py-3 rounded-full text-white bg-[#8a4af3] hover:bg-[#6e6bf5] transition-all duration-200"
           >
             Send a message
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
