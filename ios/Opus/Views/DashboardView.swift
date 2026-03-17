@@ -3,10 +3,10 @@ import SwiftUI
 // MARK: - Dashboard ViewModel
 @MainActor
 final class DashboardViewModel: ObservableObject {
-    @Published var todayTasks: [OpusTask]  = OpusTask.sampleToday
-    @Published var laterTasks: [OpusTask]  = OpusTask.sampleLater
-    @Published var momentum: Int           = 77
-    @Published var streak: Int             = 14
+    @Published var todayTasks: [OpusTask]  = []
+    @Published var laterTasks: [OpusTask]  = []
+    @Published var momentum: Int           = 0
+    @Published var streak: Int             = 0
     @Published var showLater: Bool         = false
     @Published var showAddTask: Bool       = false
     @Published var newTaskTitle: String    = ""
@@ -107,7 +107,10 @@ struct DashboardView: View {
                 // ── Bottom Navigation ──
                 BottomNavigationBar(selectedTab: $selectedTab) {
                     withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.75)) {
-                        vm.showAddTask = true
+                        switch selectedTab {
+                        case .today, .focus: vm.showAddTask = true
+                        default: break   // Projects/Profile handle their own add flow
+                        }
                     }
                 }
                 .ignoresSafeArea(edges: .bottom)
@@ -278,20 +281,68 @@ struct DashboardView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
 
-            // Individual task cards
-            VStack(spacing: 8) {
-                ForEach(vm.pendingTasks) { task in
-                    taskCard(task)
-                        .matchedGeometryEffect(id: task.id, in: cardNS, isSource: focusedTask?.id != task.id)
+            // Individual task cards (or empty state)
+            if vm.pendingTasks.isEmpty && vm.completedTasks.isEmpty {
+                emptyTodayState
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(vm.pendingTasks) { task in
+                        taskCard(task)
+                            .matchedGeometryEffect(id: task.id, in: cardNS, isSource: focusedTask?.id != task.id)
+                    }
                 }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
 
             // Done section
             if !vm.completedTasks.isEmpty {
                 doneSection.padding(.top, 20)
             }
         }
+    }
+
+    // ── Empty state ──
+    private var emptyTodayState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.badge.plus")
+                .font(.system(size: 48, weight: .thin))
+                .foregroundStyle(
+                    LinearGradient(colors: [Color(hex: "#A78BFA"), Color(hex: "#8A4AF3")],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+            Text("Nothing on your plate")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+            Text("Tap the + button to add your first task")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.40))
+                .multilineTextAlignment(.center)
+
+            Button {
+                withAnimation { vm.showAddTask = true }
+            } label: {
+                Label("Add Task", systemImage: "plus")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                       startPoint: .leading, endPoint: .trailing),
+                        in: Capsule()
+                    )
+                    .shadow(color: Color(hex: "#8A4AF3").opacity(0.5), radius: 12, x: 0, y: 4)
+            }
+        }
+        .padding(40)
+        .frame(maxWidth: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(hex: "#1A1A1E"))
+                .overlay(RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color(hex: "#8A4AF3").opacity(0.2), lineWidth: 1))
+        }
+        .padding(.horizontal, 16)
     }
 
     // ── Individual task card ──
