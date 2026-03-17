@@ -118,23 +118,34 @@ struct DashboardView: View {
             // Purple glow top-left
             RadialGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "#5B3FA6").opacity(0.18),
+                    Color(hex: "#6B3FA6").opacity(0.28),
                     Color.clear
                 ]),
-                center: .init(x: 0.25, y: 0.15),
+                center: .init(x: 0.2, y: 0.1),
                 startRadius: 0,
-                endRadius: 400
+                endRadius: 440
             )
 
-            // Orange glow bottom-right
+            // Orange glow mid-right
             RadialGradient(
                 gradient: Gradient(colors: [
-                    Color(hex: "#F5A623").opacity(0.08),
+                    Color(hex: "#F5A623").opacity(0.14),
                     Color.clear
                 ]),
-                center: .init(x: 0.85, y: 0.75),
+                center: .init(x: 0.9, y: 0.55),
                 startRadius: 0,
-                endRadius: 300
+                endRadius: 320
+            )
+
+            // Deep blue accent bottom
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "#1E3A5F").opacity(0.20),
+                    Color.clear
+                ]),
+                center: .init(x: 0.1, y: 0.9),
+                startRadius: 0,
+                endRadius: 260
             )
         }
         .ignoresSafeArea()
@@ -159,12 +170,17 @@ struct DashboardView: View {
             Button {
                 // Settings action
             } label: {
-                Image(systemName: "gearshape")
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundColor(.white.opacity(0.5))
-                    .frame(width: 40, height: 40)
-                    .background(Color.white.opacity(0.06))
-                    .clipShape(Circle())
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 18, weight: .regular))
+                    .foregroundColor(.white.opacity(0.6))
+                    .frame(width: 42, height: 42)
+                    .background {
+                        ZStack {
+                            Circle().fill(.ultraThinMaterial)
+                            Circle().fill(Color.white.opacity(0.07))
+                            Circle().stroke(Color.white.opacity(0.18), lineWidth: 1)
+                        }
+                    }
             }
             .accessibilityLabel("Settings")
         }
@@ -201,15 +217,7 @@ struct DashboardView: View {
                     }
                 }
             }
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.04))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.white.opacity(0.07), lineWidth: 0.5)
-                    )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .liquidGlass(cornerRadius: 20)
             .padding(.horizontal, 16)
 
             // Done section
@@ -252,15 +260,7 @@ struct DashboardView: View {
                     }
                 }
             }
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(hex: "#34D399").opacity(0.04))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color(hex: "#34D399").opacity(0.12), lineWidth: 0.5)
-                    )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .liquidGlass(cornerRadius: 20)
             .padding(.horizontal, 16)
         }
     }
@@ -306,15 +306,7 @@ struct DashboardView: View {
                         }
                     }
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.03))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
-                        )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .liquidGlass(cornerRadius: 20)
                 .padding(.horizontal, 16)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

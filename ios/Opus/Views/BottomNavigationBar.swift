@@ -56,23 +56,28 @@ struct BottomNavigationBar: View {
                     }
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.top, 10)
-            .padding(.bottom, 4)
-            .background(
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        Rectangle()
-                            .fill(Color.white.opacity(0.04))
-                    )
-                    .overlay(alignment: .top) {
-                        Rectangle()
-                            .fill(Color.white.opacity(0.07))
-                            .frame(height: 0.5)
-                    }
-                    .ignoresSafeArea(edges: .bottom)
-            )
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+            .background {
+                ZStack {
+                    // Liquid glass base
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                    Capsule()
+                        .fill(LinearGradient(
+                            colors: [Color.white.opacity(0.12), Color.white.opacity(0.04)],
+                            startPoint: .top, endPoint: .bottom
+                        ))
+                    // Specular border
+                    Capsule()
+                        .stroke(LinearGradient(
+                            colors: [Color.white.opacity(0.35), Color.white.opacity(0.06)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        ), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.5), radius: 30, x: 0, y: 12)
+            }
 
             // ── FAB ──
             Button(action: onAdd) {
