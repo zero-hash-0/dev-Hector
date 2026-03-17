@@ -4,7 +4,7 @@ import PhotosUI
 // MARK: - Profile View
 struct ProfileView: View {
     @AppStorage("userName")        private var userName       = ""
-    @AppStorage("userHandle")      private var userHandle     = "@hector"
+    @AppStorage("userHandle")      private var userHandle     = "@handle"
     @AppStorage("userBio")         private var userBio        = "Building things that matter."
     @AppStorage("profileImgData")  private var imgData: Data  = Data()
     @AppStorage("isEarlyTester")   private var isEarlyTester  = false
@@ -189,9 +189,11 @@ struct ProfileView: View {
                         .onSubmit { userHandle = editedHandle; isEditingHandle = false }
                 } else {
                     Button { editedHandle = userHandle; isEditingHandle = true } label: {
-                        Text(userHandle)
+                        Text(userHandle.isEmpty ? "@handle" : userHandle)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Color(hex: "#8A4AF3").opacity(0.8))
+                            .foregroundColor(userHandle.isEmpty
+                                             ? Color(hex: "#8A4AF3").opacity(0.35)
+                                             : Color(hex: "#8A4AF3").opacity(0.8))
                     }
                 }
 
