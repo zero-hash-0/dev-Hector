@@ -3,39 +3,41 @@ import SwiftUI
 struct TaskRow: View {
     let task: OpusTask
     let onToggle: () -> Void
+    var onDelete: (() -> Void)? = nil
 
-    @State private var isPressed = false
+    @State  private var isPressed = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private let toggleHaptic = UIImpactFeedbackGenerator(style: .medium)
 
     var body: some View {
         HStack(spacing: 12) {
 
             // ── Completion toggle ──
             Button(action: {
+                toggleHaptic.impactOccurred()
                 withAnimation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.65)) {
                     onToggle()
                 }
             }) {
                 ZStack {
-                    // Glow halo behind ring (only when completed)
+                    // Glow halo (completed only)
                     if task.isCompleted {
                         Circle()
                             .fill(Color(hex: "#34D399").opacity(0.20))
                             .frame(width: 32, height: 32)
-                            .blur(radius: 6)
+                            .blur(radius: 7)
                     }
 
                     Circle()
                         .stroke(
-                            task.isCompleted
-                                ? Color(hex: "#34D399")
-                                : Color.white.opacity(0.18),
+                            task.isCompleted ? Color(hex: "#34D399") : Color.white.opacity(0.18),
                             lineWidth: 1.5
                         )
                         .frame(width: 24, height: 24)
                         .shadow(
-                            color: task.isCompleted ? Color(hex: "#34D399").opacity(0.65) : .clear,
-                            radius: 6, x: 0, y: 0
+                            color: task.isCompleted ? Color(hex: "#34D399").opacity(0.6) : .clear,
+                            radius: 6
                         )
 
                     if task.isCompleted {
@@ -46,11 +48,7 @@ struct TaskRow: View {
                         Image(systemName: "checkmark")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color(hex: "#34D399"))
-                            .transition(
-                                reduceMotion
-                                    ? .opacity
-                                    : .scale.combined(with: .opacity)
-                            )
+                            .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
                     }
                 }
             }
@@ -65,8 +63,8 @@ struct TaskRow: View {
             // ── Title ──
             Text(task.title)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(task.isCompleted ? .white.opacity(0.35) : .white.opacity(0.9))
-                .strikethrough(task.isCompleted, color: .white.opacity(0.3))
+                .foregroundColor(task.isCompleted ? .white.opacity(0.30) : .white.opacity(0.90))
+                .strikethrough(task.isCompleted, color: .white.opacity(0.22))
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .animation(.easeOut(duration: 0.2), value: task.isCompleted)
@@ -75,7 +73,7 @@ struct TaskRow: View {
             if let due = task.dueLabel {
                 Text(due)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.white.opacity(0.35))
+                    .foregroundColor(.white.opacity(0.28))
             }
 
             // ── Category pill ──
@@ -87,13 +85,10 @@ struct TaskRow: View {
                 .background(
                     Capsule()
                         .fill(task.category.color.opacity(0.12))
-                        .overlay(
-                            Capsule()
-                                .stroke(task.category.color.opacity(0.25), lineWidth: 0.5)
-                        )
+                        .overlay(Capsule().stroke(task.category.color.opacity(0.22), lineWidth: 0.5))
                 )
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 13)
         .padding(.horizontal, 4)
         .contentShape(Rectangle())
         .scaleEffect(isPressed ? 0.98 : 1.0)
@@ -109,16 +104,20 @@ struct TaskRow: View {
 // MARK: - Preview
 #Preview {
     ZStack {
-        Color(hex: "#08070A").ignoresSafeArea()
-        VStack(spacing: 0) {
+        Color(hex: "#0D0D10").ignoresSafeArea()
+        VStack(spacing: 8) {
             ForEach(OpusTask.sampleToday) { task in
                 TaskRow(task: task, onToggle: {})
-                    .padding(.horizontal, 20)
-                if task.id != OpusTask.sampleToday.last?.id {
-                    Divider()
-                        .background(Color.white.opacity(0.06))
-                        .padding(.horizontal, 20)
-                }
+                    .padding(.horizontal, 16)
+                    .background {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(hex: "#1A1A1E"))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.white.opacity(0.07), lineWidth: 0.5)
+                            )
+                    }
+                    .padding(.horizontal, 16)
             }
         }
     }

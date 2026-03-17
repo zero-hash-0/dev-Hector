@@ -43,12 +43,12 @@ struct BottomNavigationBar: View {
                 ZStack {
                     Circle()
                         .fill(LinearGradient(
-                            colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
+                            colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
                         .frame(width: 56, height: 56)
-                        .shadow(color: Color(hex: "#F5A623").opacity(0.55), radius: 18, x: 0, y: 4)
+                        .shadow(color: Color(hex: "#8A4AF3").opacity(0.65), radius: 18, x: 0, y: 4)
                     Image(systemName: "plus")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.white)
@@ -141,7 +141,7 @@ private struct TabBarItem: View {
                     .foregroundStyle(
                         isSelected
                             ? AnyShapeStyle(LinearGradient(
-                                colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
+                                colors: [Color(hex: "#A78BFA"), Color(hex: "#8A4AF3")],
                                 startPoint: .top, endPoint: .bottom))
                             : AnyShapeStyle(Color.white.opacity(0.35))
                     )
@@ -150,7 +150,7 @@ private struct TabBarItem: View {
 
                 Text(tab.label)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(isSelected ? Color(hex: "#F5A623") : .white.opacity(0.35))
+                    .foregroundColor(isSelected ? Color(hex: "#A78BFA") : .white.opacity(0.35))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }

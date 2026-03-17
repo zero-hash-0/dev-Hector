@@ -3,13 +3,13 @@ import SwiftUI
 // MARK: - Dashboard ViewModel
 @MainActor
 final class DashboardViewModel: ObservableObject {
-    @Published var todayTasks: [OpusTask]      = OpusTask.sampleToday
-    @Published var laterTasks: [OpusTask]      = OpusTask.sampleLater
-    @Published var momentum: Int               = 77
-    @Published var streak: Int                 = 14
-    @Published var showLater: Bool             = false
-    @Published var showAddTask: Bool           = false
-    @Published var newTaskTitle: String        = ""
+    @Published var todayTasks: [OpusTask]  = OpusTask.sampleToday
+    @Published var laterTasks: [OpusTask]  = OpusTask.sampleLater
+    @Published var momentum: Int           = 77
+    @Published var streak: Int             = 14
+    @Published var showLater: Bool         = false
+    @Published var showAddTask: Bool       = false
+    @Published var newTaskTitle: String    = ""
 
     var completedTasks: [OpusTask] { todayTasks.filter(\.isCompleted) }
     var pendingTasks:   [OpusTask] { todayTasks.filter { !$0.isCompleted } }
@@ -17,9 +17,14 @@ final class DashboardViewModel: ObservableObject {
     func toggle(_ task: OpusTask) {
         guard let idx = todayTasks.firstIndex(where: { $0.id == task.id }) else { return }
         todayTasks[idx].isCompleted.toggle()
-        // Recalculate momentum
         let pct = Double(completedTasks.count) / Double(max(todayTasks.count, 1))
         momentum = min(100, max(0, Int(Double(streak) * 4 + pct * 25)))
+    }
+
+    func deleteTask(_ task: OpusTask) {
+        withAnimation(.spring(response: 0.4)) {
+            todayTasks.removeAll { $0.id == task.id }
+        }
     }
 
     func addTask() {
@@ -34,14 +39,17 @@ final class DashboardViewModel: ObservableObject {
 
 // MARK: - Dashboard View
 struct DashboardView: View {
-    @StateObject private var vm = DashboardViewModel()
+    @StateObject private var vm           = DashboardViewModel()
     @State private var selectedTab: AppTab = .today
-    @State private var showSettings = false
+    @State private var showSettings       = false
+    @State private var focusedTask: OpusTask? = nil
+    @Namespace private var cardNS
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    // MARK: - Greeting
     private var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
+        let h = Calendar.current.component(.hour, from: Date())
+        switch h {
         case 0..<12:  return "Good morning."
         case 12..<17: return "Good afternoon."
         default:      return "Good evening."
@@ -49,11 +57,11 @@ struct DashboardView: View {
     }
 
     private var dateString: String {
-        let f = DateFormatter()
-        f.dateFormat = "EEEE, MMMM d"
+        let f = DateFormatter(); f.dateFormat = "EEEE, MMMM d"
         return f.string(from: Date())
     }
 
+    // MARK: - Body
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .bottom) {
@@ -61,7 +69,7 @@ struct DashboardView: View {
                 // ── Background ──
                 backgroundLayer
 
-                // ── Content — switches on selectedTab ──
+                // ── Tab content ──
                 Group {
                     switch selectedTab {
                     case .today:
@@ -81,71 +89,75 @@ struct DashboardView: View {
                             }
                             .padding(.top, geo.safeAreaInsets.top + 16)
                         }
-
                     case .projects:
-                        placeholderTab(icon: "square.grid.2x2.fill", title: "Projects", subtitle: "Your projects will appear here.", geo: geo)
-
+                        placeholderTab(icon: "square.grid.2x2.fill", title: "Projects",    subtitle: "Your projects will appear here.", geo: geo)
                     case .focus:
-                        placeholderTab(icon: "scope", title: "Focus Mode", subtitle: "Stay locked in. Coming soon.", geo: geo)
-
+                        placeholderTab(icon: "scope",                 title: "Focus Mode",  subtitle: "Stay locked in. Coming soon.",    geo: geo)
                     case .profile:
-                        placeholderTab(icon: "person.circle.fill", title: "Profile", subtitle: "Your stats and settings.", geo: geo)
+                        placeholderTab(icon: "person.circle.fill",    title: "Profile",     subtitle: "Your stats and settings.",        geo: geo)
                     }
                 }
-                .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: selectedTab)
+                .animation(reduceMotion ? .none : .easeInOut(duration: 0.22), value: selectedTab)
 
                 // ── Bottom Navigation ──
-                // Placed directly in ZStack so no wrapper Spacer can steal taps
                 BottomNavigationBar(selectedTab: $selectedTab) {
                     withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.75)) {
                         vm.showAddTask = true
                     }
                 }
                 .ignoresSafeArea(edges: .bottom)
+
+                // ── Task detail overlay ──
+                if let task = focusedTask {
+                    Color.black.opacity(0.65)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                                focusedTask = nil
+                            }
+                        }
+                        .zIndex(4)
+
+                    taskDetailCard(task, geo: geo)
+                        .matchedGeometryEffect(id: task.id, in: cardNS)
+                        .zIndex(5)
+                        .transition(.asymmetric(
+                            insertion: .scale(scale: 0.92).combined(with: .opacity),
+                            removal:   .scale(scale: 0.92).combined(with: .opacity)
+                        ))
+                }
             }
             .ignoresSafeArea(edges: .all)
         }
         .sheet(isPresented: $vm.showAddTask) { addTaskSheet }
-        .sheet(isPresented: $showSettings) { settingsSheet }
+        .sheet(isPresented: $showSettings)   { settingsSheet }
         .preferredColorScheme(.dark)
     }
 
     // MARK: - Background
     private var backgroundLayer: some View {
         ZStack {
-            Color(hex: "#08070A")
+            Color(hex: "#0D0D10")
 
-            // Purple glow top-left
+            // Violet top-left
             RadialGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "#6B3FA6").opacity(0.28),
-                    Color.clear
-                ]),
-                center: .init(x: 0.2, y: 0.1),
-                startRadius: 0,
-                endRadius: 440
+                gradient: Gradient(colors: [Color(hex: "#6B3FA6").opacity(0.35), Color.clear]),
+                center: .init(x: 0.15, y: 0.08),
+                startRadius: 0, endRadius: 480
             )
 
-            // Orange glow mid-right
+            // Indigo mid-right
             RadialGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "#F5A623").opacity(0.14),
-                    Color.clear
-                ]),
-                center: .init(x: 0.9, y: 0.55),
-                startRadius: 0,
-                endRadius: 320
+                gradient: Gradient(colors: [Color(hex: "#3D2C8D").opacity(0.22), Color.clear]),
+                center: .init(x: 0.92, y: 0.42),
+                startRadius: 0, endRadius: 360
             )
 
-            // Deep blue accent bottom
+            // Deep blue bottom-left
             RadialGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "#1E3A5F").opacity(0.20),
-                    Color.clear
-                ]),
-                center: .init(x: 0.1, y: 0.9),
-                startRadius: 0,
-                endRadius: 260
+                gradient: Gradient(colors: [Color(hex: "#1E3A5F").opacity(0.18), Color.clear]),
+                center: .init(x: 0.08, y: 0.88),
+                startRadius: 0, endRadius: 280
             )
         }
         .ignoresSafeArea()
@@ -153,114 +165,326 @@ struct DashboardView: View {
 
     // MARK: - Header
     private var headerSection: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(dateString)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.white.opacity(0.4))
-                    .textCase(nil)
+        VStack(spacing: 16) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(dateString)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.38))
 
-                Text(greeting)
-                    .font(.system(size: 28, weight: .bold, design: .default))
-                    .foregroundColor(.white)
-            }
+                    Text(greeting)
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(.white)
+                }
 
-            Spacer()
+                Spacer()
 
-            Button {
-                showSettings = true
-            } label: {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 18, weight: .regular))
-                    .foregroundColor(.white.opacity(0.6))
-                    .frame(width: 42, height: 42)
-                    .background {
-                        ZStack {
-                            Circle().fill(.ultraThinMaterial)
-                            Circle().fill(Color.white.opacity(0.07))
-                            Circle().stroke(Color.white.opacity(0.18), lineWidth: 1)
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(.white.opacity(0.55))
+                        .frame(width: 42, height: 42)
+                        .background {
+                            ZStack {
+                                Circle().fill(.ultraThinMaterial)
+                                Circle().fill(Color.white.opacity(0.06))
+                                Circle().stroke(Color.white.opacity(0.14), lineWidth: 1)
+                            }
                         }
-                    }
+                }
+                .accessibilityLabel("Settings")
             }
-            .accessibilityLabel("Settings")
+
+            // ── Floating streak pill ──
+            HStack(spacing: 0) {
+                HStack(spacing: 8) {
+                    Text("🔥")
+                        .font(.system(size: 13))
+                    Text("Day \(vm.streak)")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color(hex: "#A78BFA"), Color(hex: "#8A4AF3")],
+                                startPoint: .leading, endPoint: .trailing
+                            )
+                        )
+                    Text("streak")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.50))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color(hex: "#8A4AF3").opacity(0.5), Color(hex: "#8A4AF3").opacity(0.1)],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: Color(hex: "#8A4AF3").opacity(0.25), radius: 12, x: 0, y: 4)
+
+                Spacer()
+
+                // Tasks remaining badge
+                HStack(spacing: 5) {
+                    Text("\(vm.pendingTasks.count)")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                    Text("tasks left")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.45))
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1))
+            }
         }
         .padding(.horizontal, 20)
     }
 
-    // MARK: - Task List
+    // MARK: - Task List Section
     private var taskListSection: some View {
         VStack(spacing: 0) {
             // Section header
-            HStack {
-                Text("TODAY")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.35))
-                    .kerning(1.4)
+            HStack(spacing: 10) {
+                Text("Today")
+                    .font(.system(size: 19, weight: .bold))
+                    .foregroundColor(.white)
+
+                Text("\(vm.pendingTasks.count)")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color(hex: "#8A4AF3"))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color(hex: "#8A4AF3").opacity(0.15))
+                    .clipShape(Capsule())
+
                 Spacer()
-                Text("\(vm.pendingTasks.count) remaining")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.3))
+
+                Text("remaining")
+                    .font(.system(size: 13))
+                    .foregroundColor(.white.opacity(0.28))
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 8)
+            .padding(.bottom, 12)
 
-            // Pending tasks
-            VStack(spacing: 0) {
+            // Individual task cards
+            VStack(spacing: 8) {
                 ForEach(vm.pendingTasks) { task in
-                    TaskRow(task: task) { vm.toggle(task) }
-                        .padding(.horizontal, 16)
-
-                    if task.id != vm.pendingTasks.last?.id {
-                        Divider()
-                            .background(Color.white.opacity(0.06))
-                            .padding(.horizontal, 16)
-                    }
+                    taskCard(task)
+                        .matchedGeometryEffect(id: task.id, in: cardNS, isSource: focusedTask?.id != task.id)
                 }
             }
-            .liquidGlass(cornerRadius: 20)
             .padding(.horizontal, 16)
 
             // Done section
             if !vm.completedTasks.isEmpty {
-                doneSection
-                    .padding(.top, 16)
+                doneSection.padding(.top, 20)
             }
         }
+    }
+
+    // ── Individual task card ──
+    @ViewBuilder
+    private func taskCard(_ task: OpusTask) -> some View {
+        TaskRow(task: task, onToggle: { vm.toggle(task) })
+            .padding(.horizontal, 16)
+            .background {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(hex: "#1A1A1E"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.07), lineWidth: 0.5)
+                    )
+                    .shadow(color: .black.opacity(0.30), radius: 8, x: 0, y: 4)
+            }
+            .contextMenu {
+                Button { vm.toggle(task) } label: {
+                    Label(task.isCompleted ? "Mark Incomplete" : "Mark Complete",
+                          systemImage: task.isCompleted ? "arrow.uturn.backward" : "checkmark.circle.fill")
+                }
+                Divider()
+                Button(role: .destructive) { vm.deleteTask(task) } label: {
+                    Label("Delete", systemImage: "trash.fill")
+                }
+            }
+            .onTapGesture {
+                withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
+                    focusedTask = task
+                }
+            }
+    }
+
+    // MARK: - Task Detail Card (matchedGeometryEffect destination)
+    @ViewBuilder
+    private func taskDetailCard(_ task: OpusTask, geo: GeometryProxy) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+
+            // Top row: category + close
+            HStack {
+                Text(task.category.rawValue)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(task.category.color)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 5)
+                    .background(task.category.color.opacity(0.15))
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(task.category.color.opacity(0.3), lineWidth: 0.5))
+
+                Spacer()
+
+                Button {
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
+                        focusedTask = nil
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.55))
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.09))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.bottom, 20)
+
+            // Title
+            Text(task.title)
+                .font(.system(size: 26, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.bottom, 12)
+
+            // Due label
+            if let due = task.dueLabel {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.35))
+                    Text("Due: \(due)")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.45))
+                }
+                .padding(.bottom, 24)
+            }
+
+            Divider()
+                .background(Color.white.opacity(0.08))
+                .padding(.bottom, 20)
+
+            // Actions
+            HStack(spacing: 12) {
+                Button {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.65)) {
+                        vm.toggle(task)
+                    }
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
+                        focusedTask = nil
+                    }
+                } label: {
+                    Label(task.isCompleted ? "Mark Incomplete" : "Mark Complete",
+                          systemImage: task.isCompleted ? "arrow.uturn.backward" : "checkmark.circle.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                startPoint: .leading, endPoint: .trailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
+                Button {
+                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
+                    vm.deleteTask(task)
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
+                        focusedTask = nil
+                    }
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 15))
+                        .foregroundColor(.white.opacity(0.7))
+                        .frame(width: 48, height: 48)
+                        .background(Color.white.opacity(0.07))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+                        )
+                }
+            }
+        }
+        .padding(24)
+        .background {
+            RoundedRectangle(cornerRadius: 26)
+                .fill(Color(hex: "#1A1A1E"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 26)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.18), Color.white.opacity(0.04)],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(color: .black.opacity(0.6), radius: 40, x: 0, y: 20)
+        }
+        .padding(.horizontal, 20)
     }
 
     // MARK: - Done Section
     private var doneSection: some View {
         VStack(spacing: 0) {
-            HStack {
-                Text("DONE")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(Color(hex: "#34D399").opacity(0.6))
-                    .kerning(1.4)
+            HStack(spacing: 10) {
+                Text("Done")
+                    .font(.system(size: 19, weight: .bold))
+                    .foregroundColor(Color(hex: "#34D399").opacity(0.85))
+
                 Text("\(vm.completedTasks.count)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(Color(hex: "#34D399").opacity(0.5))
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 2)
-                    .background(Color(hex: "#34D399").opacity(0.1))
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color(hex: "#34D399"))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Color(hex: "#34D399").opacity(0.12))
                     .clipShape(Capsule())
+
                 Spacer()
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 8)
+            .padding(.bottom, 12)
 
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 ForEach(vm.completedTasks) { task in
-                    TaskRow(task: task) { vm.toggle(task) }
+                    TaskRow(task: task, onToggle: { vm.toggle(task) })
                         .padding(.horizontal, 16)
-
-                    if task.id != vm.completedTasks.last?.id {
-                        Divider()
-                            .background(Color.white.opacity(0.06))
-                            .padding(.horizontal, 16)
-                    }
+                        .background {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(hex: "#141416"))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.white.opacity(0.05), lineWidth: 0.5)
+                                )
+                        }
+                        .contextMenu {
+                            Button { vm.toggle(task) } label: {
+                                Label("Mark Incomplete", systemImage: "arrow.uturn.backward")
+                            }
+                            Divider()
+                            Button(role: .destructive) { vm.deleteTask(task) } label: {
+                                Label("Delete", systemImage: "trash.fill")
+                            }
+                        }
                 }
             }
-            .liquidGlass(cornerRadius: 20)
             .padding(.horizontal, 16)
         }
     }
@@ -273,40 +497,46 @@ struct DashboardView: View {
                     vm.showLater.toggle()
                 }
             } label: {
-                HStack {
-                    Text("LATER")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.35))
-                        .kerning(1.4)
+                HStack(spacing: 10) {
+                    Text("Later")
+                        .font(.system(size: 19, weight: .bold))
+                        .foregroundColor(.white.opacity(0.55))
+
                     Text("\(vm.laterTasks.count)")
-                        .font(.system(size: 11))
-                        .foregroundColor(.white.opacity(0.3))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.35))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.white.opacity(0.07))
+                        .clipShape(Capsule())
+
                     Spacer()
+
                     Image(systemName: vm.showLater ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.3))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.28))
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, vm.showLater ? 8 : 0)
+                .padding(.bottom, vm.showLater ? 12 : 0)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Later tasks, \(vm.laterTasks.count) items")
-            .accessibilityAddTraits(.isButton)
 
             if vm.showLater {
-                VStack(spacing: 0) {
+                VStack(spacing: 8) {
                     ForEach(vm.laterTasks) { task in
-                        TaskRow(task: task) {}
+                        TaskRow(task: task, onToggle: {})
                             .padding(.horizontal, 16)
-
-                        if task.id != vm.laterTasks.last?.id {
-                            Divider()
-                                .background(Color.white.opacity(0.06))
-                                .padding(.horizontal, 16)
-                        }
+                            .background {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(hex: "#141416"))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.white.opacity(0.05), lineWidth: 0.5)
+                                    )
+                            }
                     }
                 }
-                .liquidGlass(cornerRadius: 20)
                 .padding(.horizontal, 16)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -317,42 +547,41 @@ struct DashboardView: View {
     private var settingsSheet: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "#0F0E11").ignoresSafeArea()
+                Color(hex: "#0D0D10").ignoresSafeArea()
 
                 VStack(spacing: 24) {
-                    // Profile section
                     VStack(spacing: 12) {
-                        Circle()
-                            .fill(LinearGradient(
-                                colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
-                                startPoint: .topLeading, endPoint: .bottomTrailing
-                            ))
-                            .frame(width: 72, height: 72)
-                            .overlay(
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.white)
-                            )
-
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                        startPoint: .topLeading, endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 72, height: 72)
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.white)
+                        }
                         Text("Hector")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.white)
                     }
                     .padding(.top, 8)
 
-                    // Settings options
                     VStack(spacing: 0) {
                         ForEach([
-                            ("bell.fill", "Notifications"),
-                            ("moon.fill", "Focus Preferences"),
-                            ("chart.bar.fill", "Statistics"),
-                            ("shield.fill", "Privacy"),
-                            ("info.circle.fill", "About Opus")
+                            ("bell.fill",       "Notifications"),
+                            ("moon.fill",       "Focus Preferences"),
+                            ("chart.bar.fill",  "Statistics"),
+                            ("shield.fill",     "Privacy"),
+                            ("info.circle.fill","About Opus")
                         ], id: \.1) { icon, title in
                             HStack(spacing: 14) {
                                 Image(systemName: icon)
                                     .font(.system(size: 15))
-                                    .foregroundColor(Color(hex: "#F5A623"))
+                                    .foregroundColor(Color(hex: "#8A4AF3"))
                                     .frame(width: 28)
                                 Text(title)
                                     .font(.system(size: 16, weight: .medium))
@@ -360,7 +589,7 @@ struct DashboardView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.25))
+                                    .foregroundColor(.white.opacity(0.22))
                             }
                             .padding(.horizontal, 18)
                             .padding(.vertical, 14)
@@ -383,7 +612,7 @@ struct DashboardView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { showSettings = false }
-                        .foregroundColor(Color(hex: "#F5A623"))
+                        .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
         }
@@ -396,7 +625,7 @@ struct DashboardView: View {
     private var addTaskSheet: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "#0F0E11").ignoresSafeArea()
+                Color(hex: "#0D0D10").ignoresSafeArea()
 
                 VStack(spacing: 20) {
                     TextField("Task title", text: $vm.newTaskTitle)
@@ -407,7 +636,7 @@ struct DashboardView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                                .stroke(Color(hex: "#8A4AF3").opacity(0.3), lineWidth: 1)
                         )
                         .onChange(of: vm.newTaskTitle) { _, new in
                             if new.count > InputValidator.maxTaskTitleLength {
@@ -423,9 +652,8 @@ struct DashboardView: View {
                             .padding()
                             .background(
                                 LinearGradient(
-                                    colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                                    colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                    startPoint: .leading, endPoint: .trailing
                                 )
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -442,7 +670,7 @@ struct DashboardView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { vm.showAddTask = false }
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(.white.opacity(0.55))
                 }
             }
         }
@@ -461,7 +689,7 @@ struct DashboardView: View {
                     .font(.system(size: 52, weight: .thin))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
+                            colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
                             startPoint: .topLeading, endPoint: .bottomTrailing
                         )
                     )
@@ -470,7 +698,7 @@ struct DashboardView: View {
                     .foregroundColor(.white)
                 Text(subtitle)
                     .font(.system(size: 15))
-                    .foregroundColor(.white.opacity(0.45))
+                    .foregroundColor(.white.opacity(0.40))
                     .multilineTextAlignment(.center)
             }
             .padding(40)
