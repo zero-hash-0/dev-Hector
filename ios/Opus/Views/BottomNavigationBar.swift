@@ -37,78 +37,89 @@ struct BottomNavigationBar: View {
     private let rightTabs: [AppTab] = [.focus, .profile]
 
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                // ── Pill background ──
-                Capsule().fill(.ultraThinMaterial)
-                Capsule().fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)],
-                        startPoint: .top, endPoint: .bottom
-                    )
-                )
-                Capsule().stroke(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.40), Color.white.opacity(0.08)],
-                        startPoint: .topLeading, endPoint: .bottomTrailing
-                    ), lineWidth: 1
-                )
-
-                // ── Two tabs on each side, FAB gap in center ──
-                HStack(spacing: 0) {
-                    // Left: Today + Projects — equal half of remaining space
-                    HStack(spacing: 0) {
-                        ForEach(leftTabs, id: \.self) { tab in
-                            TabBarItem(tab: tab, isSelected: selectedTab == tab, reduceMotion: reduceMotion) {
-                                withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
-                                    selectedTab = tab
-                                }
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-
-                    // Center gap for FAB
-                    Spacer().frame(width: 72)
-
-                    // Right: Focus + Profile — equal half of remaining space
-                    HStack(spacing: 0) {
-                        ForEach(rightTabs, id: \.self) { tab in
-                            TabBarItem(tab: tab, isSelected: selectedTab == tab, reduceMotion: reduceMotion) {
-                                withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
-                                    selectedTab = tab
-                                }
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
+        VStack(spacing: -28) {
+            // ── FAB — floats above the pill, overlaps it by half ──
+            Button(action: onAdd) {
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(
+                            colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 56, height: 56)
+                        .shadow(color: Color(hex: "#F5A623").opacity(0.55), radius: 18, x: 0, y: 4)
+                    Image(systemName: "plus")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.white)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 14)
-
-                // ── FAB centered ──
-                Button(action: onAdd) {
-                    ZStack {
-                        Circle()
-                            .fill(LinearGradient(
-                                colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
-                                startPoint: .topLeading, endPoint: .bottomTrailing
-                            ))
-                            .frame(width: 56, height: 56)
-                            .shadow(color: Color(hex: "#F5A623").opacity(0.55), radius: 18, x: 0, y: 4)
-                        Image(systemName: "plus")
-                            .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
-                    }
-                }
-                .buttonStyle(FABButtonStyle())
-                .offset(y: -36)
-                .accessibilityLabel("Add task")
             }
-            .shadow(color: .black.opacity(0.5), radius: 28, x: 0, y: 10)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24)
+            .buttonStyle(FABButtonStyle())
+            .accessibilityLabel("Add task")
+            .zIndex(1)
+
+            // ── Tab pill — sized by HStack content, Capsule in background ──
+            HStack(spacing: 0) {
+                // Left tabs
+                HStack(spacing: 0) {
+                    ForEach(leftTabs, id: \.self) { tab in
+                        TabBarItem(
+                            tab: tab,
+                            isSelected: selectedTab == tab,
+                            reduceMotion: reduceMotion
+                        ) {
+                            withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
+                                selectedTab = tab
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+
+                // Gap for FAB
+                Spacer().frame(width: 64)
+
+                // Right tabs
+                HStack(spacing: 0) {
+                    ForEach(rightTabs, id: \.self) { tab in
+                        TabBarItem(
+                            tab: tab,
+                            isSelected: selectedTab == tab,
+                            reduceMotion: reduceMotion
+                        ) {
+                            withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7)) {
+                                selectedTab = tab
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 14)
+            .background {
+                // Capsule is constrained to match the HStack size — no more full-screen expansion
+                ZStack {
+                    Capsule().fill(.ultraThinMaterial)
+                    Capsule().fill(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)],
+                            startPoint: .top, endPoint: .bottom
+                        )
+                    )
+                    Capsule().stroke(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.40), Color.white.opacity(0.08)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+                }
+                .shadow(color: .black.opacity(0.5), radius: 28, x: 0, y: 10)
+            }
         }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 24)
     }
 }
 
@@ -129,9 +140,7 @@ private struct TabBarItem: View {
                         isSelected
                             ? AnyShapeStyle(LinearGradient(
                                 colors: [Color(hex: "#F5A623"), Color(hex: "#FF6B6B")],
-                                startPoint: .top,
-                                endPoint: .bottom
-                              ))
+                                startPoint: .top, endPoint: .bottom))
                             : AnyShapeStyle(Color.white.opacity(0.35))
                     )
                     .scaleEffect(isSelected ? 1.08 : 1.0)
