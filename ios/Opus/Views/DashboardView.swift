@@ -3,13 +3,24 @@ import SwiftUI
 // MARK: - Dashboard ViewModel
 @MainActor
 final class DashboardViewModel: ObservableObject {
-    @Published var todayTasks: [OpusTask]  = []
-    @Published var laterTasks: [OpusTask]  = []
-    @Published var momentum: Int           = 0
-    @Published var streak: Int             = 0
-    @Published var showLater: Bool         = false
-    @Published var showAddTask: Bool       = false
-    @Published var newTaskTitle: String    = ""
+    @Published var todayTasks:       [OpusTask] = [] { didSet { save() } }
+    @Published var laterTasks:       [OpusTask] = [] { didSet { save() } }
+    @Published var completedHistory: [HistoryEntry] = [] { didSet { saveHistory() } }
+    @Published var momentum: Int = 0 { didSet { UserDefaults.standard.set(momentum, forKey: "momentum") } }
+    @Published var streak:   Int = 0 { didSet { UserDefaults.standard.set(streak,   forKey: "streak")   } }
+    @Published var showLater:    Bool   = false
+    @Published var showAddTask:  Bool   = false
+    @Published var newTaskTitle: String = ""
+
+    private let todayKey   = "todayTasks_v1"
+    private let laterKey   = "laterTasks_v1"
+    private let historyKey = "completedHistory_v1"
+    private let lastDateKey = "lastActiveDate"
+
+    init() {
+        load()
+        checkDailyReset()
+    }
 
     var completedTasks: [OpusTask] { todayTasks.filter(\.isCompleted) }
     var pendingTasks:   [OpusTask] { todayTasks.filter { !$0.isCompleted } }
@@ -34,6 +45,71 @@ final class DashboardViewModel: ObservableObject {
         todayTasks.append(task)
         newTaskTitle = ""
         showAddTask = false
+    }
+
+    // MARK: - Daily Reset
+    private func checkDailyReset() {
+        let today     = Calendar.current.startOfDay(for: Date())
+        let lastStr   = UserDefaults.standard.string(forKey: lastDateKey) ?? ""
+        let fmt       = ISO8601DateFormatter(); fmt.formatOptions = [.withFullDate]
+        let todayStr  = fmt.string(from: today)
+
+        if lastStr != todayStr {
+            // Archive any completed tasks from yesterday into history
+            let done = todayTasks.filter(\.isCompleted)
+            if !done.isEmpty {
+                let entry = HistoryEntry(date: lastStr.isEmpty ? todayStr : lastStr, tasks: done)
+                completedHistory.insert(entry, at: 0)
+            }
+            // Remove completed tasks, carry over pending
+            todayTasks.removeAll { $0.isCompleted }
+            // Update streak
+            if !done.isEmpty {
+                streak += 1
+            } else if !lastStr.isEmpty {
+                streak = 0   // missed a day
+            }
+            UserDefaults.standard.set(todayStr, forKey: lastDateKey)
+        }
+    }
+
+    // MARK: - Persistence
+    private func save() {
+        let enc = JSONEncoder()
+        if let d = try? enc.encode(todayTasks) { UserDefaults.standard.set(d, forKey: todayKey) }
+        if let d = try? enc.encode(laterTasks) { UserDefaults.standard.set(d, forKey: laterKey) }
+    }
+
+    private func saveHistory() {
+        let enc = JSONEncoder()
+        // Keep last 90 days
+        let trimmed = Array(completedHistory.prefix(90))
+        if let d = try? enc.encode(trimmed) { UserDefaults.standard.set(d, forKey: historyKey) }
+    }
+
+    private func load() {
+        let dec = JSONDecoder()
+        if let d = UserDefaults.standard.data(forKey: todayKey),
+           let t = try? dec.decode([OpusTask].self, from: d) { todayTasks = t }
+        if let d = UserDefaults.standard.data(forKey: laterKey),
+           let t = try? dec.decode([OpusTask].self, from: d) { laterTasks = t }
+        if let d = UserDefaults.standard.data(forKey: historyKey),
+           let h = try? dec.decode([HistoryEntry].self, from: d) { completedHistory = h }
+        momentum = UserDefaults.standard.integer(forKey: "momentum")
+        streak   = UserDefaults.standard.integer(forKey: "streak")
+    }
+}
+
+// MARK: - History Entry
+struct HistoryEntry: Identifiable, Codable {
+    let id:    UUID
+    let date:  String   // ISO8601 date string "2026-03-17"
+    let tasks: [OpusTask]
+
+    init(id: UUID = UUID(), date: String, tasks: [OpusTask]) {
+        self.id    = id
+        self.date  = date
+        self.tasks = tasks
     }
 }
 
@@ -97,7 +173,8 @@ struct DashboardView: View {
                         ProfileView(
                             streak: vm.streak,
                             momentum: vm.momentum,
-                            completedCount: vm.completedTasks.count,
+                            completedCount: vm.completedTasks.count + vm.completedHistory.reduce(0) { $0 + $1.tasks.count },
+                            history: vm.completedHistory,
                             geo: geo
                         )
                     }

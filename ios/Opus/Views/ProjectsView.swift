@@ -3,10 +3,14 @@ import SwiftUI
 // MARK: - Projects ViewModel
 @MainActor
 final class ProjectsViewModel: ObservableObject {
-    @Published var projects: [Project] = []
-    @Published var showAdd = false
-    @Published var newName = ""
-    @Published var newEmoji = "📁"
+    @Published var projects: [Project] = [] { didSet { save() } }
+    @Published var showAdd   = false
+    @Published var newName   = ""
+    @Published var newEmoji  = "📁"
+
+    private let key = "projects_v1"
+
+    init() { load() }
 
     func addProject() {
         guard !newName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
@@ -15,6 +19,19 @@ final class ProjectsViewModel: ObservableObject {
         projects.append(Project(name: newName.trimmingCharacters(in: .whitespaces),
                                 emoji: newEmoji, colorHex: hex))
         newName = ""; newEmoji = "📁"; showAdd = false
+    }
+
+    // MARK: - Persistence
+    private func save() {
+        if let d = try? JSONEncoder().encode(projects) {
+            UserDefaults.standard.set(d, forKey: key)
+        }
+    }
+
+    private func load() {
+        guard let d = UserDefaults.standard.data(forKey: key),
+              let p = try? JSONDecoder().decode([Project].self, from: d) else { return }
+        projects = p
     }
 }
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Task Category
-enum TaskCategory: String, CaseIterable, Identifiable {
+enum TaskCategory: String, CaseIterable, Identifiable, Codable {
     case work   = "Work"
     case side   = "Side"
     case learn  = "Learn"
@@ -22,13 +22,13 @@ enum TaskCategory: String, CaseIterable, Identifiable {
 }
 
 // MARK: - Task Schedule
-enum TaskSchedule: String {
+enum TaskSchedule: String, Codable {
     case today = "today"
     case later = "later"
 }
 
 // MARK: - Task Model
-struct OpusTask: Identifiable {
+struct OpusTask: Identifiable, Codable {
     let id: UUID
     var title: String
     var category: TaskCategory
