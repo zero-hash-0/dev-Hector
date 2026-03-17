@@ -13,6 +13,8 @@ final class DashboardViewModel: ObservableObject {
     @Published var newTaskTitle:    String       = ""
     @Published var newTaskCategory: TaskCategory = .work
     @Published var newTaskSchedule: TaskSchedule = .today
+    @Published var hasDueDate:      Bool         = false
+    @Published var newTaskDueDate:  Date         = Date()
 
     private let todayKey   = "todayTasks_v1"
     private let laterKey   = "laterTasks_v1"
@@ -43,18 +45,39 @@ final class DashboardViewModel: ObservableObject {
     func addTask() {
         guard InputValidator.isValidTaskTitle(newTaskTitle) else { return }
         let title = InputValidator.sanitizeTaskTitle(newTaskTitle)
-        let task  = OpusTask(
+        let dueLabel: String? = {
+            guard hasDueDate else {
+                return newTaskSchedule == .today ? "today" : nil
+            }
+            let cal = Calendar.current
+            if cal.isDateInToday(newTaskDueDate)    { return "today" }
+            if cal.isDateInTomorrow(newTaskDueDate) { return "tomorrow" }
+            let f = DateFormatter(); f.dateFormat = "MMM d"
+            return f.string(from: newTaskDueDate)
+        }()
+        let task = OpusTask(
             title:    title,
             category: newTaskCategory,
             schedule: newTaskSchedule,
-            dueLabel: newTaskSchedule == .today ? "today" : nil
+            dueLabel: dueLabel
         )
         if newTaskSchedule == .today { todayTasks.append(task) }
         else                         { laterTasks.append(task) }
         newTaskTitle    = ""
         newTaskCategory = .work
         newTaskSchedule = .today
+        hasDueDate      = false
+        newTaskDueDate  = Date()
         showAddTask     = false
+    }
+
+    func promoteToToday(_ task: OpusTask) {
+        guard let idx = laterTasks.firstIndex(where: { $0.id == task.id }) else { return }
+        var promoted = laterTasks[idx]
+        promoted.schedule = .today
+        promoted.dueLabel = "today"
+        laterTasks.remove(at: idx)
+        todayTasks.append(promoted)
     }
 
     // MARK: - Daily Reset
@@ -682,6 +705,18 @@ struct DashboardView: View {
                                             .stroke(Color.white.opacity(0.05), lineWidth: 0.5)
                                     )
                             }
+                            .contextMenu {
+                                Button {
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                    withAnimation(.spring(response: 0.4)) { vm.promoteToToday(task) }
+                                } label: {
+                                    Label("Move to Today", systemImage: "sun.max.fill")
+                                }
+                                Divider()
+                                Button(role: .destructive) { vm.deleteTask(task) } label: {
+                                    Label("Delete", systemImage: "trash.fill")
+                                }
+                            }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -880,6 +915,27 @@ struct DashboardView: View {
                                     }
                                     .buttonStyle(.plain)
                                 }
+                            }
+                        }
+
+                        // ── Due date ──
+                        VStack(alignment: .leading, spacing: 10) {
+                            Toggle(isOn: $vm.hasDueDate.animation(.spring(response: 0.3))) {
+                                Label("Set due date", systemImage: "calendar")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.35))
+                            }
+                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "#8A4AF3")))
+
+                            if vm.hasDueDate {
+                                DatePicker("", selection: $vm.newTaskDueDate,
+                                           in: Date()...,
+                                           displayedComponents: .date)
+                                    .datePickerStyle(.compact)
+                                    .colorScheme(.dark)
+                                    .accentColor(Color(hex: "#8A4AF3"))
+                                    .labelsHidden()
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         }
 
