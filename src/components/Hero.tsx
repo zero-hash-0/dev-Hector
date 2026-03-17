@@ -1,40 +1,38 @@
 "use client";
+
 import { useEffect } from "react";
 import { type Variants, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-// ─── Animation variants ──────────────────────────────────────────────────────
+import TerminalWindow from "./TerminalWindow";
+
+// ── Animation variants ────────────────────────────────────────────────────────
 const container: Variants = {
   hidden: {},
   show: {
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.06,
-    },
+    transition: { staggerChildren: 0.1, delayChildren: 0.06 },
   },
 };
+
 const slideUp: Variants = {
   hidden: { opacity: 0, y: 32 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
 };
+
 const fadeIn: Variants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration: 0.65, ease: "easeOut" as const },
-  },
+  show: { opacity: 1, transition: { duration: 0.65, ease: "easeOut" as const } },
 };
+
 const subtleFade: Variants = {
   hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
 };
-// ─── Grain overlay ───────────────────────────────────────────────────────────
+
+const terminalFade: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// ── Grain overlay ─────────────────────────────────────────────────────────────
 function GrainOverlay() {
   return (
     <div
@@ -49,7 +47,8 @@ function GrainOverlay() {
     />
   );
 }
-// ─── Ambient glow ────────────────────────────────────────────────────────────
+
+// ── Ambient glow ──────────────────────────────────────────────────────────────
 function AmbientGlow() {
   const mouseX = useMotionValue(0.4);
   const mouseY = useMotionValue(0.35);
@@ -57,6 +56,7 @@ function AmbientGlow() {
   const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
   const x = useTransform(springX, [0, 1], ["-10%", "30%"]);
   const y = useTransform(springY, [0, 1], ["-20%", "20%"]);
+
   useEffect(() => {
     const mq = window.matchMedia("(pointer: fine)");
     if (!mq.matches) return;
@@ -67,6 +67,7 @@ function AmbientGlow() {
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, [mouseX, mouseY]);
+
   return (
     <motion.div
       aria-hidden
@@ -87,7 +88,8 @@ function AmbientGlow() {
     </motion.div>
   );
 }
-// ─── Social links ────────────────────────────────────────────────────────────
+
+// ── Social links ──────────────────────────────────────────────────────────────
 const socials = [
   {
     label: "GitHub",
@@ -108,96 +110,123 @@ const socials = [
     ),
   },
 ];
-// ─── Hero ────────────────────────────────────────────────────────────────────
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
 export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-background">
       <GrainOverlay />
       <AmbientGlow />
-      <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-24 pb-14 md:px-8 md:pt-32 md:pb-20">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col gap-8 md:gap-10"
-        >
-          <motion.p
-            variants={fadeIn}
-            className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted"
-          >
-            Based in Florida
-          </motion.p>
-          <motion.div
-            variants={slideUp}
-            className="flex flex-col gap-1.5 md:gap-2"
-          >
-            <h1 className="text-[clamp(3.5rem,10vw,7.2rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-foreground">
-              Hector
-            </h1>
-            <p className="text-[clamp(1.55rem,4.3vw,3.15rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-muted">
-              Developer &amp; Product Builder
-            </p>
-          </motion.div>
-          <motion.div variants={fadeIn} className="max-w-[680px]">
-            <p className="text-[1rem] leading-[1.5] text-muted md:text-[1.2rem] md:leading-[1.55]">
-              I design and build high-performance digital products with a
-              security-first mindset. My work spans iOS apps, real-time
-              platforms, and full-stack systems.
-            </p>
-          </motion.div>
-          <motion.div
-            variants={subtleFade}
-            className="flex flex-wrap items-center gap-3"
-          >
-            <motion.a
-              href="#projects"
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-accent px-6 py-3 text-sm font-semibold text-background"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            >
-              <span className="relative z-10">View Work</span>
-              <motion.span
-                className="relative z-10 inline-block"
-                whileHover={{ x: 3 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25 }}
-              >
-                →
-              </motion.span>
-              <span className="absolute inset-0 bg-accent-dim opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-            </motion.a>
-            <motion.a
-              href="#contact"
-              className="inline-flex items-center rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-zinc-600 hover:text-foreground"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            >
-              Let&apos;s Build Something
-            </motion.a>
-          </motion.div>
+
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pt-24 pb-14 md:px-8 md:pt-32 md:pb-24">
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          {/* ── Left: text content ── */}
           <motion.div
             variants={container}
-            className="flex items-center gap-5 pt-1"
+            initial="hidden"
+            animate="show"
+            className="flex flex-col gap-8"
           >
-            {socials.map((s) => (
+            <motion.p
+              variants={fadeIn}
+              className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted"
+            >
+              Based in Florida
+            </motion.p>
+
+            <motion.div variants={slideUp} className="flex flex-col gap-1.5 md:gap-2">
+              <h1 className="text-[clamp(3rem,8vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-foreground">
+                Hector
+              </h1>
+              <p className="text-[clamp(1.2rem,3vw,2.2rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-muted">
+                Developer &amp; Product Builder
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeIn} className="max-w-[520px]">
+              <p className="text-[0.95rem] leading-[1.65] text-muted">
+                I build high-performance digital products with a security-first
+                mindset — spanning iOS apps, real-time platforms, and full-stack
+                systems. Background in cybersecurity and systems architecture.
+              </p>
+            </motion.div>
+
+            {/* Badges */}
+            <motion.div variants={subtleFade} className="flex flex-wrap gap-2">
+              {["Swift / SwiftUI", "React / Next.js", "Cybersecurity", "Product Design"].map((tag) => (
+                <span
+                  key={tag}
+                  className="font-mono text-[11px] px-3 py-1 rounded-full border border-border text-muted tracking-wide"
+                >
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* CTAs */}
+            <motion.div variants={subtleFade} className="flex flex-wrap items-center gap-3">
               <motion.a
-                key={s.label}
-                variants={subtleFade}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
-                className="text-muted transition-colors duration-200 hover:text-foreground"
-                whileHover={{ scale: 1.12, y: -1 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                href="#projects"
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-accent px-6 py-3 text-sm font-semibold text-background"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
               >
-                {s.icon}
+                <span className="relative z-10">View Work</span>
+                <motion.span
+                  className="relative z-10 inline-block"
+                  whileHover={{ x: 3 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                >
+                  →
+                </motion.span>
+                <span className="absolute inset-0 bg-accent-dim opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
               </motion.a>
-            ))}
+
+              <motion.a
+                href="#contact"
+                className="inline-flex items-center rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-zinc-600 hover:text-foreground"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              >
+                Let&apos;s Build Something
+              </motion.a>
+            </motion.div>
+
+            {/* Socials */}
+            <motion.div variants={container} className="flex items-center gap-5 pt-1">
+              {socials.map((s) => (
+                <motion.a
+                  key={s.label}
+                  variants={subtleFade}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="text-muted transition-colors duration-200 hover:text-foreground"
+                  whileHover={{ scale: 1.12, y: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                >
+                  {s.icon}
+                </motion.a>
+              ))}
+            </motion.div>
           </motion.div>
-        </motion.div>
+
+          {/* ── Right: terminal ── */}
+          <motion.div
+            variants={terminalFade}
+            initial="hidden"
+            animate="show"
+            className="hidden md:block"
+          >
+            <TerminalWindow />
+          </motion.div>
+
+        </div>
       </div>
     </section>
   );
