@@ -75,6 +75,13 @@ struct TaskRow: View {
                     .foregroundColor(.white.opacity(0.28))
             }
 
+            // ── Repeat badge ──
+            if task.taskRepeat != .none {
+                Image(systemName: task.taskRepeat == .daily ? "arrow.clockwise" : "calendar.badge.clock")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Color(hex: "#8A4AF3").opacity(0.75))
+            }
+
             // ── Category pill ──
             Text(task.category.rawValue)
                 .font(.system(size: 11, weight: .semibold))

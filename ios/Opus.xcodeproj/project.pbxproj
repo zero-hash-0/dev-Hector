@@ -17,6 +17,7 @@
 		AFE4609F167FD71711E8DE00 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = C78FD0A300CA2D37F03B3A4D /* Project.swift */; };
 		B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358FABC8A6CA55FC301ACE84 /* OpusApp.swift */; };
 		BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */; };
+		CC1A2B3D4E5F60718293A4B5 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B3C4D5E6F70819203B4C5 /* OnboardingView.swift */; };
 		C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */; };
 		DEF3B37D10399ABD99446964 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B54AF5127B993A392CA1CF /* ProjectsView.swift */; };
 		E5585EBC203ED63F88738E62 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BC6382C4295B3835290FEE /* DashboardView.swift */; };
@@ -41,6 +42,7 @@
 		89CB14625CC370DABDE71E0A /* TaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRow.swift; sourceTree = "<group>"; };
 		8D6B0A984BB6C6341A08275A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		DD2B3C4D5E6F70819203B4C5 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		99B54AF5127B993A392CA1CF /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
 		BF5EF88EF8E84C3446F643E7 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		C78FD0A300CA2D37F03B3A4D /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */,
 				21BC6382C4295B3835290FEE /* DashboardView.swift */,
 				5796CAE373DF4A0D3ED1193C /* FocusView.swift */,
+				DD2B3C4D5E6F70819203B4C5 /* OnboardingView.swift */,
 				8F764D6C5E07DDE46CDCAE4A /* ProfileView.swift */,
 				99B54AF5127B993A392CA1CF /* ProjectsView.swift */,
 				4241B9C73841E229B3573B82 /* StatsCard.swift */,
@@ -188,6 +191,7 @@
 				1F88C005A8E0BD5E83B1264F /* KeychainManager.swift in Sources */,
 				644ED1847DADD07E0CC6607A /* LaunchScreen.swift in Sources */,
 				388198C7533C4C1A59BB3D36 /* OfflineView.swift in Sources */,
+				CC1A2B3D4E5F60718293A4B5 /* OnboardingView.swift in Sources */,
 				B9BE38C158FB673B41AB25E0 /* OpusApp.swift in Sources */,
 				C833D21CE9C1BC9FE08A2E82 /* OpusWebView.swift in Sources */,
 				BBDA52436F45816959D2CB60 /* ProfileView.swift in Sources */,

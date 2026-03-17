@@ -27,6 +27,29 @@ enum TaskSchedule: String, Codable {
     case later = "later"
 }
 
+// MARK: - Task Repeat
+enum TaskRepeat: String, CaseIterable, Codable {
+    case none    = "none"
+    case daily   = "daily"
+    case weekly  = "weekly"
+
+    var label: String {
+        switch self {
+        case .none:   return "No repeat"
+        case .daily:  return "Every day"
+        case .weekly: return "Every week"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .none:   return "minus"
+        case .daily:  return "arrow.clockwise"
+        case .weekly: return "calendar.badge.clock"
+        }
+    }
+}
+
 // MARK: - Task Model
 struct OpusTask: Identifiable, Codable {
     let id: UUID
@@ -35,6 +58,7 @@ struct OpusTask: Identifiable, Codable {
     var schedule: TaskSchedule
     var dueLabel: String?
     var isCompleted: Bool
+    var taskRepeat: TaskRepeat
 
     init(
         id: UUID = UUID(),
@@ -42,7 +66,8 @@ struct OpusTask: Identifiable, Codable {
         category: TaskCategory,
         schedule: TaskSchedule = .today,
         dueLabel: String? = nil,
-        isCompleted: Bool = false
+        isCompleted: Bool = false,
+        taskRepeat: TaskRepeat = .none
     ) {
         self.id = id
         self.title = title
@@ -50,6 +75,7 @@ struct OpusTask: Identifiable, Codable {
         self.schedule = schedule
         self.dueLabel = dueLabel
         self.isCompleted = isCompleted
+        self.taskRepeat = taskRepeat
     }
 }
 
