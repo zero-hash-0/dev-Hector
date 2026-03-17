@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Projects ViewModel
 @MainActor
 final class ProjectsViewModel: ObservableObject {
-    @Published var projects: [Project] = Project.samples
+    @Published var projects: [Project] = []
     @Published var showAdd = false
     @Published var newName = ""
     @Published var newEmoji = "📁"
@@ -73,11 +73,58 @@ struct ProjectsView: View {
 
     // MARK: Grid
     private var projectGrid: some View {
-        VStack(spacing: 12) {
-            ForEach(vm.projects) { project in
-                ProjectCard(project: project)
-                    .onTapGesture { expandedProject = project }
+        Group {
+            if vm.projects.isEmpty {
+                emptyProjectsState
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(vm.projects) { project in
+                        ProjectCard(project: project)
+                            .onTapGesture { expandedProject = project }
+                    }
+                }
+                .padding(.horizontal, 16)
             }
+        }
+    }
+
+    private var emptyProjectsState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "folder.badge.plus")
+                .font(.system(size: 48, weight: .thin))
+                .foregroundStyle(
+                    LinearGradient(colors: [Color(hex: "#A78BFA"), Color(hex: "#8A4AF3")],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+            Text("No projects yet")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+            Text("Tap the + button to create your first project")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.40))
+                .multilineTextAlignment(.center)
+
+            Button { vm.showAdd = true } label: {
+                Label("New Project", systemImage: "plus")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                       startPoint: .leading, endPoint: .trailing),
+                        in: Capsule()
+                    )
+                    .shadow(color: Color(hex: "#8A4AF3").opacity(0.5), radius: 12, x: 0, y: 4)
+            }
+        }
+        .padding(40)
+        .frame(maxWidth: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(hex: "#1A1A1E"))
+                .overlay(RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color(hex: "#8A4AF3").opacity(0.2), lineWidth: 1))
         }
         .padding(.horizontal, 16)
     }
