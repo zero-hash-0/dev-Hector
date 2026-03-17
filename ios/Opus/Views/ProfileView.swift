@@ -135,13 +135,30 @@ struct ProfileView: View {
                         .onSubmit { userName = editedName; isEditingName = false }
                 } else {
                     Button { editedName = userName; isEditingName = true } label: {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 8) {
                             Text(userName)
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
-                            Image(systemName: "pencil.line")
-                                .font(.system(size: 12))
-                                .foregroundColor(.white.opacity(0.3))
+
+                            if isEarlyTester {
+                                Text("FOUNDER")
+                                    .font(.system(size: 9, weight: .black))
+                                    .tracking(1.4)
+                                    .foregroundColor(Color(hex: "#FF3B30"))
+                                    .padding(.horizontal, 7)
+                                    .padding(.vertical, 3)
+                                    .background(
+                                        Capsule()
+                                            .fill(Color(hex: "#FF3B30").opacity(0.12))
+                                            .overlay(Capsule().stroke(Color(hex: "#FF3B30").opacity(0.45), lineWidth: 1))
+                                    )
+                                    .shadow(color: Color(hex: "#FF3B30").opacity(0.6), radius: 8, x: 0, y: 0)
+                                    .shadow(color: Color(hex: "#FF3B30").opacity(0.3), radius: 16, x: 0, y: 0)
+                            } else {
+                                Image(systemName: "pencil.line")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
                         }
                     }
                 }
