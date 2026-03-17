@@ -14,7 +14,7 @@ export default function Contact() {
           </h2>
           <p className="text-muted max-w-md mx-auto leading-relaxed">
             Have a project in mind, want to collaborate, or just want to say
-            hello — my inbox is open.
+            hello, my inbox is open.
           </p>
         </div>
 

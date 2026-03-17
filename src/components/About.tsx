@@ -75,12 +75,12 @@ export default function About() {
 
           <div className="space-y-4 text-muted leading-[1.8] text-[1rem]">
             <p>
-              Hey — I&apos;m <span className="text-foreground font-medium">Hector Ruiz</span>.
+              Hey, I&apos;m <span className="text-foreground font-medium">Hector Ruiz</span>.
               I studied at St. Petersburg College, where I earned a BAS with a focus
               on Cybersecurity and Systems Architecture.
             </p>
             <p>
-              Cybersecurity isn&apos;t just a career path for me — it&apos;s a conviction.
+              Cybersecurity isn&apos;t just a career path for me, it&apos;s a conviction.
               I got into this field because I genuinely care about privacy and
               believe people deserve to move through the digital world without
               being exposed, exploited, or watched. That principle drives every
@@ -88,7 +88,7 @@ export default function About() {
             </p>
             <p>
               When I&apos;m not writing code, I&apos;m thinking about how good design
-              and strong security can coexist — and building things that prove
+              and strong security can coexist, and building things that prove
               they can.
             </p>
           </div>

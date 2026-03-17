@@ -3,7 +3,7 @@ const projects = [
     name: "Opus",
     status: "Beta",
     description:
-      "A task manager for iOS built around momentum — not just lists. Features home screen widgets, lock screen glanceable data, recurring tasks, and a streak system that keeps you in flow. 25 founding member spots available.",
+      "A task manager for iOS built around momentum, not just lists. Features home screen widgets, lock screen glanceable data, recurring tasks, and a streak system that keeps you in flow. 25 founding member spots available.",
     tech: ["Swift", "SwiftUI", "WidgetKit", "Next.js", "TypeScript"],
     type: "iOS App",
     link: "/beta",

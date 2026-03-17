@@ -156,7 +156,7 @@ export default function TerminalWindow() {
         <span className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
         <span className="w-3 h-3 rounded-full bg-[#28C840]" />
         <span className="mx-auto font-mono text-[11px] tracking-widest" style={{ color: "#333" }}>
-          hector@dev — bash
+          hector@dev - bash
         </span>
       </div>
 
