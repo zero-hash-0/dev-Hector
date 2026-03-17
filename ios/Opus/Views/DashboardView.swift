@@ -217,18 +217,11 @@ struct HistoryEntry: Identifiable, Codable {
     }
 }
 
-// MARK: - Settings sub-sheet routing
-enum SettingsSubSheet: String, Identifiable {
-    case notifications, focusPrefs, statistics, privacy, about
-    var id: String { rawValue }
-}
-
 // MARK: - Dashboard View
 struct DashboardView: View {
     @StateObject private var vm           = DashboardViewModel()
     @State private var selectedTab: AppTab = .today
     @State private var showSettings       = false
-    @State private var activeSubSheet: SettingsSubSheet? = nil
     @State private var focusedTask: OpusTask? = nil
     @State private var filterCategory: TaskCategory? = nil
     @Namespace private var cardNS
@@ -341,15 +334,6 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $vm.showAddTask) { addTaskSheet }
         .sheet(isPresented: $showSettings)   { settingsSheet }
-        .sheet(item: $activeSubSheet) { sub in
-            switch sub {
-            case .notifications: notificationsSheet
-            case .focusPrefs:    focusPrefsSheet
-            case .statistics:    statisticsSheet
-            case .privacy:       privacySheet
-            case .about:         aboutSheet
-            }
-        }
         .fullScreenCover(isPresented: .constant(!hasOnboarded)) { OnboardingView() }
         .preferredColorScheme(.dark)
     }
@@ -945,27 +929,27 @@ struct DashboardView: View {
                         }
                         .padding(.top, 12)
 
-                        // ── Settings rows ──
+                        // ── Settings rows — NavigationLink pushes in-stack ──
                         VStack(spacing: 0) {
-                            settingsRow(icon: "bell.fill", label: "Notifications", color: "#FF6B6B") {
-                                activeSubSheet = .notifications
-                            }
+                            NavigationLink(destination: notificationsSheet.navigationBarBackButtonHidden(false)) {
+                                settingsRowLabel(icon: "bell.fill", label: "Notifications", color: "#FF6B6B")
+                            }.buttonStyle(.plain)
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            settingsRow(icon: "moon.fill", label: "Focus Preferences", color: "#6E6BF5") {
-                                activeSubSheet = .focusPrefs
-                            }
+                            NavigationLink(destination: focusPrefsSheet.navigationBarBackButtonHidden(false)) {
+                                settingsRowLabel(icon: "moon.fill", label: "Focus Preferences", color: "#6E6BF5")
+                            }.buttonStyle(.plain)
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            settingsRow(icon: "chart.bar.fill", label: "Statistics", color: "#34D399") {
-                                activeSubSheet = .statistics
-                            }
+                            NavigationLink(destination: statisticsSheet.navigationBarBackButtonHidden(false)) {
+                                settingsRowLabel(icon: "chart.bar.fill", label: "Statistics", color: "#34D399")
+                            }.buttonStyle(.plain)
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            settingsRow(icon: "shield.fill", label: "Privacy", color: "#60A5FA") {
-                                activeSubSheet = .privacy
-                            }
+                            NavigationLink(destination: privacySheet.navigationBarBackButtonHidden(false)) {
+                                settingsRowLabel(icon: "shield.fill", label: "Privacy", color: "#60A5FA")
+                            }.buttonStyle(.plain)
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            settingsRow(icon: "info.circle.fill", label: "About Opus", color: "#A78BFA") {
-                                activeSubSheet = .about
-                            }
+                            NavigationLink(destination: aboutSheet.navigationBarBackButtonHidden(false)) {
+                                settingsRowLabel(icon: "info.circle.fill", label: "About Opus", color: "#A78BFA")
+                            }.buttonStyle(.plain)
                         }
                         .background(Color(hex: "#1A1A1E"))
                         .clipShape(RoundedRectangle(cornerRadius: 18))
@@ -990,183 +974,159 @@ struct DashboardView: View {
         .preferredColorScheme(.dark)
     }
 
-    private func settingsRow(icon: String, label: String, color: String, action: @escaping () -> Void) -> some View {
-        Button(action: {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            action()
-        }) {
-            HStack(spacing: 14) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(hex: color).opacity(0.18))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: icon)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color(hex: color))
-                }
-                Text(label)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white.opacity(0.9))
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.22))
+    private func settingsRowLabel(icon: String, label: String, color: String) -> some View {
+        HStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(hex: color).opacity(0.18))
+                    .frame(width: 32, height: 32)
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Color(hex: color))
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
+            Text(label)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white.opacity(0.9))
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.22))
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
     }
 
     // MARK: - Notifications Sub-Sheet
     private var notificationsSheet: some View {
-        NavigationStack {
-            ZStack {
-                Color(hex: "#0D0D10").ignoresSafeArea()
-                VStack(spacing: 24) {
-                    // Status card
-                    HStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(hex: "#FF6B6B").opacity(0.15))
-                                .frame(width: 52, height: 52)
-                            Image(systemName: "bell.fill")
-                                .font(.system(size: 22))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
-                        }
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Push Notifications")
-                                .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(.white)
-                            Text(NotificationManager.shared.isAuthorized ? "Enabled ✓" : "Tap to enable in Settings")
-                                .font(.system(size: 13))
-                                .foregroundColor(NotificationManager.shared.isAuthorized
-                                                 ? Color(hex: "#34D399") : Color(hex: "#FF6B6B"))
-                        }
-                        Spacer()
+        ZStack {
+            Color(hex: "#0D0D10").ignoresSafeArea()
+            VStack(spacing: 24) {
+                // Status card
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "#FF6B6B").opacity(0.15))
+                            .frame(width: 52, height: 52)
+                        Image(systemName: "bell.fill")
+                            .font(.system(size: 22))
+                            .foregroundColor(Color(hex: "#FF6B6B"))
                     }
-                    .padding(18)
-                    .background(Color(hex: "#1A1A1E"))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Push Notifications")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text(NotificationManager.shared.isAuthorized ? "Enabled ✓" : "Tap to enable in Settings")
+                            .font(.system(size: 13))
+                            .foregroundColor(NotificationManager.shared.isAuthorized
+                                             ? Color(hex: "#34D399") : Color(hex: "#FF6B6B"))
+                    }
+                    Spacer()
+                }
+                .padding(18)
+                .background(Color(hex: "#1A1A1E"))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
 
-                    // What you get
-                    VStack(alignment: .leading, spacing: 14) {
-                        Text("WHAT YOU'LL RECEIVE")
-                            .font(.system(size: 11, weight: .black))
-                            .foregroundColor(.white.opacity(0.25))
-                            .kerning(1.5)
+                // What you get
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("WHAT YOU'LL RECEIVE")
+                        .font(.system(size: 11, weight: .black))
+                        .foregroundColor(.white.opacity(0.25))
+                        .kerning(1.5)
 
-                        ForEach([
-                            ("sun.max.fill", "#F59E0B", "Daily 9 AM reminder", "Your pending task count, every morning"),
-                            ("moon.stars.fill", "#A78BFA", "Evening streak guard", "8 PM nudge if you still have tasks left"),
-                            ("calendar.badge.clock", "#60A5FA", "Due date alerts", "30 minutes before a task is due"),
-                            ("party.popper.fill", "#34D399", "All-done celebration", "When you clear your entire list"),
-                        ], id: \.2) { icon, color, title, subtitle in
-                            HStack(spacing: 14) {
-                                Image(systemName: icon)
-                                    .font(.system(size: 16))
-                                    .foregroundColor(Color(hex: color))
-                                    .frame(width: 24)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(title)
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(.white.opacity(0.9))
-                                    Text(subtitle)
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.white.opacity(0.38))
-                                }
+                    ForEach([
+                        ("sun.max.fill", "#F59E0B", "Daily 9 AM reminder", "Your pending task count, every morning"),
+                        ("moon.stars.fill", "#A78BFA", "Evening streak guard", "8 PM nudge if you still have tasks left"),
+                        ("calendar.badge.clock", "#60A5FA", "Due date alerts", "30 minutes before a task is due"),
+                        ("party.popper.fill", "#34D399", "All-done celebration", "When you clear your entire list"),
+                    ], id: \.2) { icon, color, title, subtitle in
+                        HStack(spacing: 14) {
+                            Image(systemName: icon)
+                                .font(.system(size: 16))
+                                .foregroundColor(Color(hex: color))
+                                .frame(width: 24)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(title)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.9))
+                                Text(subtitle)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white.opacity(0.38))
                             }
                         }
                     }
-                    .padding(18)
-                    .background(Color(hex: "#1A1A1E"))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                }
+                .padding(18)
+                .background(Color(hex: "#1A1A1E"))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
 
-                    // Open Settings button
-                    Button {
-                        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
-                    } label: {
-                        Label("Open Notification Settings", systemImage: "arrow.up.right.square")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(LinearGradient(
-                                colors: [Color(hex: "#FF6B6B"), Color(hex: "#FF3B30")],
-                                startPoint: .leading, endPoint: .trailing))
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                // Open Settings button
+                Button {
+                    if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                        UIApplication.shared.open(url)
                     }
+                } label: {
+                    Label("Open Notification Settings", systemImage: "arrow.up.right.square")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(LinearGradient(
+                            colors: [Color(hex: "#FF6B6B"), Color(hex: "#FF3B30")],
+                            startPoint: .leading, endPoint: .trailing))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
 
-                    Spacer()
-                }
-                .padding(20)
+                Spacer()
             }
-            .navigationTitle("Notifications")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { activeSubSheet = nil }
-                        .foregroundColor(Color(hex: "#8A4AF3"))
-                }
-            }
+            .padding(20)
         }
-        .preferredColorScheme(.dark)
+        .navigationTitle("Notifications")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: - Focus Preferences Sub-Sheet
     private var focusPrefsSheet: some View {
-        NavigationStack {
-            ZStack {
-                Color(hex: "#0D0D10").ignoresSafeArea()
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
+        ZStack {
+            Color(hex: "#0D0D10").ignoresSafeArea()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
 
-                        stepperCard(
-                            icon: "timer", color: "#6E6BF5",
-                            title: "Work Session",
-                            subtitle: "Minutes of focused work",
-                            value: $focusWorkMinutes, range: 5...90, step: 5
-                        )
+                    stepperCard(
+                        icon: "timer", color: "#6E6BF5",
+                        title: "Work Session",
+                        subtitle: "Minutes of focused work",
+                        value: $focusWorkMinutes, range: 5...90, step: 5
+                    )
 
-                        stepperCard(
-                            icon: "cup.and.saucer.fill", color: "#34D399",
-                            title: "Break Length",
-                            subtitle: "Minutes to rest between sessions",
-                            value: $focusBreakMinutes, range: 1...30, step: 1
-                        )
+                    stepperCard(
+                        icon: "cup.and.saucer.fill", color: "#34D399",
+                        title: "Break Length",
+                        subtitle: "Minutes to rest between sessions",
+                        value: $focusBreakMinutes, range: 1...30, step: 1
+                    )
 
-                        stepperCard(
-                            icon: "flag.checkered", color: "#F59E0B",
-                            title: "Daily Session Goal",
-                            subtitle: "Target sessions per day",
-                            value: $focusSessionGoal, range: 1...12, step: 1
-                        )
+                    stepperCard(
+                        icon: "flag.checkered", color: "#F59E0B",
+                        title: "Daily Session Goal",
+                        subtitle: "Target sessions per day",
+                        value: $focusSessionGoal, range: 1...12, step: 1
+                    )
 
-                        Text("Changes take effect next time you start Focus Mode.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(0.28))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
+                    Text("Changes take effect next time you start Focus Mode.")
+                        .font(.system(size: 12))
+                        .foregroundColor(.white.opacity(0.28))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
 
-                        Spacer().frame(height: 40)
-                    }
-                    .padding(20)
+                    Spacer().frame(height: 40)
                 }
-            }
-            .navigationTitle("Focus Preferences")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { activeSubSheet = nil }
-                        .foregroundColor(Color(hex: "#8A4AF3"))
-                }
+                .padding(20)
             }
         }
-        .preferredColorScheme(.dark)
+        .navigationTitle("Focus Preferences")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func stepperCard(icon: String, color: String, title: String, subtitle: String, value: Binding<Int>, range: ClosedRange<Int>, step: Int) -> some View {
@@ -1226,68 +1186,59 @@ struct DashboardView: View {
 
     // MARK: - Statistics Sub-Sheet
     private var statisticsSheet: some View {
-        NavigationStack {
-            ZStack {
-                Color(hex: "#0D0D10").ignoresSafeArea()
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        let totalCompleted = vm.completedTasks.count + vm.completedHistory.reduce(0) { $0 + $1.tasks.count }
-                        let avgPerDay = vm.completedHistory.isEmpty ? 0 : vm.completedHistory.reduce(0) { $0 + $1.tasks.count } / max(vm.completedHistory.count, 1)
-                        let bestDay = vm.completedHistory.max(by: { $0.tasks.count < $1.tasks.count })
+        ZStack {
+            Color(hex: "#0D0D10").ignoresSafeArea()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    let totalCompleted = vm.completedTasks.count + vm.completedHistory.reduce(0) { $0 + $1.tasks.count }
+                    let avgPerDay = vm.completedHistory.isEmpty ? 0 : vm.completedHistory.reduce(0) { $0 + $1.tasks.count } / max(vm.completedHistory.count, 1)
+                    let bestDay = vm.completedHistory.max(by: { $0.tasks.count < $1.tasks.count })
 
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            statBlock(emoji: "✅", value: "\(totalCompleted)", label: "Total Completed")
-                            statBlock(emoji: "🔥", value: "\(vm.streak)", label: "Current Streak")
-                            statBlock(emoji: "⚡️", value: "\(vm.momentum)%", label: "Momentum")
-                            statBlock(emoji: "📅", value: "\(vm.completedHistory.count)", label: "Days Logged")
-                            statBlock(emoji: "📊", value: "\(avgPerDay)", label: "Avg / Day")
-                            statBlock(emoji: "🏆", value: "\(bestDay?.tasks.count ?? 0)", label: "Best Day")
-                        }
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        statBlock(emoji: "✅", value: "\(totalCompleted)", label: "Total Completed")
+                        statBlock(emoji: "🔥", value: "\(vm.streak)", label: "Current Streak")
+                        statBlock(emoji: "⚡️", value: "\(vm.momentum)%", label: "Momentum")
+                        statBlock(emoji: "📅", value: "\(vm.completedHistory.count)", label: "Days Logged")
+                        statBlock(emoji: "📊", value: "\(avgPerDay)", label: "Avg / Day")
+                        statBlock(emoji: "🏆", value: "\(bestDay?.tasks.count ?? 0)", label: "Best Day")
+                    }
 
-                        if !vm.completedHistory.isEmpty {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("RECENT DAYS")
-                                    .font(.system(size: 11, weight: .black))
-                                    .foregroundColor(.white.opacity(0.25))
-                                    .kerning(1.5)
+                    if !vm.completedHistory.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("RECENT DAYS")
+                                .font(.system(size: 11, weight: .black))
+                                .foregroundColor(.white.opacity(0.25))
+                                .kerning(1.5)
 
-                                ForEach(vm.completedHistory.prefix(5)) { entry in
-                                    HStack {
-                                        Text(entry.date)
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(.white.opacity(0.7))
-                                        Spacer()
-                                        Text("\(entry.tasks.count) task\(entry.tasks.count == 1 ? "" : "s")")
-                                            .font(.system(size: 13, weight: .semibold))
-                                            .foregroundColor(Color(hex: "#34D399"))
-                                    }
-                                    .padding(.vertical, 6)
-                                    if entry.id != vm.completedHistory.prefix(5).last?.id {
-                                        Divider().background(Color.white.opacity(0.06))
-                                    }
+                            ForEach(vm.completedHistory.prefix(5)) { entry in
+                                HStack {
+                                    Text(entry.date)
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.7))
+                                    Spacer()
+                                    Text("\(entry.tasks.count) task\(entry.tasks.count == 1 ? "" : "s")")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(Color(hex: "#34D399"))
+                                }
+                                .padding(.vertical, 6)
+                                if entry.id != vm.completedHistory.prefix(5).last?.id {
+                                    Divider().background(Color.white.opacity(0.06))
                                 }
                             }
-                            .padding(18)
-                            .background(Color(hex: "#1A1A1E"))
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
                         }
-
-                        Spacer().frame(height: 40)
+                        .padding(18)
+                        .background(Color(hex: "#1A1A1E"))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
                     }
-                    .padding(20)
+
+                    Spacer().frame(height: 40)
                 }
-            }
-            .navigationTitle("Statistics")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { activeSubSheet = nil }
-                        .foregroundColor(Color(hex: "#8A4AF3"))
-                }
+                .padding(20)
             }
         }
-        .preferredColorScheme(.dark)
+        .navigationTitle("Statistics")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func statBlock(emoji: String, value: String, label: String) -> some View {
@@ -1309,132 +1260,113 @@ struct DashboardView: View {
 
     // MARK: - Privacy Sub-Sheet
     private var privacySheet: some View {
-        NavigationStack {
-            ZStack {
-                Color(hex: "#0D0D10").ignoresSafeArea()
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
-                        // Shield icon
-                        ZStack {
-                            Circle()
-                                .fill(Color(hex: "#60A5FA").opacity(0.12))
-                                .frame(width: 80, height: 80)
-                            Image(systemName: "shield.fill")
-                                .font(.system(size: 36))
-                                .foregroundColor(Color(hex: "#60A5FA"))
-                        }
-
-                        Text("Your data stays on your device.")
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-
-                        VStack(spacing: 12) {
-                            ForEach([
-                                ("lock.fill", "#60A5FA", "100% On-Device", "Tasks, streaks, and stats are stored locally in UserDefaults. Nothing leaves your phone."),
-                                ("wifi.slash", "#34D399", "No Accounts Required", "Opus works without signing in. No email, no password, no cloud sync."),
-                                ("eye.slash.fill", "#A78BFA", "No Analytics", "We don't track what you do inside the app. No usage data is collected."),
-                                ("bell.slash.fill", "#F59E0B", "Notifications are Local", "All reminders are scheduled on-device via UserNotifications. No servers involved."),
-                            ], id: \.2) { icon, color, title, body in
-                                HStack(alignment: .top, spacing: 14) {
-                                    Image(systemName: icon)
-                                        .font(.system(size: 16))
-                                        .foregroundColor(Color(hex: color))
-                                        .frame(width: 24, height: 24)
-                                        .padding(.top, 2)
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(title)
-                                            .font(.system(size: 15, weight: .semibold))
-                                            .foregroundColor(.white)
-                                        Text(body)
-                                            .font(.system(size: 13))
-                                            .foregroundColor(.white.opacity(0.45))
-                                            .fixedSize(horizontal: false, vertical: true)
-                                    }
-                                }
-                                .padding(16)
-                                .background(Color(hex: "#1A1A1E"))
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
-                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
-                            }
-                        }
-                        Spacer().frame(height: 40)
+        ZStack {
+            Color(hex: "#0D0D10").ignoresSafeArea()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "#60A5FA").opacity(0.12))
+                            .frame(width: 80, height: 80)
+                        Image(systemName: "shield.fill")
+                            .font(.system(size: 36))
+                            .foregroundColor(Color(hex: "#60A5FA"))
                     }
-                    .padding(20)
+
+                    Text("Your data stays on your device.")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+
+                    VStack(spacing: 12) {
+                        ForEach([
+                            ("lock.fill", "#60A5FA", "100% On-Device", "Tasks, streaks, and stats are stored locally in UserDefaults. Nothing leaves your phone."),
+                            ("wifi.slash", "#34D399", "No Accounts Required", "Opus works without signing in. No email, no password, no cloud sync."),
+                            ("eye.slash.fill", "#A78BFA", "No Analytics", "We don't track what you do inside the app. No usage data is collected."),
+                            ("bell.slash.fill", "#F59E0B", "Notifications are Local", "All reminders are scheduled on-device via UserNotifications. No servers involved."),
+                        ], id: \.2) { icon, color, title, body in
+                            HStack(alignment: .top, spacing: 14) {
+                                Image(systemName: icon)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(Color(hex: color))
+                                    .frame(width: 24, height: 24)
+                                    .padding(.top, 2)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(title)
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundColor(.white)
+                                    Text(body)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.45))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .padding(16)
+                            .background(Color(hex: "#1A1A1E"))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                        }
+                    }
+                    Spacer().frame(height: 40)
                 }
-            }
-            .navigationTitle("Privacy")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { activeSubSheet = nil }
-                        .foregroundColor(Color(hex: "#8A4AF3"))
-                }
+                .padding(20)
             }
         }
-        .preferredColorScheme(.dark)
+        .navigationTitle("Privacy")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: - About Sub-Sheet
     private var aboutSheet: some View {
-        NavigationStack {
-            ZStack {
-                Color(hex: "#0D0D10").ignoresSafeArea()
-                VStack(spacing: 28) {
-                    VStack(spacing: 12) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 26)
-                                .fill(LinearGradient(
-                                    colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
-                                    startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .frame(width: 100, height: 100)
-                                .shadow(color: Color(hex: "#8A4AF3").opacity(0.55), radius: 28, x: 0, y: 10)
-                            Text("✓")
-                                .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        Text("Opus")
-                            .font(.system(size: 30, weight: .black))
+        ZStack {
+            Color(hex: "#0D0D10").ignoresSafeArea()
+            VStack(spacing: 28) {
+                VStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 26)
+                            .fill(LinearGradient(
+                                colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .frame(width: 100, height: 100)
+                            .shadow(color: Color(hex: "#8A4AF3").opacity(0.55), radius: 28, x: 0, y: 10)
+                        Text("✓")
+                            .font(.system(size: 48, weight: .bold))
                             .foregroundColor(.white)
-                        Text("Version 1.0 · Build 4")
-                            .font(.system(size: 13))
-                            .foregroundColor(.white.opacity(0.32))
                     }
-                    .padding(.top, 20)
-
-                    VStack(spacing: 0) {
-                        aboutRow(label: "Developer", value: storedName.isEmpty ? "Unknown" : storedName)
-                        Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                        aboutRow(label: "Platform", value: "iOS 17+")
-                        Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                        aboutRow(label: "Built with", value: "SwiftUI · WidgetKit")
-                        Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                        aboutRow(label: "Beta", value: "TestFlight")
-                    }
-                    .background(Color(hex: "#1A1A1E"))
-                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
-                    .padding(.horizontal, 20)
-
-                    Text("Made with focus, for people who build.")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.28))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-
-                    Spacer()
+                    Text("Opus")
+                        .font(.system(size: 30, weight: .black))
+                        .foregroundColor(.white)
+                    Text("Version 1.0 · Build 4")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.32))
                 }
-            }
-            .navigationTitle("About Opus")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { activeSubSheet = nil }
-                        .foregroundColor(Color(hex: "#8A4AF3"))
+                .padding(.top, 20)
+
+                VStack(spacing: 0) {
+                    aboutRow(label: "Developer", value: "Hector Ruiz")
+                    Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
+                    aboutRow(label: "Platform", value: "iOS 17+")
+                    Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
+                    aboutRow(label: "Built with", value: "SwiftUI · WidgetKit")
+                    Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
+                    aboutRow(label: "Beta", value: "TestFlight")
                 }
+                .background(Color(hex: "#1A1A1E"))
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                .padding(.horizontal, 20)
+
+                Text("Made with focus, for people who build.")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white.opacity(0.28))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+
+                Spacer()
             }
         }
-        .preferredColorScheme(.dark)
+        .navigationTitle("About Opus")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func aboutRow(label: String, value: String) -> some View {
