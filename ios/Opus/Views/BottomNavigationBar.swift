@@ -40,8 +40,8 @@ struct BottomNavigationBar: View {
             HStack(spacing: 0) {
                 ForEach(AppTab.allCases, id: \.self) { tab in
                     if tab == .focus {
-                        // Center gap for FAB
-                        Spacer().frame(width: 64)
+                        // Gap for FAB
+                        Spacer().frame(width: 72)
                     }
                     TabBarItem(
                         tab: tab,
@@ -54,8 +54,9 @@ struct BottomNavigationBar: View {
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .padding(.top, 14)
+            .padding(.bottom, 14)
             .background {
                 ZStack {
                     Capsule().fill(.ultraThinMaterial)
@@ -74,10 +75,10 @@ struct BottomNavigationBar: View {
                 }
                 .shadow(color: .black.opacity(0.55), radius: 32, x: 0, y: 14)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 8)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24) // float above home indicator
 
-            // ── FAB ──
+            // ── FAB — raised above pill center ──
             Button(action: onAdd) {
                 ZStack {
                     Circle()
@@ -88,16 +89,16 @@ struct BottomNavigationBar: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 56, height: 56)
-                        .shadow(color: Color(hex: "#F5A623").opacity(0.5), radius: 16, x: 0, y: 6)
+                        .frame(width: 58, height: 58)
+                        .shadow(color: Color(hex: "#F5A623").opacity(0.55), radius: 18, x: 0, y: 6)
 
                     Image(systemName: "plus")
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(.white)
                 }
             }
             .buttonStyle(FABButtonStyle())
-            .offset(y: -8)
+            .offset(y: -52) // raised well above the pill
             .accessibilityLabel("Add task")
         }
     }
