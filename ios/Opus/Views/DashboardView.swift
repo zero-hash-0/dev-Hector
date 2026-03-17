@@ -36,17 +36,30 @@ final class DashboardViewModel: ObservableObject {
         todayTasks[idx].isCompleted.toggle()
         let pct = Double(completedTasks.count) / Double(max(todayTasks.count, 1))
         momentum = min(100, max(0, Int(Double(streak) * 4 + pct * 25)))
+        // Cancel due notification when task is completed
+        if todayTasks[idx].isCompleted {
+            NotificationManager.shared.cancelDueDateNotification(for: task.id)
+        }
+        // Fire all-done celebration when last task is completed
+        if pendingTasks.isEmpty && !todayTasks.isEmpty {
+            Task { await NotificationManager.shared.sendAllDoneNotification() }
+        }
+        // Keep morning reminder badge count fresh
+        Task { await NotificationManager.shared.scheduleDailyMorningReminder(pendingCount: pendingTasks.count) }
     }
 
     func deleteTask(_ task: OpusTask) {
+        NotificationManager.shared.cancelDueDateNotification(for: task.id)
         withAnimation(.spring(response: 0.4)) {
             todayTasks.removeAll { $0.id == task.id }
         }
+        Task { await NotificationManager.shared.scheduleDailyMorningReminder(pendingCount: pendingTasks.count) }
     }
 
     func addTask() {
         guard InputValidator.isValidTaskTitle(newTaskTitle) else { return }
         let title = InputValidator.sanitizeTaskTitle(newTaskTitle)
+        let dueDate: Date? = hasDueDate ? newTaskDueDate : nil
         let dueLabel: String? = {
             guard hasDueDate else {
                 return newTaskSchedule == .today ? "today" : nil
@@ -61,11 +74,15 @@ final class DashboardViewModel: ObservableObject {
             title:      title,
             category:   newTaskCategory,
             schedule:   newTaskSchedule,
+            dueDate:    dueDate,
             dueLabel:   dueLabel,
             taskRepeat: newTaskRepeat
         )
         if newTaskSchedule == .today { todayTasks.append(task) }
         else                         { laterTasks.append(task) }
+        // Schedule due date notification if applicable
+        Task { await NotificationManager.shared.scheduleDueDateNotification(for: task) }
+        Task { await NotificationManager.shared.scheduleDailyMorningReminder(pendingCount: pendingTasks.count) }
         newTaskTitle    = ""
         newTaskCategory = .work
         newTaskSchedule = .today
@@ -82,6 +99,7 @@ final class DashboardViewModel: ObservableObject {
         promoted.dueLabel = "today"
         laterTasks.remove(at: idx)
         todayTasks.append(promoted)
+        Task { await NotificationManager.shared.scheduleDailyMorningReminder(pendingCount: pendingTasks.count) }
     }
 
     // MARK: - Daily Reset

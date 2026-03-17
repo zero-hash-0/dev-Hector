@@ -31,6 +31,10 @@ targets:
         excludes:
           - "**/*.md"
 
+    dependencies:
+      - target: OpusWidget
+        embed: true
+
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.opus.betaapp
@@ -72,6 +76,10 @@ targets:
         CFBundleVersion: "1"
         ITSAppUsesNonExemptEncryption: false
         NSPhotoLibraryUsageDescription: "Choose a profile photo"
+        NSUserNotificationUsageDescription: "Opus sends task reminders and streak alerts to help you stay on track."
+        UIBackgroundModes:
+          - fetch
+          - remote-notification
 
   OpusWidget:
     type: app-extension

@@ -56,7 +56,8 @@ struct OpusTask: Identifiable, Codable {
     var title: String
     var category: TaskCategory
     var schedule: TaskSchedule
-    var dueLabel: String?
+    var dueDate: Date?        // exact Date for notification scheduling
+    var dueLabel: String?     // human-readable label shown in UI
     var isCompleted: Bool
     var taskRepeat: TaskRepeat
 
@@ -65,6 +66,7 @@ struct OpusTask: Identifiable, Codable {
         title: String,
         category: TaskCategory,
         schedule: TaskSchedule = .today,
+        dueDate: Date? = nil,
         dueLabel: String? = nil,
         isCompleted: Bool = false,
         taskRepeat: TaskRepeat = .none
@@ -73,6 +75,7 @@ struct OpusTask: Identifiable, Codable {
         self.title = title
         self.category = category
         self.schedule = schedule
+        self.dueDate = dueDate
         self.dueLabel = dueLabel
         self.isCompleted = isCompleted
         self.taskRepeat = taskRepeat
