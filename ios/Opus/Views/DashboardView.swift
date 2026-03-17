@@ -15,6 +15,7 @@ final class DashboardViewModel: ObservableObject {
     @Published var newTaskSchedule: TaskSchedule = .today
     @Published var hasDueDate:      Bool         = false
     @Published var newTaskDueDate:  Date         = Date()
+    @Published var newTaskRepeat:   TaskRepeat   = .none
 
     private let todayKey   = "todayTasks_v1"
     private let laterKey   = "laterTasks_v1"
@@ -56,10 +57,11 @@ final class DashboardViewModel: ObservableObject {
             return f.string(from: newTaskDueDate)
         }()
         let task = OpusTask(
-            title:    title,
-            category: newTaskCategory,
-            schedule: newTaskSchedule,
-            dueLabel: dueLabel
+            title:      title,
+            category:   newTaskCategory,
+            schedule:   newTaskSchedule,
+            dueLabel:   dueLabel,
+            taskRepeat: newTaskRepeat
         )
         if newTaskSchedule == .today { todayTasks.append(task) }
         else                         { laterTasks.append(task) }
@@ -68,6 +70,7 @@ final class DashboardViewModel: ObservableObject {
         newTaskSchedule = .today
         hasDueDate      = false
         newTaskDueDate  = Date()
+        newTaskRepeat   = .none
         showAddTask     = false
     }
 
@@ -88,16 +91,40 @@ final class DashboardViewModel: ObservableObject {
         let todayStr  = fmt.string(from: today)
 
         if lastStr != todayStr {
-            // Archive any completed tasks from yesterday into history
-            let done = todayTasks.filter(\.isCompleted)
-            if !done.isEmpty {
-                let entry = HistoryEntry(date: lastStr.isEmpty ? todayStr : lastStr, tasks: done)
+            // Separate recurring from one-off completed tasks
+            let completedNonRecurring = todayTasks.filter { $0.isCompleted && $0.taskRepeat == .none }
+            let completedRecurring    = todayTasks.filter { $0.isCompleted && $0.taskRepeat != .none }
+
+            // Archive only non-recurring completed tasks
+            let archiveTasks = completedNonRecurring
+            if !archiveTasks.isEmpty {
+                let entry = HistoryEntry(date: lastStr.isEmpty ? todayStr : lastStr, tasks: archiveTasks)
                 completedHistory.insert(entry, at: 0)
             }
-            // Remove completed tasks, carry over pending
-            todayTasks.removeAll { $0.isCompleted }
-            // Update streak
-            if !done.isEmpty {
+
+            // Reset recurring tasks to pending for today
+            let resetRecurring: [OpusTask] = completedRecurring.map { task in
+                var t = task
+                t.isCompleted = false
+                // For weekly tasks, only carry forward if today is the same weekday
+                if task.taskRepeat == .weekly {
+                    // Carry forward always — keep it simple for now
+                }
+                return t
+            }
+
+            // Remove all completed non-recurring tasks; keep pending + reset recurring
+            todayTasks.removeAll { $0.isCompleted && $0.taskRepeat == .none }
+            // Re-insert reset recurring tasks (they were already in todayTasks, just reset)
+            for t in resetRecurring {
+                if let idx = todayTasks.firstIndex(where: { $0.id == t.id }) {
+                    todayTasks[idx] = t
+                }
+            }
+
+            // Update streak based on non-recurring completed tasks
+            let allDoneCount = completedNonRecurring.count + completedRecurring.count
+            if allDoneCount > 0 {
                 streak += 1
             } else if !lastStr.isEmpty {
                 streak = 0   // missed a day
@@ -152,16 +179,27 @@ struct DashboardView: View {
     @State private var selectedTab: AppTab = .today
     @State private var showSettings       = false
     @State private var focusedTask: OpusTask? = nil
+    @State private var filterCategory: TaskCategory? = nil
     @Namespace private var cardNS
+    @AppStorage("hasOnboarded") private var hasOnboarded = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    // Filtered pending tasks for the Today view
+    private var displayedPending: [OpusTask] {
+        guard let cat = filterCategory else { return vm.pendingTasks }
+        return vm.pendingTasks.filter { $0.category == cat }
+    }
+
     // MARK: - Greeting
+    @AppStorage("userName") private var storedName = ""
     private var greeting: String {
-        let h = Calendar.current.component(.hour, from: Date())
+        let h    = Calendar.current.component(.hour, from: Date())
+        let name = storedName.trimmingCharacters(in: .whitespaces)
+        let suffix = name.isEmpty ? "." : ", \(name)."
         switch h {
-        case 0..<12:  return "Good morning."
-        case 12..<17: return "Good afternoon."
-        default:      return "Good evening."
+        case 0..<12:  return "Good morning\(suffix)"
+        case 12..<17: return "Good afternoon\(suffix)"
+        default:      return "Good evening\(suffix)"
         }
     }
 
@@ -249,6 +287,7 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $vm.showAddTask) { addTaskSheet }
         .sheet(isPresented: $showSettings)   { settingsSheet }
+        .fullScreenCover(isPresented: .constant(!hasOnboarded)) { OnboardingView() }
         .preferredColorScheme(.dark)
     }
 
@@ -391,12 +430,96 @@ struct DashboardView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
 
+            // ── Category filter chips ──
+            if !vm.todayTasks.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        // "All" chip
+                        Button {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            withAnimation(.spring(response: 0.3)) { filterCategory = nil }
+                        } label: {
+                            Text("All")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(filterCategory == nil ? .white : .white.opacity(0.40))
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                                .background(
+                                    filterCategory == nil
+                                        ? LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                                         startPoint: .leading, endPoint: .trailing)
+                                        : LinearGradient(colors: [Color.white.opacity(0.07), Color.white.opacity(0.07)],
+                                                         startPoint: .leading, endPoint: .trailing),
+                                    in: Capsule()
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .animation(.spring(response: 0.3), value: filterCategory)
+
+                        // Category chips (only categories that have pending tasks)
+                        ForEach(TaskCategory.allCases) { cat in
+                            let count = vm.pendingTasks.filter { $0.category == cat }.count
+                            if count > 0 {
+                                Button {
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    withAnimation(.spring(response: 0.3)) {
+                                        filterCategory = filterCategory == cat ? nil : cat
+                                    }
+                                } label: {
+                                    HStack(spacing: 5) {
+                                        Circle()
+                                            .fill(cat.color)
+                                            .frame(width: 6, height: 6)
+                                        Text(cat.rawValue)
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(filterCategory == cat ? cat.color : .white.opacity(0.40))
+                                        Text("\(count)")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(filterCategory == cat ? cat.color.opacity(0.7) : .white.opacity(0.25))
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 7)
+                                    .background(
+                                        filterCategory == cat
+                                            ? cat.color.opacity(0.15)
+                                            : Color.white.opacity(0.07),
+                                        in: Capsule()
+                                    )
+                                    .overlay(
+                                        Capsule().stroke(
+                                            filterCategory == cat ? cat.color.opacity(0.45) : Color.clear,
+                                            lineWidth: 1
+                                        )
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .animation(.spring(response: 0.3), value: filterCategory)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 10)
+            }
+
             // Individual task cards (or empty state)
             if vm.pendingTasks.isEmpty && vm.completedTasks.isEmpty {
                 emptyTodayState
+            } else if displayedPending.isEmpty && filterCategory != nil {
+                // Filter active but no matches
+                VStack(spacing: 10) {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .font(.system(size: 32, weight: .thin))
+                        .foregroundColor(.white.opacity(0.25))
+                    Text("No \(filterCategory!.rawValue) tasks")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.white.opacity(0.35))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
             } else {
                 VStack(spacing: 8) {
-                    ForEach(vm.pendingTasks) { task in
+                    ForEach(displayedPending) { task in
                         taskCard(task)
                             .matchedGeometryEffect(id: task.id, in: cardNS, isSource: focusedTask?.id != task.id)
                     }
@@ -912,6 +1035,54 @@ struct DashboardView: View {
                                             in: RoundedRectangle(cornerRadius: 11)
                                         )
                                         .animation(.spring(response: 0.3), value: vm.newTaskSchedule)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+
+                        // ── Repeat ──
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Repeat")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.35))
+                                .kerning(0.5)
+
+                            HStack(spacing: 8) {
+                                ForEach(TaskRepeat.allCases, id: \.rawValue) { rep in
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        vm.newTaskRepeat = rep
+                                    } label: {
+                                        HStack(spacing: 5) {
+                                            Image(systemName: rep.icon)
+                                                .font(.system(size: 11, weight: .medium))
+                                            Text(rep.label)
+                                                .font(.system(size: 12, weight: .semibold))
+                                        }
+                                        .foregroundColor(
+                                            vm.newTaskRepeat == rep
+                                                ? Color(hex: "#8A4AF3")
+                                                : .white.opacity(0.40)
+                                        )
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .frame(maxWidth: .infinity)
+                                        .background(
+                                            vm.newTaskRepeat == rep
+                                                ? Color(hex: "#8A4AF3").opacity(0.15)
+                                                : Color.white.opacity(0.06),
+                                            in: RoundedRectangle(cornerRadius: 10)
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10).stroke(
+                                                vm.newTaskRepeat == rep
+                                                    ? Color(hex: "#8A4AF3").opacity(0.45)
+                                                    : Color.clear,
+                                                lineWidth: 1
+                                            )
+                                        )
+                                        .animation(.spring(response: 0.3), value: vm.newTaskRepeat)
                                     }
                                     .buttonStyle(.plain)
                                 }
