@@ -12,6 +12,22 @@ struct OpusApp: App {
             .compactMap { $0 as? UIWindowScene }
             .flatMap { $0.windows }
             .forEach { $0.overrideUserInterfaceStyle = .dark }
+
+        // Migration: clear the hardcoded "Hector" default that shipped in early builds.
+        // Any device that still has the old default stored gets reset to empty so
+        // users see the onboarding name prompt instead of the developer's name.
+        let defaults = UserDefaults.standard
+        if defaults.string(forKey: "userName") == "Hector",
+           !defaults.bool(forKey: "userNameMigrated_v2") {
+            defaults.removeObject(forKey: "userName")
+            defaults.set(true, forKey: "userNameMigrated_v2")
+        }
+        // Also clear shared suite
+        if let shared = UserDefaults(suiteName: "group.com.opus.betaapp") {
+            if shared.string(forKey: "userName") == "Hector" {
+                shared.removeObject(forKey: "userName")
+            }
+        }
     }
 
     var body: some Scene {

@@ -341,6 +341,15 @@ struct DashboardView: View {
         }
         .sheet(isPresented: $vm.showAddTask) { addTaskSheet }
         .sheet(isPresented: $showSettings)   { settingsSheet }
+        .sheet(item: $activeSubSheet) { sub in
+            switch sub {
+            case .notifications: notificationsSheet
+            case .focusPrefs:    focusPrefsSheet
+            case .statistics:    statisticsSheet
+            case .privacy:       privacySheet
+            case .about:         aboutSheet
+            }
+        }
         .fullScreenCover(isPresented: .constant(!hasOnboarded)) { OnboardingView() }
         .preferredColorScheme(.dark)
     }
@@ -973,16 +982,6 @@ struct DashboardView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { showSettings = false }
                         .foregroundColor(Color(hex: "#8A4AF3"))
-                }
-            }
-            // ── Sub-sheets (single item-based sheet to guarantee presentation) ──
-            .sheet(item: $activeSubSheet) { sub in
-                switch sub {
-                case .notifications: notificationsSheet
-                case .focusPrefs:    focusPrefsSheet
-                case .statistics:    statisticsSheet
-                case .privacy:       privacySheet
-                case .about:         aboutSheet
                 }
             }
         }
