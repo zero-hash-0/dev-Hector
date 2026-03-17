@@ -44,13 +44,17 @@ struct FocusView: View {
     @State private var isRunning                      = false
     @State private var completedSessions              = 0
     @State private var totalFocusMinutes              = 0
-    @State private var currentTask                    = "Write proposal draft"
+    @State private var currentTask                    = ""
     @State private var showTaskPicker                 = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let clock = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    let tasks: [OpusTask]
     let geo: GeometryProxy
+
+    // Pending task titles for the picker
+    private var pendingTasks: [OpusTask] { tasks.filter { !$0.isCompleted } }
 
     // MARK: Computed
     var timeDisplay: String {
@@ -80,6 +84,12 @@ struct FocusView: View {
             .padding(.top, geo.safeAreaInsets.top + 16)
         }
         .onReceive(clock) { _ in tick() }
+        .onAppear {
+            // Default to first pending task if nothing selected
+            if currentTask.isEmpty, let first = pendingTasks.first {
+                currentTask = first.title
+            }
+        }
         .sheet(isPresented: $showTaskPicker) { taskPickerSheet }
     }
 
@@ -286,9 +296,9 @@ struct FocusView: View {
                                            startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                         .frame(width: 8, height: 8)
-                    Text(currentTask)
+                    Text(currentTask.isEmpty ? "Tap to select a task" : currentTask)
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.88))
+                        .foregroundColor(currentTask.isEmpty ? .white.opacity(0.35) : .white.opacity(0.88))
                         .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.up.chevron.down")
@@ -343,50 +353,78 @@ struct FocusView: View {
 
     // MARK: Task Picker Sheet
     private var taskPickerSheet: some View {
-        let tasks = ["Write proposal draft", "Review Q2 metrics", "Update portfolio",
-                     "Read chapter 4", "Expense report"]
-        return NavigationStack {
+        NavigationStack {
             ZStack {
                 Color(hex: "#0D0D10").ignoresSafeArea()
-                VStack(spacing: 8) {
-                    ForEach(tasks, id: \.self) { task in
-                        Button {
-                            currentTask = task
-                            showTaskPicker = false
-                        } label: {
-                            HStack {
-                                Text(task)
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.88))
-                                Spacer()
-                                if currentTask == task {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(Color(hex: "#8A4AF3"))
-                                }
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 8) {
+                        if pendingTasks.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 40, weight: .thin))
+                                    .foregroundColor(Color(hex: "#34D399").opacity(0.6))
+                                Text("All tasks done!")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                Text("Add tasks from the Today tab")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.white.opacity(0.4))
                             }
-                            .padding(16)
-                            .background {
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(currentTask == task
-                                          ? Color(hex: "#8A4AF3").opacity(0.12)
-                                          : Color(hex: "#1A1A1E"))
-                                    .overlay(RoundedRectangle(cornerRadius: 14)
-                                        .stroke(currentTask == task
-                                                ? Color(hex: "#8A4AF3").opacity(0.35)
-                                                : Color.white.opacity(0.06), lineWidth: 1))
+                            .padding(40)
+                        } else {
+                            ForEach(pendingTasks) { task in
+                                Button {
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    currentTask = task.title
+                                    showTaskPicker = false
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Circle()
+                                            .fill(task.category.color)
+                                            .frame(width: 8, height: 8)
+                                        Text(task.title)
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.88))
+                                            .lineLimit(1)
+                                        Spacer()
+                                        Text(task.category.rawValue)
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(task.category.color)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 3)
+                                            .background(task.category.color.opacity(0.12))
+                                            .clipShape(Capsule())
+                                        if currentTask == task.title {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(Color(hex: "#8A4AF3"))
+                                        }
+                                    }
+                                    .padding(14)
+                                    .background {
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .fill(currentTask == task.title
+                                                  ? Color(hex: "#8A4AF3").opacity(0.12)
+                                                  : Color(hex: "#1A1A1E"))
+                                            .overlay(RoundedRectangle(cornerRadius: 14)
+                                                .stroke(currentTask == task.title
+                                                        ? Color(hex: "#8A4AF3").opacity(0.35)
+                                                        : Color.white.opacity(0.06), lineWidth: 1))
+                                    }
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
-                        .buttonStyle(.plain)
+                        Spacer()
                     }
-                    Spacer()
+                    .padding(16)
                 }
-                .padding(16)
             }
-            .navigationTitle("Select Task")
+            .navigationTitle("Focusing on")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { showTaskPicker = false }.foregroundColor(.white.opacity(0.55))
+                    Button("Cancel") { showTaskPicker = false }
+                        .foregroundColor(.white.opacity(0.55))
                 }
             }
         }
