@@ -62,45 +62,39 @@ struct DashboardView: View {
                 backgroundLayer
 
                 // ── Content ──
-                VStack(spacing: 0) {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 24) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 24) {
 
-                            // ── Header ──
-                            headerSection
+                        // ── Header ──
+                        headerSection
 
-                            // ── Stats Card ──
-                            StatsCard(
-                                momentum: vm.momentum,
-                                streak: vm.streak,
-                                tasksCompleted: vm.completedTasks.count,
-                                tasksTotal: vm.todayTasks.count
-                            )
-                            .padding(.horizontal, 20)
+                        // ── Stats Card ──
+                        StatsCard(
+                            momentum: vm.momentum,
+                            streak: vm.streak,
+                            tasksCompleted: vm.completedTasks.count,
+                            tasksTotal: vm.todayTasks.count
+                        )
+                        .padding(.horizontal, 20)
 
-                            // ── Task List ──
-                            taskListSection
+                        // ── Task List ──
+                        taskListSection
 
-                            // ── Later Section ──
-                            laterSection
+                        // ── Later Section ──
+                        laterSection
 
-                            // Bottom padding for floating nav bar + FAB + home indicator
-                            Spacer()
-                                .frame(height: geo.safeAreaInsets.bottom + 140)
-                        }
-                        .padding(.top, geo.safeAreaInsets.top + 16)
+                        // Bottom padding for floating nav bar + FAB + home indicator
+                        Spacer()
+                            .frame(height: geo.safeAreaInsets.bottom + 140)
                     }
-
-                    Spacer(minLength: 0)
+                    .padding(.top, geo.safeAreaInsets.top + 16)
                 }
 
                 // ── Bottom Navigation ──
-                VStack(spacing: 0) {
-                    Spacer()
-                    BottomNavigationBar(selectedTab: $selectedTab) {
-                        withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.75)) {
-                            vm.showAddTask = true
-                        }
+                // Placed directly in ZStack so no wrapper Spacer can steal taps
+                BottomNavigationBar(selectedTab: $selectedTab) {
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.4, dampingFraction: 0.75)) {
+                        vm.showAddTask = true
                     }
                 }
                 .ignoresSafeArea(edges: .bottom)
