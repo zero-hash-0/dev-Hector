@@ -29,7 +29,7 @@
 		4241B9C73841E229B3573B82 /* StatsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCard.swift; sourceTree = "<group>"; };
 		4C5C5AC4BDAE4A04672D4146 /* BottomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomNavigationBar.swift; sourceTree = "<group>"; };
 		4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWebView.swift; sourceTree = "<group>"; };
-		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		742B65583B15ACAE6B5BF440 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FDAE91A43597090B1CD8384 /* OfflineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineView.swift; sourceTree = "<group>"; };
 		82ABF212BACB4A77FD35F737 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
@@ -130,6 +130,7 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					9350C7EEDBE93AFBE7F080ED = {
+						DevelopmentTeam = 8NL37K4349;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -254,7 +255,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
+				DEVELOPMENT_TEAM = 8NL37K4349;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -283,7 +284,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
+				DEVELOPMENT_TEAM = 8NL37K4349;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
