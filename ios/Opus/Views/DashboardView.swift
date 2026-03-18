@@ -217,6 +217,11 @@ struct HistoryEntry: Identifiable, Codable {
     }
 }
 
+// MARK: - Settings destination enum
+enum SettingsDestination: String, Hashable {
+    case notifications, focusPrefs, statistics, privacy, about
+}
+
 // MARK: - Dashboard View
 struct DashboardView: View {
     @StateObject private var vm           = DashboardViewModel()
@@ -929,28 +934,29 @@ struct DashboardView: View {
                         }
                         .padding(.top, 12)
 
-                        // ── Settings rows — NavigationLink pushes in-stack ──
+                        // ── Settings rows ──
                         VStack(spacing: 0) {
-                            NavigationLink(destination: notificationsSheet.navigationBarBackButtonHidden(false)) {
+                            NavigationLink(value: SettingsDestination.notifications) {
                                 settingsRowLabel(icon: "bell.fill", label: "Notifications", color: "#FF6B6B")
-                            }.buttonStyle(.plain)
+                            }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(destination: focusPrefsSheet.navigationBarBackButtonHidden(false)) {
+                            NavigationLink(value: SettingsDestination.focusPrefs) {
                                 settingsRowLabel(icon: "moon.fill", label: "Focus Preferences", color: "#6E6BF5")
-                            }.buttonStyle(.plain)
+                            }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(destination: statisticsSheet.navigationBarBackButtonHidden(false)) {
+                            NavigationLink(value: SettingsDestination.statistics) {
                                 settingsRowLabel(icon: "chart.bar.fill", label: "Statistics", color: "#34D399")
-                            }.buttonStyle(.plain)
+                            }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(destination: privacySheet.navigationBarBackButtonHidden(false)) {
+                            NavigationLink(value: SettingsDestination.privacy) {
                                 settingsRowLabel(icon: "shield.fill", label: "Privacy", color: "#60A5FA")
-                            }.buttonStyle(.plain)
+                            }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(destination: aboutSheet.navigationBarBackButtonHidden(false)) {
+                            NavigationLink(value: SettingsDestination.about) {
                                 settingsRowLabel(icon: "info.circle.fill", label: "About Opus", color: "#A78BFA")
-                            }.buttonStyle(.plain)
+                            }
                         }
+                        .buttonStyle(.plain)
                         .background(Color(hex: "#1A1A1E"))
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
@@ -966,6 +972,18 @@ struct DashboardView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { showSettings = false }
                         .foregroundColor(Color(hex: "#8A4AF3"))
+                }
+            }
+            .navigationDestination(for: SettingsDestination.self) { dest in
+                ZStack {
+                    Color(hex: "#0D0D10").ignoresSafeArea()
+                    switch dest {
+                    case .notifications: notificationsSheet
+                    case .focusPrefs:    focusPrefsSheet
+                    case .statistics:    statisticsSheet
+                    case .privacy:       privacySheet
+                    case .about:         aboutSheet
+                    }
                 }
             }
         }
