@@ -928,7 +928,7 @@ struct DashboardView: View {
                             Text(storedName.isEmpty ? "Welcome" : "Hi, \(storedName.split(separator: " ").first.map(String.init) ?? storedName)")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white.opacity(0.45))
-                            Text("Version 1.0 (Build 4)")
+                            Text("Version 1.0 (Build 5)")
                                 .font(.system(size: 12))
                                 .foregroundColor(.white.opacity(0.25))
                         }
@@ -1358,7 +1358,7 @@ struct DashboardView: View {
                     Text("Opus")
                         .font(.system(size: 30, weight: .black))
                         .foregroundColor(.white)
-                    Text("Version 1.0 · Build 4")
+                    Text("Version 1.0 · Build 5")
                         .font(.system(size: 13))
                         .foregroundColor(.white.opacity(0.32))
                 }
