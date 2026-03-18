@@ -64,7 +64,7 @@ export default function Hero() {
       <GrainOverlay />
       <AmbientGlow />
 
-      <div className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-28 pb-20 md:px-8 md:pt-36 md:pb-28">
+      <div className="relative z-10 mx-auto w-full max-w-4xl px-4 pt-20 pb-14 sm:px-6 sm:pt-24 md:px-8 md:pt-36 md:pb-28">
 
         {/* ── Compact profile row — sits just above the terminal ── */}
         <motion.div

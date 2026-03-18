@@ -42,7 +42,7 @@ export default function Nav() {
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-5 px-6 pointer-events-none">
       {/* centered pill nav */}
       <div
-        className="pointer-events-auto flex items-center gap-1 px-2 py-2 rounded-full transition-all duration-300"
+        className="pointer-events-auto hidden md:flex items-center gap-1 px-2 py-2 rounded-full transition-all duration-300"
         style={{
           background: scrolled
             ? "rgba(14,12,18,0.85)"

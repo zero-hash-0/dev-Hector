@@ -48,7 +48,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: NO
         ENABLE_HARDENED_RUNTIME: YES
-        DEVELOPMENT_TEAM: 8NL37K4349
+        DEVELOPMENT_TEAM: 5HVXGMLSZ6
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_ENTITLEMENTS: Opus/Opus.entitlements
       configs:
@@ -98,7 +98,7 @@ targets:
         INFOPLIST_FILE: OpusWidget/Info.plist
         SWIFT_VERSION: "5.9"
         TARGETED_DEVICE_FAMILY: "1"
-        DEVELOPMENT_TEAM: 8NL37K4349
+        DEVELOPMENT_TEAM: 5HVXGMLSZ6
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_ENTITLEMENTS: OpusWidget/OpusWidget.entitlements
         APPLICATION_EXTENSION_API_ONLY: YES

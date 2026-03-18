@@ -19,48 +19,48 @@ type Step =
 
 const SCRIPT: Step[] = [
   { type: "typeCommand",  text: "whoami" },
-  { type: "pause",        ms: 280 },
+  { type: "pause",        ms: 120 },
   { type: "output",       text: "Hector Ruiz" },
   { type: "output",       text: "Developer  ·  Product Builder  ·  Cybersecurity", dim: true },
   { type: "blank" },
-  { type: "pause",        ms: 420 },
+  { type: "pause",        ms: 160 },
 
   { type: "typeCommand",  text: "cat background.txt" },
-  { type: "pause",        ms: 280 },
+  { type: "pause",        ms: 120 },
   { type: "output",       text: "Degree      BAS · St. Petersburg College" },
   { type: "output",       text: "Field       Cybersecurity & Systems Architecture" },
   { type: "output",       text: "Location    Florida, USA" },
   { type: "output",       text: "Focus       Security-first design · Native iOS" },
   { type: "blank" },
-  { type: "pause",        ms: 420 },
+  { type: "pause",        ms: 160 },
 
   { type: "typeCommand",  text: "ls skills/" },
-  { type: "pause",        ms: 280 },
+  { type: "pause",        ms: 120 },
   { type: "output",       text: "Swift/   SwiftUI/   WidgetKit/   React/   Next.js/   TypeScript/" },
   { type: "output",       text: "Node.js/   PostgreSQL/   Figma/   Security/   Product-Design/", dim: true },
   { type: "blank" },
-  { type: "pause",        ms: 420 },
+  { type: "pause",        ms: 160 },
 
   { type: "typeCommand",  text: "ls projects/" },
-  { type: "pause",        ms: 280 },
+  { type: "pause",        ms: 120 },
   { type: "output",       text: "Opus/        Strata/        Cipher/" },
   { type: "blank" },
-  { type: "pause",        ms: 260 },
+  { type: "pause",        ms: 100 },
   { type: "output",       text: "  Opus     →  iOS task manager · momentum-based · TestFlight beta" },
   { type: "output",       text: "  Strata   →  Team productivity & project tracking web app", dim: true },
   { type: "output",       text: "  Cipher   →  Security monitoring dashboard prototype", dim: true },
   { type: "blank" },
-  { type: "pause",        ms: 420 },
+  { type: "pause",        ms: 160 },
 
   { type: "typeCommand",  text: "./availability --check" },
-  { type: "pause",        ms: 280 },
+  { type: "pause",        ms: 120 },
   { type: "output",       text: "▸ Status     Available for freelance & collaboration", accent: true },
   { type: "output",       text: "▸ Response   < 24 hours", dim: true },
   { type: "blank" },
 ];
 
-const CHAR_MS  = 52;
-const LINE_MS  = 80;
+const CHAR_MS  = 22;
+const LINE_MS  = 28;
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function TerminalWindow() {
@@ -162,11 +162,11 @@ export default function TerminalWindow() {
 
       {/* body */}
       <div
-        className="p-6 font-mono text-[13px] leading-[1.8] overflow-y-auto"
-        style={{ minHeight: 420 }}
+        className="p-4 sm:p-6 font-mono text-[11px] sm:text-[13px] leading-[1.6] overflow-y-auto"
+        style={{ minHeight: 320 }}
       >
         {lines.map((line, i) => {
-          if (line.kind === "blank") return <div key={i} className="h-2" />;
+          if (line.kind === "blank") return <div key={i} className="h-1" />;
 
           if (line.kind === "command") {
             return (

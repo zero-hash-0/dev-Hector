@@ -69,7 +69,7 @@
 		4C6DB25EF7E6ED056F1698B5 /* OpusWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpusWebView.swift; sourceTree = "<group>"; };
 		522B23527B8FFD529D103B51 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		5796CAE373DF4A0D3ED1193C /* FocusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusView.swift; sourceTree = "<group>"; };
-		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		583C31028B8A683F4B27FFDE /* Opus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Opus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		729E8E0EA9170AD1E6A98929 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		742B65583B15ACAE6B5BF440 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7FDAE91A43597090B1CD8384 /* OfflineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineView.swift; sourceTree = "<group>"; };
@@ -82,7 +82,7 @@
 		BA13384981E7EC8D3A8F66D8 /* OpusWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpusWidget.entitlements; sourceTree = "<group>"; };
 		BF5EF88EF8E84C3446F643E7 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		C78FD0A300CA2D37F03B3A4D /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
-		DDB8FD444C09577477DCA30A /* OpusWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = OpusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDB8FD444C09577477DCA30A /* OpusWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OpusWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -246,11 +246,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					7F2AB55237837AF5FE868D5F = {
-						DevelopmentTeam = 8NL37K4349;
 						ProvisioningStyle = Automatic;
 					};
 					9350C7EEDBE93AFBE7F080ED = {
-						DevelopmentTeam = 8NL37K4349;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -397,7 +395,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 22;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 8NL37K4349;
+				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				INFOPLIST_FILE = OpusWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -425,7 +423,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 22;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 8NL37K4349;
+				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -455,7 +453,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 22;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 8NL37K4349;
+				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Opus/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -482,7 +480,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 22;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 8NL37K4349;
+				DEVELOPMENT_TEAM = 5HVXGMLSZ6;
 				INFOPLIST_FILE = OpusWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
