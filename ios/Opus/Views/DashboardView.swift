@@ -1012,6 +1012,8 @@ struct DashboardView: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 14)
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Notifications Sub-Sheet
@@ -1318,7 +1320,9 @@ struct DashboardView: View {
                                         .foregroundColor(.white.opacity(0.45))
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
+                                Spacer(minLength: 0)
                             }
+                            .frame(maxWidth: .infinity)
                             .padding(16)
                             .background(Color(hex: "#1A1A1E"))
                             .clipShape(RoundedRectangle(cornerRadius: 14))
