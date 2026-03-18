@@ -227,6 +227,7 @@ struct DashboardView: View {
     @StateObject private var vm           = DashboardViewModel()
     @State private var selectedTab: AppTab = .today
     @State private var showSettings       = false
+    @State private var settingsNavPath    = NavigationPath()
     @State private var focusedTask: OpusTask? = nil
     @State private var filterCategory: TaskCategory? = nil
     @Namespace private var cardNS
@@ -338,7 +339,7 @@ struct DashboardView: View {
             .ignoresSafeArea(edges: .all)
         }
         .sheet(isPresented: $vm.showAddTask) { addTaskSheet }
-        .sheet(isPresented: $showSettings)   { settingsSheet }
+        .sheet(isPresented: $showSettings, onDismiss: { settingsNavPath = NavigationPath() }) { settingsSheet }
         .fullScreenCover(isPresented: .constant(!hasOnboarded)) { OnboardingView() }
         .preferredColorScheme(.dark)
     }
@@ -902,7 +903,7 @@ struct DashboardView: View {
 
     // MARK: - Settings Sheet
     private var settingsSheet: some View {
-        NavigationStack {
+        NavigationStack(path: $settingsNavPath) {
             ZStack {
                 Color(hex: "#0D0D10").ignoresSafeArea()
 
@@ -970,20 +971,20 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { showSettings = false }
-                        .foregroundColor(Color(hex: "#8A4AF3"))
+                    Button("Done") {
+                        settingsNavPath = NavigationPath()
+                        showSettings = false
+                    }
+                    .foregroundColor(Color(hex: "#8A4AF3"))
                 }
             }
             .navigationDestination(for: SettingsDestination.self) { dest in
-                ZStack {
-                    Color(hex: "#0D0D10").ignoresSafeArea()
-                    switch dest {
-                    case .notifications: notificationsSheet
-                    case .focusPrefs:    focusPrefsSheet
-                    case .statistics:    statisticsSheet
-                    case .privacy:       privacySheet
-                    case .about:         aboutSheet
-                    }
+                switch dest {
+                case .notifications: notificationsSheet
+                case .focusPrefs:    focusPrefsSheet
+                case .statistics:    statisticsSheet
+                case .privacy:       privacySheet
+                case .about:         aboutSheet
                 }
             }
         }
