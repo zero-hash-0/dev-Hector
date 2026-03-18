@@ -937,23 +937,23 @@ struct DashboardView: View {
 
                         // ── Settings rows ──
                         VStack(spacing: 0) {
-                            NavigationLink(value: SettingsDestination.notifications) {
+                            Button { settingsNavPath.append(SettingsDestination.notifications) } label: {
                                 settingsRowLabel(icon: "bell.fill", label: "Notifications", color: "#FF6B6B")
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(value: SettingsDestination.focusPrefs) {
+                            Button { settingsNavPath.append(SettingsDestination.focusPrefs) } label: {
                                 settingsRowLabel(icon: "moon.fill", label: "Focus Preferences", color: "#6E6BF5")
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(value: SettingsDestination.statistics) {
+                            Button { settingsNavPath.append(SettingsDestination.statistics) } label: {
                                 settingsRowLabel(icon: "chart.bar.fill", label: "Statistics", color: "#34D399")
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(value: SettingsDestination.privacy) {
+                            Button { settingsNavPath.append(SettingsDestination.privacy) } label: {
                                 settingsRowLabel(icon: "shield.fill", label: "Privacy", color: "#60A5FA")
                             }
                             Divider().background(Color.white.opacity(0.06)).padding(.horizontal, 18)
-                            NavigationLink(value: SettingsDestination.about) {
+                            Button { settingsNavPath.append(SettingsDestination.about) } label: {
                                 settingsRowLabel(icon: "info.circle.fill", label: "About Opus", color: "#A78BFA")
                             }
                         }
