@@ -1,8 +1,62 @@
 import WidgetKit
 import SwiftUI
+import AppIntents
 
 // MARK: - Shared suite
 private let sharedSuite = "group.com.opus.betaapp"
+
+// MARK: - Widget Theme (user-selectable via long-press)
+enum WidgetTheme: String, AppEnum {
+    case obsidian = "obsidian"
+    case midnight = "midnight"
+    case ember    = "ember"
+    case forest   = "forest"
+
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Theme"
+    static var caseDisplayRepresentations: [Self: DisplayRepresentation] = [
+        .obsidian: DisplayRepresentation(title: "Obsidian",  subtitle: "Deep black, classic Opus"),
+        .midnight: DisplayRepresentation(title: "Midnight",  subtitle: "Deep navy with electric blue"),
+        .ember:    DisplayRepresentation(title: "Ember",     subtitle: "Warm dark with fiery orange"),
+        .forest:   DisplayRepresentation(title: "Forest",    subtitle: "Dark green with emerald glow"),
+    ]
+
+    var background: Color {
+        switch self {
+        case .obsidian: return Color(hex: "#07070F")
+        case .midnight: return Color(hex: "#06081C")
+        case .ember:    return Color(hex: "#130600")
+        case .forest:   return Color(hex: "#040E0A")
+        }
+    }
+
+    // (primary, secondary, glow)
+    var palette: (Color, Color, Color) {
+        switch self {
+        case .obsidian: return (Color(hex: "#C084FC"), Color(hex: "#8A4AF3"), Color(hex: "#A855F7"))
+        case .midnight: return (Color(hex: "#60A5FA"), Color(hex: "#4F46E5"), Color(hex: "#6E6BF5"))
+        case .ember:    return (Color(hex: "#FB923C"), Color(hex: "#DC2626"), Color(hex: "#F97316"))
+        case .forest:   return (Color(hex: "#34D399"), Color(hex: "#059669"), Color(hex: "#10B981"))
+        }
+    }
+
+    // Override to green when all done, otherwise use theme palette
+    func moodPalette(momentum: Int, pending: Int) -> (a: Color, b: Color, glow: Color) {
+        if pending == 0 {
+            return (Color(hex: "#34D399"), Color(hex: "#059669"), Color(hex: "#34D399"))
+        }
+        let (a, b, glow) = palette
+        return (a, b, glow)
+    }
+}
+
+// MARK: - Widget Intent
+struct OpusWidgetIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Widget Theme"
+    static var description = IntentDescription("Choose your Opus widget style.")
+
+    @Parameter(title: "Theme", default: .obsidian)
+    var theme: WidgetTheme
+}
 
 // MARK: - Widget Entry
 struct OpusEntry: TimelineEntry {
@@ -13,6 +67,7 @@ struct OpusEntry: TimelineEntry {
     let total:    Int
     let topTasks: [WidgetTask]
     let userName: String
+    let theme:    WidgetTheme
 }
 
 struct WidgetTask: Decodable, Identifiable {
@@ -47,15 +102,19 @@ extension Color {
 }
 
 // MARK: - Timeline Provider
-struct OpusProvider: TimelineProvider {
-    func placeholder(in context: Context) -> OpusEntry { sampleEntry() }
-    func getSnapshot(in context: Context, completion: @escaping (OpusEntry) -> Void) { completion(sampleEntry()) }
-    func getTimeline(in context: Context, completion: @escaping (Timeline<OpusEntry>) -> Void) {
-        let next = Calendar.current.date(byAdding: .minute, value: 20, to: .now)!
-        completion(Timeline(entries: [entry()], policy: .after(next)))
+struct OpusProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> OpusEntry { sampleEntry(theme: .obsidian) }
+
+    func snapshot(for configuration: OpusWidgetIntent, in context: Context) async -> OpusEntry {
+        sampleEntry(theme: configuration.theme)
     }
 
-    private func entry() -> OpusEntry {
+    func timeline(for configuration: OpusWidgetIntent, in context: Context) async -> Timeline<OpusEntry> {
+        let next = Calendar.current.date(byAdding: .minute, value: 20, to: .now)!
+        return Timeline(entries: [entry(theme: configuration.theme)], policy: .after(next))
+    }
+
+    private func entry(theme: WidgetTheme) -> OpusEntry {
         let d        = UserDefaults(suiteName: sharedSuite) ?? .standard
         let streak   = d.integer(forKey: "streak")
         let momentum = d.integer(forKey: "momentum")
@@ -71,35 +130,23 @@ struct OpusProvider: TimelineProvider {
             top      = Array(open.prefix(3))
         }
         return OpusEntry(date: .now, streak: streak, momentum: momentum,
-                         pending: pending, total: total, topTasks: top, userName: userName)
+                         pending: pending, total: total, topTasks: top,
+                         userName: userName, theme: theme)
     }
 
-    func sampleEntry() -> OpusEntry {
+    func sampleEntry(theme: WidgetTheme) -> OpusEntry {
         OpusEntry(date: .now, streak: 12, momentum: 82, pending: 2, total: 5,
                   topTasks: [
                     WidgetTask(id: UUID(), title: "Finish design review",  isCompleted: false, category: "Work"),
                     WidgetTask(id: UUID(), title: "Update portfolio site",  isCompleted: false, category: "Side"),
                     WidgetTask(id: UUID(), title: "Read for 20 min",        isCompleted: false, category: "Learn"),
                   ],
-                  userName: "Hector")
+                  userName: "Hector", theme: theme)
     }
 }
 
-// MARK: - Mood palette
-private func moodPalette(momentum: Int, pending: Int) -> (a: Color, b: Color, glow: Color) {
-    if pending == 0 {
-        return (.init(hex: "#34D399"), .init(hex: "#059669"), .init(hex: "#34D399"))
-    }
-    if momentum >= 75 {
-        return (.init(hex: "#C084FC"), .init(hex: "#8A4AF3"), .init(hex: "#A855F7"))
-    }
-    if momentum >= 40 {
-        return (.init(hex: "#818CF8"), .init(hex: "#6366F1"), .init(hex: "#6E6BF5"))
-    }
-    return (.init(hex: "#60A5FA"), .init(hex: "#3B82F6"), .init(hex: "#60A5FA"))
-}
+// MARK: - Shared sub-views
 
-// MARK: - Glowing tip dot at ring progress end
 private struct RingTipDot: View {
     let progress: Double
     let radius: CGFloat
@@ -118,7 +165,6 @@ private struct RingTipDot: View {
     }
 }
 
-// MARK: - Opus logo mark
 private struct OpusMark: View {
     var size: CGFloat = 20
     var body: some View {
@@ -135,35 +181,106 @@ private struct OpusMark: View {
     }
 }
 
+// Spiced-up task row card
+private struct TaskCard: View {
+    let task: WidgetTask
+    let accent: Color
+    var body: some View {
+        HStack(spacing: 9) {
+            // Category pill
+            RoundedRectangle(cornerRadius: 3)
+                .fill(
+                    LinearGradient(colors: [task.categoryColor, task.categoryColor.opacity(0.6)],
+                                   startPoint: .top, endPoint: .bottom)
+                )
+                .frame(width: 4, height: 36)
+                .shadow(color: task.categoryColor.opacity(0.8), radius: 4)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(task.title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.90))
+                    .lineLimit(1)
+                Text(task.category.uppercased())
+                    .font(.system(size: 7.5, weight: .bold))
+                    .foregroundColor(task.categoryColor.opacity(0.75))
+                    .kerning(0.6)
+            }
+
+            Spacer()
+
+            // Styled checkbox
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(accent.opacity(0.30), lineWidth: 1.5)
+                    .frame(width: 20, height: 20)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(accent.opacity(0.06))
+                    .frame(width: 20, height: 20)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 11)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 11)
+                        .stroke(
+                            LinearGradient(
+                                colors: [task.categoryColor.opacity(0.18), Color.white.opacity(0.05)],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.75
+                        )
+                )
+        )
+    }
+}
+
 // MARK: - SMALL WIDGET
 struct SmallWidgetView: View {
     let entry: OpusEntry
-    private var pal: (a: Color, b: Color, glow: Color) { moodPalette(momentum: entry.momentum, pending: entry.pending) }
+    private var pal: (a: Color, b: Color, glow: Color) {
+        entry.theme.moodPalette(momentum: entry.momentum, pending: entry.pending)
+    }
     private var progress: Double {
         guard entry.total > 0 else { return 0 }
         return Double(entry.total - entry.pending) / Double(entry.total)
     }
+    private var dayLabel: String {
+        let f = DateFormatter()
+        f.dateFormat = "EEE d"
+        return f.string(from: entry.date).uppercased()
+    }
 
     var body: some View {
         ZStack {
-            Color(hex: "#07070F")
+            entry.theme.background
 
             // Radial glow bloom
-            RadialGradient(colors: [pal.glow.opacity(0.32), Color.clear],
-                           center: .center, startRadius: 10, endRadius: 90)
+            RadialGradient(colors: [pal.glow.opacity(0.30), Color.clear],
+                           center: .center, startRadius: 8, endRadius: 85)
 
             // Corner wash
-            LinearGradient(colors: [pal.a.opacity(0.1), Color.clear],
+            LinearGradient(colors: [pal.a.opacity(0.10), Color.clear],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
 
             // Ring — centered with balanced Spacers (badge row is independent below)
             VStack(spacing: 0) {
                 Spacer()
 
+                // Date label at top
+                Text(dayLabel)
+                    .font(.system(size: 8, weight: .black))
+                    .foregroundColor(.white.opacity(0.22))
+                    .kerning(1.0)
+                    .padding(.bottom, 6)
+
                 // Ring
                 ZStack {
-                    Circle().stroke(Color.white.opacity(0.06), lineWidth: 11)
-                        .frame(width: 98, height: 98)
+                    Circle().stroke(Color.white.opacity(0.07), lineWidth: 11)
+                        .frame(width: 92, height: 92)
 
                     Circle()
                         .trim(from: 0, to: progress)
@@ -172,26 +289,26 @@ struct SmallWidgetView: View {
                                             center: .center,
                                             startAngle: .degrees(-90), endAngle: .degrees(270)),
                             style: StrokeStyle(lineWidth: 11, lineCap: .round))
-                        .frame(width: 98, height: 98)
+                        .frame(width: 92, height: 92)
                         .rotationEffect(.degrees(-90))
                         .shadow(color: pal.glow.opacity(0.9), radius: 8)
 
-                    RingTipDot(progress: progress, radius: 49, color: pal.a)
+                    RingTipDot(progress: progress, radius: 46, color: pal.a)
 
                     VStack(spacing: 2) {
                         if entry.pending == 0 {
                             Text("✓")
-                                .font(.system(size: 32, weight: .black, design: .rounded))
+                                .font(.system(size: 30, weight: .black, design: .rounded))
                                 .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
                                                                 startPoint: .top, endPoint: .bottom))
                         } else {
                             Text("\(entry.pending)")
-                                .font(.system(size: 36, weight: .black, design: .rounded))
+                                .font(.system(size: 34, weight: .black, design: .rounded))
                                 .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
                                                                 startPoint: .top, endPoint: .bottom))
                             Text(entry.pending == 1 ? "task left" : "tasks left")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.white.opacity(0.55))
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(.white.opacity(0.50))
                                 .kerning(0.4)
                         }
                     }
@@ -215,9 +332,9 @@ struct SmallWidgetView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.13))
+                    .background(Color.white.opacity(0.09))
                     .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.white.opacity(0.20), lineWidth: 0.5))
+                    .overlay(Capsule().stroke(pal.a.opacity(0.25), lineWidth: 0.75))
                 }
                 .padding(.horizontal, 13)
                 .padding(.bottom, 12)
@@ -246,14 +363,16 @@ struct SmallWidgetView: View {
                 .frame(height: 2)
             }
         }
-        .containerBackground(Color(hex: "#07070F"), for: .widget)
+        .containerBackground(entry.theme.background, for: .widget)
     }
 }
 
 // MARK: - MEDIUM WIDGET
 struct MediumWidgetView: View {
     let entry: OpusEntry
-    private var pal: (a: Color, b: Color, glow: Color) { moodPalette(momentum: entry.momentum, pending: entry.pending) }
+    private var pal: (a: Color, b: Color, glow: Color) {
+        entry.theme.moodPalette(momentum: entry.momentum, pending: entry.pending)
+    }
     private var progress: Double {
         guard entry.total > 0 else { return 0 }
         return Double(entry.total - entry.pending) / Double(entry.total)
@@ -272,7 +391,7 @@ struct MediumWidgetView: View {
 
     var body: some View {
         ZStack {
-            Color(hex: "#07070F")
+            entry.theme.background
             RadialGradient(colors: [pal.glow.opacity(0.18), Color.clear],
                            center: UnitPoint(x: 0.15, y: 0.5),
                            startRadius: 5, endRadius: 160)
@@ -283,7 +402,7 @@ struct MediumWidgetView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(greeting)
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.3))
+                        .foregroundColor(.white.opacity(0.32))
                         .lineLimit(1)
 
                     Spacer()
@@ -317,17 +436,31 @@ struct MediumWidgetView: View {
 
                     Spacer()
 
-                    HStack(spacing: 5) {
-                        Text("🔥").font(.system(size: 13))
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text("\(entry.streak)")
-                                .font(.system(size: 17, weight: .black, design: .rounded))
-                                .foregroundColor(.white)
-                            Text("streak")
-                                .font(.system(size: 7, weight: .bold))
-                                .foregroundColor(.white.opacity(0.26))
-                                .kerning(0.3)
+                    // Streak + momentum mini bar
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack(spacing: 5) {
+                            Text("🔥").font(.system(size: 13))
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text("\(entry.streak)")
+                                    .font(.system(size: 17, weight: .black, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text("streak")
+                                    .font(.system(size: 7, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.26))
+                                    .kerning(0.3)
+                            }
                         }
+                        GeometryReader { g in
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(Color.white.opacity(0.06))
+                                Capsule()
+                                    .fill(LinearGradient(colors: [pal.a, pal.b],
+                                                         startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: g.size.width * CGFloat(entry.momentum) / 100)
+                                    .shadow(color: pal.glow.opacity(0.7), radius: 3)
+                            }
+                        }
+                        .frame(height: 3).clipShape(Capsule())
                     }
                 }
                 .padding(14)
@@ -367,63 +500,18 @@ struct MediumWidgetView: View {
                         .frame(maxWidth: .infinity)
                         Spacer()
                     } else {
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: 5) {
                             ForEach(entry.topTasks) { task in
-                                HStack(spacing: 10) {
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(task.categoryColor)
-                                        .frame(width: 3, height: 30)
-                                        .shadow(color: task.categoryColor.opacity(0.9), radius: 3)
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(task.title)
-                                            .font(.system(size: 12, weight: .semibold))
-                                            .foregroundColor(.white.opacity(0.88))
-                                            .lineLimit(1)
-                                        Text(task.category)
-                                            .font(.system(size: 9, weight: .medium))
-                                            .foregroundColor(task.categoryColor.opacity(0.7))
-                                    }
-                                    Spacer()
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                                        .frame(width: 18, height: 18)
-                                }
-                                .padding(.horizontal, 9).padding(.vertical, 5)
-                                .background(Color.white.opacity(0.04))
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .overlay(RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                                TaskCard(task: task, accent: pal.a)
                             }
                             if entry.pending > 3 {
                                 Text("+ \(entry.pending - 3) more")
                                     .font(.system(size: 9, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.2))
+                                    .foregroundColor(.white.opacity(0.22))
                                     .padding(.leading, 4)
                             }
                         }
                         Spacer()
-                    }
-
-                    // Momentum bar
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text("Momentum").font(.system(size: 8, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.2))
-                            Spacer()
-                            Text("\(entry.momentum)%").font(.system(size: 8, weight: .black))
-                                .foregroundColor(pal.a.opacity(0.8))
-                        }
-                        GeometryReader { g in
-                            ZStack(alignment: .leading) {
-                                Capsule().fill(Color.white.opacity(0.05))
-                                Capsule()
-                                    .fill(LinearGradient(colors: [pal.a, pal.b],
-                                                         startPoint: .leading, endPoint: .trailing))
-                                    .frame(width: g.size.width * CGFloat(entry.momentum) / 100)
-                                    .shadow(color: pal.glow.opacity(0.7), radius: 3)
-                            }
-                        }
-                        .frame(height: 4).clipShape(Capsule())
                     }
                 }
                 .padding(13)
@@ -436,14 +524,16 @@ struct MediumWidgetView: View {
                 Spacer()
             }
         }
-        .containerBackground(Color(hex: "#07070F"), for: .widget)
+        .containerBackground(entry.theme.background, for: .widget)
     }
 }
 
 // MARK: - LARGE WIDGET
 struct LargeWidgetView: View {
     let entry: OpusEntry
-    private var pal: (a: Color, b: Color, glow: Color) { moodPalette(momentum: entry.momentum, pending: entry.pending) }
+    private var pal: (a: Color, b: Color, glow: Color) {
+        entry.theme.moodPalette(momentum: entry.momentum, pending: entry.pending)
+    }
     private var progress: Double {
         guard entry.total > 0 else { return 0 }
         return Double(entry.total - entry.pending) / Double(entry.total)
@@ -460,7 +550,7 @@ struct LargeWidgetView: View {
 
     var body: some View {
         ZStack {
-            Color(hex: "#07070F")
+            entry.theme.background
             RadialGradient(colors: [pal.glow.opacity(0.22), Color.clear],
                            center: UnitPoint(x: 0.5, y: 0.2),
                            startRadius: 10, endRadius: 220)
@@ -471,7 +561,7 @@ struct LargeWidgetView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(greeting)
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white.opacity(0.75))
+                            .foregroundColor(.white.opacity(0.80))
                         Text(entry.pending == 0
                              ? "All tasks complete today 🎉"
                              : "\(entry.pending) task\(entry.pending == 1 ? "" : "s") remaining")
@@ -519,13 +609,17 @@ struct LargeWidgetView: View {
                 }
                 .padding(.horizontal, 16).padding(.bottom, 14)
 
-                Rectangle().fill(Color.white.opacity(0.06)).frame(height: 1).padding(.horizontal, 16)
+                // Divider
+                Rectangle()
+                    .fill(LinearGradient(colors: [Color.clear, pal.a.opacity(0.20), Color.clear],
+                                        startPoint: .leading, endPoint: .trailing))
+                    .frame(height: 1).padding(.horizontal, 16)
 
                 // Task list
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text("UP NEXT")
                         .font(.system(size: 9, weight: .black))
-                        .foregroundColor(.white.opacity(0.2))
+                        .foregroundColor(.white.opacity(0.20))
                         .kerning(1.5)
                         .padding(.top, 12)
 
@@ -533,34 +627,12 @@ struct LargeWidgetView: View {
                         HStack { Spacer()
                             Text("Nothing left — great work! 🏆")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white.opacity(0.3))
+                                .foregroundColor(.white.opacity(0.30))
                             Spacer() }
                         .padding(.vertical, 12)
                     } else {
                         ForEach(entry.topTasks) { task in
-                            HStack(spacing: 10) {
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(task.categoryColor)
-                                    .frame(width: 3, height: 32)
-                                    .shadow(color: task.categoryColor.opacity(0.9), radius: 4)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(task.title)
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundColor(.white.opacity(0.88)).lineLimit(1)
-                                    Text(task.category)
-                                        .font(.system(size: 9, weight: .medium))
-                                        .foregroundColor(task.categoryColor.opacity(0.7))
-                                }
-                                Spacer()
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                    .frame(width: 20, height: 20)
-                            }
-                            .padding(.horizontal, 10).padding(.vertical, 7)
-                            .background(Color.white.opacity(0.035))
-                            .clipShape(RoundedRectangle(cornerRadius: 11))
-                            .overlay(RoundedRectangle(cornerRadius: 11)
-                                .stroke(Color.white.opacity(0.06), lineWidth: 0.5))
+                            TaskCard(task: task, accent: pal.a)
                         }
                     }
                     Spacer()
@@ -575,12 +647,11 @@ struct LargeWidgetView: View {
                 Spacer()
             }
         }
-        .containerBackground(Color(hex: "#07070F"), for: .widget)
+        .containerBackground(entry.theme.background, for: .widget)
     }
 
     private func statPill(emoji: String, value: String, label: String) -> some View {
-        let pal = moodPalette(momentum: entry.momentum, pending: entry.pending)
-        return VStack(spacing: 3) {
+        VStack(spacing: 3) {
             Text(emoji).font(.system(size: 16))
             Text(value).font(.system(size: 15, weight: .black, design: .rounded)).foregroundColor(.white)
             Text(label).font(.system(size: 8, weight: .semibold)).foregroundColor(.white.opacity(0.24)).kerning(0.3)
@@ -588,7 +659,7 @@ struct LargeWidgetView: View {
         .frame(maxWidth: .infinity).padding(.vertical, 10)
         .background(Color.white.opacity(0.04))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(pal.a.opacity(0.16), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(pal.a.opacity(0.18), lineWidth: 1))
     }
 }
 
@@ -651,7 +722,7 @@ struct OpusWidgetBundle: WidgetBundle {
 struct OpusHomeWidget: Widget {
     let kind = "OpusHomeWidget"
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: OpusProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: OpusWidgetIntent.self, provider: OpusProvider()) { entry in
             OpusHomeWidgetView(entry: entry)
         }
         .configurationDisplayName("Opus")
@@ -677,7 +748,7 @@ struct OpusHomeWidgetView: View {
 struct OpusLockWidget: Widget {
     let kind = "OpusLockWidget"
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: OpusProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: OpusWidgetIntent.self, provider: OpusProvider()) { entry in
             OpusLockWidgetView(entry: entry)
         }
         .configurationDisplayName("Opus")
