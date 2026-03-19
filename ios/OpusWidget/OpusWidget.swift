@@ -5,12 +5,13 @@ import AppIntents
 // MARK: - Shared suite
 private let sharedSuite = "group.com.opus.betaapp"
 
-// MARK: - Widget Theme (user-selectable via long-press)
+// MARK: - Widget Theme
 enum WidgetTheme: String, AppEnum {
     case obsidian = "obsidian"
     case midnight = "midnight"
     case ember    = "ember"
     case forest   = "forest"
+    case crimson  = "crimson"
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Theme"
     static var caseDisplayRepresentations: [Self: DisplayRepresentation] = [
@@ -18,34 +19,34 @@ enum WidgetTheme: String, AppEnum {
         .midnight: DisplayRepresentation(title: "Midnight",  subtitle: "Deep navy with electric blue"),
         .ember:    DisplayRepresentation(title: "Ember",     subtitle: "Warm dark with fiery orange"),
         .forest:   DisplayRepresentation(title: "Forest",    subtitle: "Dark green with emerald glow"),
+        .crimson:  DisplayRepresentation(title: "Crimson",   subtitle: "Deep red, bold and striking"),
     ]
 
     var background: Color {
         switch self {
         case .obsidian: return Color(hex: "#07070F")
-        case .midnight: return Color(hex: "#06081C")
-        case .ember:    return Color(hex: "#130600")
-        case .forest:   return Color(hex: "#040E0A")
+        case .midnight: return Color(hex: "#050818")
+        case .ember:    return Color(hex: "#120500")
+        case .forest:   return Color(hex: "#030D07")
+        case .crimson:  return Color(hex: "#0F0204")
         }
     }
 
-    // (primary, secondary, glow)
-    var palette: (Color, Color, Color) {
+    var palette: (a: Color, b: Color, glow: Color) {
         switch self {
         case .obsidian: return (Color(hex: "#C084FC"), Color(hex: "#8A4AF3"), Color(hex: "#A855F7"))
         case .midnight: return (Color(hex: "#60A5FA"), Color(hex: "#4F46E5"), Color(hex: "#6E6BF5"))
         case .ember:    return (Color(hex: "#FB923C"), Color(hex: "#DC2626"), Color(hex: "#F97316"))
         case .forest:   return (Color(hex: "#34D399"), Color(hex: "#059669"), Color(hex: "#10B981"))
+        case .crimson:  return (Color(hex: "#F87171"), Color(hex: "#DC2626"), Color(hex: "#EF4444"))
         }
     }
 
-    // Override to green when all done, otherwise use theme palette
     func moodPalette(momentum: Int, pending: Int) -> (a: Color, b: Color, glow: Color) {
         if pending == 0 {
             return (Color(hex: "#34D399"), Color(hex: "#059669"), Color(hex: "#34D399"))
         }
-        let (a, b, glow) = palette
-        return (a, b, glow)
+        return palette
     }
 }
 
@@ -53,7 +54,6 @@ enum WidgetTheme: String, AppEnum {
 struct OpusWidgetIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "Widget Theme"
     static var description = IntentDescription("Choose your Opus widget style.")
-
     @Parameter(title: "Theme", default: .obsidian)
     var theme: WidgetTheme
 }
@@ -119,15 +119,13 @@ struct OpusProvider: AppIntentTimelineProvider {
         let streak   = d.integer(forKey: "streak")
         let momentum = d.integer(forKey: "momentum")
         let userName = d.string(forKey: "userName") ?? ""
-        var pending  = 0
-        var total    = 0
-        var top      = [WidgetTask]()
+        var pending  = 0; var total = 0; var top = [WidgetTask]()
         if let data  = d.data(forKey: "todayTasks_v1"),
            let tasks = try? JSONDecoder().decode([WidgetTask].self, from: data) {
-            total    = tasks.count
+            total = tasks.count
             let open = tasks.filter { !$0.isCompleted }
             pending  = open.count
-            top      = Array(open.prefix(3))
+            top      = Array(open.prefix(4))
         }
         return OpusEntry(date: .now, streak: streak, momentum: momentum,
                          pending: pending, total: total, topTasks: top,
@@ -135,35 +133,18 @@ struct OpusProvider: AppIntentTimelineProvider {
     }
 
     func sampleEntry(theme: WidgetTheme) -> OpusEntry {
-        OpusEntry(date: .now, streak: 12, momentum: 82, pending: 2, total: 5,
+        OpusEntry(date: .now, streak: 12, momentum: 82, pending: 3, total: 6,
                   topTasks: [
                     WidgetTask(id: UUID(), title: "Finish design review",  isCompleted: false, category: "Work"),
                     WidgetTask(id: UUID(), title: "Update portfolio site",  isCompleted: false, category: "Side"),
-                    WidgetTask(id: UUID(), title: "Read for 20 min",        isCompleted: false, category: "Learn"),
+                    WidgetTask(id: UUID(), title: "Read 20 min",            isCompleted: false, category: "Learn"),
+                    WidgetTask(id: UUID(), title: "Evening workout",        isCompleted: false, category: "Health"),
                   ],
                   userName: "Hector", theme: theme)
     }
 }
 
-// MARK: - Shared sub-views
-
-private struct RingTipDot: View {
-    let progress: Double
-    let radius: CGFloat
-    let color: Color
-    var body: some View {
-        let angle = (progress * 360 - 90) * .pi / 180
-        let x = cos(angle) * radius
-        let y = sin(angle) * radius
-        return Circle()
-            .fill(color)
-            .frame(width: 10, height: 10)
-            .shadow(color: color, radius: 5)
-            .shadow(color: color.opacity(0.4), radius: 10)
-            .offset(x: x, y: y)
-            .opacity(progress > 0.02 ? 1 : 0)
-    }
-}
+// MARK: - Shared Sub-views
 
 private struct OpusMark: View {
     var size: CGFloat = 20
@@ -181,64 +162,64 @@ private struct OpusMark: View {
     }
 }
 
-// Spiced-up task row card
-private struct TaskCard: View {
-    let task: WidgetTask
-    let accent: Color
+private struct RingTipDot: View {
+    let progress: Double; let radius: CGFloat; let color: Color
     var body: some View {
-        HStack(spacing: 9) {
-            // Category pill
-            RoundedRectangle(cornerRadius: 3)
-                .fill(
-                    LinearGradient(colors: [task.categoryColor, task.categoryColor.opacity(0.6)],
-                                   startPoint: .top, endPoint: .bottom)
-                )
-                .frame(width: 4, height: 36)
-                .shadow(color: task.categoryColor.opacity(0.8), radius: 4)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(task.title)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.90))
-                    .lineLimit(1)
-                Text(task.category.uppercased())
-                    .font(.system(size: 7.5, weight: .bold))
-                    .foregroundColor(task.categoryColor.opacity(0.75))
-                    .kerning(0.6)
-            }
-
-            Spacer()
-
-            // Styled checkbox
-            ZStack {
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(accent.opacity(0.30), lineWidth: 1.5)
-                    .frame(width: 20, height: 20)
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(accent.opacity(0.06))
-                    .frame(width: 20, height: 20)
-            }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 11)
-                .fill(Color.white.opacity(0.04))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 11)
-                        .stroke(
-                            LinearGradient(
-                                colors: [task.categoryColor.opacity(0.18), Color.white.opacity(0.05)],
-                                startPoint: .topLeading, endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.75
-                        )
-                )
-        )
+        let angle = (progress * 360 - 90) * .pi / 180
+        return Circle().fill(color)
+            .frame(width: 9, height: 9)
+            .shadow(color: color, radius: 4)
+            .offset(x: cos(angle) * radius, y: sin(angle) * radius)
+            .opacity(progress > 0.02 ? 1 : 0)
     }
 }
 
-// MARK: - SMALL WIDGET
+// Sleek task row for medium/large
+private struct SlimTaskRow: View {
+    let task: WidgetTask
+    let accent: Color
+    var body: some View {
+        HStack(spacing: 10) {
+            // Category color bar
+            Capsule()
+                .fill(task.categoryColor)
+                .frame(width: 3, height: 22)
+                .shadow(color: task.categoryColor.opacity(0.7), radius: 3)
+
+            Text(task.title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.85))
+                .lineLimit(1)
+
+            Spacer(minLength: 0)
+
+            // Checkbox
+            ZStack {
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(accent.opacity(0.35), lineWidth: 1.5)
+                    .frame(width: 18, height: 18)
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(accent.opacity(0.07))
+                    .frame(width: 18, height: 18)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(
+                            LinearGradient(
+                                colors: [task.categoryColor.opacity(0.22), Color.white.opacity(0.04)],
+                                startPoint: .topLeading, endPoint: .bottomTrailing),
+                            lineWidth: 0.75))
+        }
+    }
+}
+
+// MARK: - SMALL WIDGET — bold number hero
 struct SmallWidgetView: View {
     let entry: OpusEntry
     private var pal: (a: Color, b: Color, glow: Color) {
@@ -249,125 +230,110 @@ struct SmallWidgetView: View {
         return Double(entry.total - entry.pending) / Double(entry.total)
     }
     private var dayLabel: String {
-        let f = DateFormatter()
-        f.dateFormat = "EEE d"
+        let f = DateFormatter(); f.dateFormat = "EEE d"
         return f.string(from: entry.date).uppercased()
     }
 
     var body: some View {
         ZStack {
+            // Background
             entry.theme.background
 
-            // Radial glow bloom
-            RadialGradient(colors: [pal.glow.opacity(0.30), Color.clear],
-                           center: .center, startRadius: 8, endRadius: 85)
+            // Diagonal corner glow
+            LinearGradient(
+                colors: [pal.glow.opacity(0.28), Color.clear],
+                startPoint: .topLeading, endPoint: .bottomTrailing)
 
-            // Corner wash
-            LinearGradient(colors: [pal.a.opacity(0.10), Color.clear],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            // Radial bloom under number
+            RadialGradient(
+                colors: [pal.glow.opacity(0.40), Color.clear],
+                center: UnitPoint(x: 0.5, y: 0.42),
+                startRadius: 0, endRadius: 70)
 
-            // Ring — centered with balanced Spacers (badge row is independent below)
-            VStack(spacing: 0) {
-                Spacer()
-
-                // Date label at top
-                Text(dayLabel)
-                    .font(.system(size: 8, weight: .black))
-                    .foregroundColor(.white.opacity(0.22))
-                    .kerning(1.0)
-                    .padding(.bottom, 6)
-
-                // Ring
-                ZStack {
-                    Circle().stroke(Color.white.opacity(0.07), lineWidth: 11)
-                        .frame(width: 92, height: 92)
-
-                    Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(
-                            AngularGradient(colors: [pal.a.opacity(0.5), pal.a, pal.b],
-                                            center: .center,
-                                            startAngle: .degrees(-90), endAngle: .degrees(270)),
-                            style: StrokeStyle(lineWidth: 11, lineCap: .round))
-                        .frame(width: 92, height: 92)
-                        .rotationEffect(.degrees(-90))
-                        .shadow(color: pal.glow.opacity(0.9), radius: 8)
-
-                    RingTipDot(progress: progress, radius: 46, color: pal.a)
-
-                    VStack(spacing: 2) {
-                        if entry.pending == 0 {
-                            Text("✓")
-                                .font(.system(size: 30, weight: .black, design: .rounded))
-                                .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
-                                                                startPoint: .top, endPoint: .bottom))
-                        } else {
-                            Text("\(entry.pending)")
-                                .font(.system(size: 34, weight: .black, design: .rounded))
-                                .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
-                                                                startPoint: .top, endPoint: .bottom))
-                            Text(entry.pending == 1 ? "task left" : "tasks left")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.white.opacity(0.50))
-                                .kerning(0.4)
-                        }
-                    }
-                }
-
-                Spacer()
-            }
-
-            // Bottom row — pinned to bottom, outside the centering VStack
-            VStack {
-                Spacer()
+            VStack(alignment: .leading, spacing: 0) {
+                // Top row
                 HStack {
-                    OpusMark(size: 18)
+                    OpusMark(size: 20)
                     Spacer()
-                    HStack(spacing: 4) {
-                        Text("🔥")
-                            .font(.system(size: 13))
+                    // Streak badge
+                    HStack(spacing: 3) {
+                        Text("🔥").font(.system(size: 11))
                         Text("\(entry.streak)")
-                            .font(.system(size: 14, weight: .black, design: .rounded))
+                            .font(.system(size: 12, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.09))
+                    .padding(.horizontal, 7).padding(.vertical, 3)
+                    .background(Color.white.opacity(0.10))
                     .clipShape(Capsule())
-                    .overlay(Capsule().stroke(pal.a.opacity(0.25), lineWidth: 0.75))
+                    .overlay(Capsule().stroke(pal.a.opacity(0.30), lineWidth: 0.75))
                 }
-                .padding(.horizontal, 13)
-                .padding(.bottom, 12)
-            }
 
-            // Top glow line
-            VStack {
-                LinearGradient(colors: [Color.clear, pal.a.opacity(0.5), Color.clear],
-                               startPoint: .leading, endPoint: .trailing).frame(height: 1)
                 Spacer()
-            }
 
-            // Bottom momentum line
-            VStack {
-                Spacer()
-                GeometryReader { g in
-                    ZStack(alignment: .leading) {
-                        Rectangle().fill(Color.clear)
-                        Rectangle()
-                            .fill(LinearGradient(colors: [pal.a, pal.b],
-                                                 startPoint: .leading, endPoint: .trailing))
-                            .frame(width: g.size.width * CGFloat(entry.momentum) / 100, height: 2)
-                            .shadow(color: pal.glow.opacity(0.9), radius: 4)
+                // Hero number
+                if entry.pending == 0 {
+                    Text("✓")
+                        .font(.system(size: 64, weight: .black, design: .rounded))
+                        .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
+                                                        startPoint: .top, endPoint: .bottom))
+                        .shadow(color: pal.glow.opacity(0.6), radius: 16)
+                    Text("All done!")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(.white.opacity(0.50))
+                } else {
+                    HStack(alignment: .lastTextBaseline, spacing: 3) {
+                        Text("\(entry.pending)")
+                            .font(.system(size: 62, weight: .black, design: .rounded))
+                            .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
+                                                            startPoint: .top, endPoint: .bottom))
+                            .shadow(color: pal.glow.opacity(0.55), radius: 14)
+                        Text(entry.total > 0 ? "/\(entry.total)" : "")
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.28))
+                            .offset(y: -6)
                     }
+                    Text(entry.pending == 1 ? "task left" : "tasks left")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.40))
+                        .kerning(0.3)
                 }
-                .frame(height: 2)
+
+                Spacer()
+
+                // Bottom: date + momentum bar
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(dayLabel)
+                        .font(.system(size: 8, weight: .black))
+                        .foregroundColor(.white.opacity(0.20))
+                        .kerning(1.0)
+                    GeometryReader { g in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.white.opacity(0.08)).frame(height: 3)
+                            Capsule()
+                                .fill(LinearGradient(colors: [pal.a, pal.b],
+                                                     startPoint: .leading, endPoint: .trailing))
+                                .frame(width: g.size.width * CGFloat(entry.momentum) / 100, height: 3)
+                                .shadow(color: pal.glow.opacity(0.9), radius: 3)
+                        }
+                    }
+                    .frame(height: 3)
+                }
+            }
+            .padding(14)
+
+            // Top glint line
+            VStack {
+                LinearGradient(colors: [Color.clear, pal.a.opacity(0.55), Color.clear],
+                               startPoint: .leading, endPoint: .trailing)
+                    .frame(height: 1)
+                Spacer()
             }
         }
         .containerBackground(entry.theme.background, for: .widget)
     }
 }
 
-// MARK: - MEDIUM WIDGET
+// MARK: - MEDIUM WIDGET — editorial layout
 struct MediumWidgetView: View {
     let entry: OpusEntry
     private var pal: (a: Color, b: Color, glow: Color) {
@@ -377,112 +343,131 @@ struct MediumWidgetView: View {
         guard entry.total > 0 else { return 0 }
         return Double(entry.total - entry.pending) / Double(entry.total)
     }
-    private var greeting: String {
-        let h    = Calendar.current.component(.hour, from: entry.date)
-        let name = entry.userName.split(separator: " ").first.map(String.init) ?? ""
-        let pre: String
+    private var firstName: String {
+        entry.userName.split(separator: " ").first.map(String.init) ?? ""
+    }
+    private var timeGreeting: String {
+        let h = Calendar.current.component(.hour, from: entry.date)
         switch h {
-        case 0..<12: pre = "Morning"
-        case 12..<17: pre = "Afternoon"
-        default: pre = "Evening"
+        case 0..<12: return "Morning"
+        case 12..<17: return "Afternoon"
+        default: return "Evening"
         }
-        return name.isEmpty ? pre : "\(pre), \(name)."
+    }
+    private var momentumLabel: String {
+        switch entry.momentum {
+        case 80...100: return "On fire 🔥"
+        case 60..<80:  return "Crushing it ⚡"
+        case 40..<60:  return "Building up 💪"
+        default:       return "Let's go 🎯"
+        }
     }
 
     var body: some View {
         ZStack {
             entry.theme.background
-            RadialGradient(colors: [pal.glow.opacity(0.18), Color.clear],
-                           center: UnitPoint(x: 0.15, y: 0.5),
-                           startRadius: 5, endRadius: 160)
+
+            // Left-side glow bloom
+            RadialGradient(colors: [pal.glow.opacity(0.30), Color.clear],
+                           center: UnitPoint(x: 0.18, y: 0.5),
+                           startRadius: 0, endRadius: 130)
+
+            // Top glint
+            VStack {
+                LinearGradient(colors: [Color.clear, pal.a.opacity(0.50), Color.clear],
+                               startPoint: .leading, endPoint: .trailing)
+                    .frame(height: 1)
+                Spacer()
+            }
 
             HStack(spacing: 0) {
 
-                // LEFT: ring + streak
+                // ── LEFT: Big number hero ──
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(greeting)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.32))
-                        .lineLimit(1)
 
-                    Spacer()
-
-                    ZStack {
-                        Circle().stroke(Color.white.opacity(0.07), lineWidth: 12)
-                            .frame(width: 82, height: 82)
-                        Circle()
-                            .trim(from: 0, to: progress)
-                            .stroke(
-                                AngularGradient(colors: [pal.a.opacity(0.4), pal.a, pal.b],
-                                                center: .center,
-                                                startAngle: .degrees(-90), endAngle: .degrees(270)),
-                                style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                            .frame(width: 82, height: 82)
-                            .rotationEffect(.degrees(-90))
-                            .shadow(color: pal.glow.opacity(0.9), radius: 8)
-                        RingTipDot(progress: progress, radius: 41, color: pal.a)
-                        VStack(spacing: 1) {
-                            Text(entry.pending == 0 ? "✓" : "\(entry.total - entry.pending)")
-                                .font(.system(size: entry.pending == 0 ? 26 : 24,
-                                              weight: .black, design: .rounded))
-                                .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
-                                                                startPoint: .top, endPoint: .bottom))
-                            Text(entry.pending == 0 ? "done!" : "of \(entry.total)")
-                                .font(.system(size: 8, weight: .bold))
-                                .foregroundColor(.white.opacity(0.28))
+                    // Greeting
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(timeGreeting.uppercased())
+                            .font(.system(size: 7.5, weight: .black))
+                            .foregroundColor(pal.a.opacity(0.70))
+                            .kerning(1.4)
+                        if !firstName.isEmpty {
+                            Text(firstName)
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(.white.opacity(0.75))
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
 
                     Spacer()
 
-                    // Streak + momentum mini bar
+                    // Hero count
+                    if entry.pending == 0 {
+                        Text("✓")
+                            .font(.system(size: 56, weight: .black, design: .rounded))
+                            .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
+                                                            startPoint: .top, endPoint: .bottom))
+                            .shadow(color: pal.glow.opacity(0.6), radius: 14)
+                        Text("all done!")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.white.opacity(0.45))
+                    } else {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("\(entry.pending)")
+                                .font(.system(size: 56, weight: .black, design: .rounded))
+                                .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
+                                                                startPoint: .top, endPoint: .bottom))
+                                .shadow(color: pal.glow.opacity(0.55), radius: 12)
+                            Text("left of \(entry.total)")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.35))
+                        }
+                    }
+
+                    Spacer()
+
+                    // Streak + momentum
                     VStack(alignment: .leading, spacing: 5) {
                         HStack(spacing: 5) {
-                            Text("🔥").font(.system(size: 13))
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text("\(entry.streak)")
-                                    .font(.system(size: 17, weight: .black, design: .rounded))
-                                    .foregroundColor(.white)
-                                Text("streak")
-                                    .font(.system(size: 7, weight: .bold))
-                                    .foregroundColor(.white.opacity(0.26))
-                                    .kerning(0.3)
-                            }
+                            Text("🔥")
+                                .font(.system(size: 12))
+                            Text("\(entry.streak) day streak")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white.opacity(0.55))
                         }
                         GeometryReader { g in
                             ZStack(alignment: .leading) {
-                                Capsule().fill(Color.white.opacity(0.06))
+                                Capsule().fill(Color.white.opacity(0.08)).frame(height: 3)
                                 Capsule()
                                     .fill(LinearGradient(colors: [pal.a, pal.b],
                                                          startPoint: .leading, endPoint: .trailing))
-                                    .frame(width: g.size.width * CGFloat(entry.momentum) / 100)
-                                    .shadow(color: pal.glow.opacity(0.7), radius: 3)
+                                    .frame(width: g.size.width * CGFloat(entry.momentum) / 100, height: 3)
+                                    .shadow(color: pal.glow.opacity(0.8), radius: 3)
                             }
                         }
                         .frame(height: 3).clipShape(Capsule())
                     }
                 }
                 .padding(14)
-                .frame(width: 118)
+                .frame(width: 140)
 
-                // Divider
+                // ── Divider ──
                 Rectangle()
-                    .fill(LinearGradient(colors: [Color.clear, pal.a.opacity(0.22), Color.clear],
+                    .fill(LinearGradient(colors: [Color.clear, pal.a.opacity(0.25), Color.clear],
                                         startPoint: .top, endPoint: .bottom))
-                    .frame(width: 1).padding(.vertical, 14)
+                    .frame(width: 1)
+                    .padding(.vertical, 14)
 
-                // RIGHT: tasks
+                // ── RIGHT: Task list ──
                 VStack(alignment: .leading, spacing: 0) {
-                    HStack {
-                        HStack(spacing: 5) {
-                            Circle().fill(pal.a).frame(width: 5, height: 5)
-                                .shadow(color: pal.glow, radius: 3)
-                            Text("TODAY")
-                                .font(.system(size: 8, weight: .black))
-                                .foregroundColor(.white.opacity(0.28))
-                                .kerning(1.2)
-                        }
+
+                    // Header
+                    HStack(spacing: 6) {
+                        Circle().fill(pal.a).frame(width: 5, height: 5)
+                            .shadow(color: pal.glow, radius: 3)
+                        Text("TODAY")
+                            .font(.system(size: 8, weight: .black))
+                            .foregroundColor(.white.opacity(0.30))
+                            .kerning(1.3)
                         Spacer()
                         OpusMark(size: 17)
                     }
@@ -490,45 +475,37 @@ struct MediumWidgetView: View {
 
                     if entry.topTasks.isEmpty {
                         Spacer()
-                        VStack(spacing: 5) {
-                            Text("🎉").font(.system(size: 26))
-                            Text("All done!").font(.system(size: 12, weight: .bold))
+                        VStack(spacing: 6) {
+                            Text("🎉").font(.system(size: 28))
+                            Text("Streak kept!")
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.white.opacity(0.45))
-                            Text("Streak kept 🔥")
-                                .font(.system(size: 9)).foregroundColor(pal.a.opacity(0.7))
                         }
                         .frame(maxWidth: .infinity)
                         Spacer()
                     } else {
                         VStack(alignment: .leading, spacing: 5) {
-                            ForEach(entry.topTasks) { task in
-                                TaskCard(task: task, accent: pal.a)
+                            ForEach(entry.topTasks.prefix(3)) { task in
+                                SlimTaskRow(task: task, accent: pal.a)
                             }
                             if entry.pending > 3 {
                                 Text("+ \(entry.pending - 3) more")
-                                    .font(.system(size: 9, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.22))
-                                    .padding(.leading, 4)
+                                    .font(.system(size: 9, weight: .semibold))
+                                    .foregroundColor(pal.a.opacity(0.55))
+                                    .padding(.leading, 6)
                             }
                         }
-                        Spacer()
+                        Spacer(minLength: 0)
                     }
                 }
                 .padding(13)
-            }
-
-            // Top glow line
-            VStack {
-                LinearGradient(colors: [Color.clear, pal.a.opacity(0.4), Color.clear],
-                               startPoint: .leading, endPoint: .trailing).frame(height: 1)
-                Spacer()
             }
         }
         .containerBackground(entry.theme.background, for: .widget)
     }
 }
 
-// MARK: - LARGE WIDGET
+// MARK: - LARGE WIDGET — bento grid layout
 struct LargeWidgetView: View {
     let entry: OpusEntry
     private var pal: (a: Color, b: Color, glow: Color) {
@@ -539,127 +516,219 @@ struct LargeWidgetView: View {
         return Double(entry.total - entry.pending) / Double(entry.total)
     }
     private var greeting: String {
-        let h    = Calendar.current.component(.hour, from: entry.date)
+        let h = Calendar.current.component(.hour, from: entry.date)
         let name = entry.userName.split(separator: " ").first.map(String.init) ?? ""
+        let suffix = name.isEmpty ? "" : ", \(name)"
         switch h {
-        case 0..<12: return "Good morning\(name.isEmpty ? "" : ", \(name)")."
-        case 12..<17: return "Good afternoon\(name.isEmpty ? "" : ", \(name)")."
-        default: return "Good evening\(name.isEmpty ? "" : ", \(name)")."
+        case 0..<12:  return "Good morning\(suffix)"
+        case 12..<17: return "Good afternoon\(suffix)"
+        default:      return "Good evening\(suffix)"
+        }
+    }
+    private var dateLabel: String {
+        let f = DateFormatter(); f.dateFormat = "EEEE, MMM d"
+        return f.string(from: entry.date)
+    }
+    private var momentumLabel: String {
+        switch entry.momentum {
+        case 80...100: return "On fire 🔥"
+        case 60..<80:  return "Crushing it ⚡"
+        case 40..<60:  return "Building up 💪"
+        case 20..<40:  return "Warming up 🌱"
+        default:       return "Let's go 🎯"
         }
     }
 
     var body: some View {
         ZStack {
             entry.theme.background
-            RadialGradient(colors: [pal.glow.opacity(0.22), Color.clear],
-                           center: UnitPoint(x: 0.5, y: 0.2),
-                           startRadius: 10, endRadius: 220)
 
-            VStack(spacing: 0) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(greeting)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white.opacity(0.80))
-                        Text(entry.pending == 0
-                             ? "All tasks complete today 🎉"
-                             : "\(entry.pending) task\(entry.pending == 1 ? "" : "s") remaining")
-                            .font(.system(size: 11))
-                            .foregroundColor(.white.opacity(0.32))
-                    }
-                    Spacer()
-                    OpusMark(size: 30)
-                }
-                .padding(.horizontal, 18).padding(.top, 18).padding(.bottom, 14)
+            // Radial glow top-center
+            RadialGradient(colors: [pal.glow.opacity(0.25), Color.clear],
+                           center: UnitPoint(x: 0.5, y: 0.15),
+                           startRadius: 0, endRadius: 200)
 
-                // Big ring
-                ZStack {
-                    Circle().stroke(Color.white.opacity(0.06), lineWidth: 14)
-                        .frame(width: 130, height: 130)
-                    Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(
-                            AngularGradient(colors: [pal.a.opacity(0.4), pal.a, pal.b],
-                                            center: .center,
-                                            startAngle: .degrees(-90), endAngle: .degrees(270)),
-                            style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                        .frame(width: 130, height: 130)
-                        .rotationEffect(.degrees(-90))
-                        .shadow(color: pal.glow, radius: 14)
-                    RingTipDot(progress: progress, radius: 65, color: pal.a)
-                    VStack(spacing: 3) {
-                        Text(entry.pending == 0 ? "✓" : "\(entry.total - entry.pending)")
-                            .font(.system(size: entry.pending == 0 ? 44 : 40,
-                                          weight: .black, design: .rounded))
-                            .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
-                                                            startPoint: .top, endPoint: .bottom))
-                        Text(entry.pending == 0 ? "all done" : "of \(entry.total) done")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.26))
-                    }
-                }
-                .padding(.bottom, 16)
-
-                // Stats row
-                HStack(spacing: 10) {
-                    statPill(emoji: "🔥", value: "\(entry.streak)", label: "streak")
-                    statPill(emoji: "⚡️", value: "\(entry.momentum)%", label: "momentum")
-                    statPill(emoji: "✅", value: "\(entry.total - entry.pending)/\(entry.total)", label: "done")
-                }
-                .padding(.horizontal, 16).padding(.bottom, 14)
-
-                // Divider
-                Rectangle()
-                    .fill(LinearGradient(colors: [Color.clear, pal.a.opacity(0.20), Color.clear],
-                                        startPoint: .leading, endPoint: .trailing))
-                    .frame(height: 1).padding(.horizontal, 16)
-
-                // Task list
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("UP NEXT")
-                        .font(.system(size: 9, weight: .black))
-                        .foregroundColor(.white.opacity(0.20))
-                        .kerning(1.5)
-                        .padding(.top, 12)
-
-                    if entry.topTasks.isEmpty {
-                        HStack { Spacer()
-                            Text("Nothing left — great work! 🏆")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white.opacity(0.30))
-                            Spacer() }
-                        .padding(.vertical, 12)
-                    } else {
-                        ForEach(entry.topTasks) { task in
-                            TaskCard(task: task, accent: pal.a)
-                        }
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, 16).padding(.bottom, 16)
+            // Top glint
+            VStack {
+                LinearGradient(colors: [Color.clear, pal.a.opacity(0.55), Color.clear],
+                               startPoint: .leading, endPoint: .trailing)
+                    .frame(height: 1)
+                Spacer()
             }
 
-            // Top glow
-            VStack {
-                LinearGradient(colors: [Color.clear, pal.a.opacity(0.45), Color.clear],
-                               startPoint: .leading, endPoint: .trailing).frame(height: 1)
-                Spacer()
+            VStack(spacing: 0) {
+
+                // ── HEADER ──
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(greeting)
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                        Text(dateLabel)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white.opacity(0.30))
+                    }
+                    Spacer()
+                    OpusMark(size: 28)
+                }
+                .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 12)
+
+                // ── BENTO ROW: 3 stat tiles ──
+                HStack(spacing: 8) {
+                    // Pending count tile
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(RoundedRectangle(cornerRadius: 14)
+                                .stroke(pal.a.opacity(0.20), lineWidth: 1))
+                        RadialGradient(colors: [pal.glow.opacity(0.22), Color.clear],
+                                       center: .center, startRadius: 0, endRadius: 50)
+                        VStack(spacing: 2) {
+                            Text(entry.pending == 0 ? "✓" : "\(entry.pending)")
+                                .font(.system(size: 32, weight: .black, design: .rounded))
+                                .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
+                                                                startPoint: .top, endPoint: .bottom))
+                                .shadow(color: pal.glow.opacity(0.5), radius: 8)
+                            Text(entry.pending == 0 ? "all done" : "remaining")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.white.opacity(0.32))
+                                .kerning(0.3)
+                        }
+                    }
+                    .frame(maxWidth: .infinity).frame(height: 72)
+
+                    // Streak tile
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color(hex: "#F97316").opacity(0.20), lineWidth: 1))
+                        VStack(spacing: 2) {
+                            Text("🔥")
+                                .font(.system(size: 18))
+                            Text("\(entry.streak)")
+                                .font(.system(size: 22, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                            Text("day streak")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.white.opacity(0.32))
+                                .kerning(0.3)
+                        }
+                    }
+                    .frame(maxWidth: .infinity).frame(height: 72)
+
+                    // Momentum tile
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(RoundedRectangle(cornerRadius: 14)
+                                .stroke(pal.a.opacity(0.20), lineWidth: 1))
+                        VStack(spacing: 4) {
+                            // Mini ring
+                            ZStack {
+                                Circle().stroke(Color.white.opacity(0.08), lineWidth: 4)
+                                    .frame(width: 36, height: 36)
+                                Circle()
+                                    .trim(from: 0, to: CGFloat(entry.momentum) / 100)
+                                    .stroke(pal.a, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                    .frame(width: 36, height: 36)
+                                    .rotationEffect(.degrees(-90))
+                                    .shadow(color: pal.glow.opacity(0.8), radius: 4)
+                                Text("\(entry.momentum)")
+                                    .font(.system(size: 10, weight: .black, design: .rounded))
+                                    .foregroundColor(.white)
+                            }
+                            Text("momentum")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.white.opacity(0.32))
+                                .kerning(0.3)
+                        }
+                    }
+                    .frame(maxWidth: .infinity).frame(height: 72)
+                }
+                .padding(.horizontal, 14)
+
+                // ── DIVIDER ──
+                Rectangle()
+                    .fill(LinearGradient(colors: [Color.clear, pal.a.opacity(0.18), Color.clear],
+                                        startPoint: .leading, endPoint: .trailing))
+                    .frame(height: 1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+
+                // ── TASK LIST ──
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 6) {
+                        Circle().fill(pal.a).frame(width: 5, height: 5)
+                            .shadow(color: pal.glow, radius: 3)
+                        Text("UP NEXT")
+                            .font(.system(size: 8, weight: .black))
+                            .foregroundColor(.white.opacity(0.25))
+                            .kerning(1.5)
+                        Spacer()
+                        Text("\(entry.total - entry.pending)/\(entry.total) done")
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundColor(pal.a.opacity(0.60))
+                    }
+                    .padding(.bottom, 8)
+
+                    if entry.topTasks.isEmpty {
+                        VStack(spacing: 8) {
+                            Text("🏆")
+                                .font(.system(size: 32))
+                            Text("Nothing left — great work!")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.35))
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                    } else {
+                        VStack(spacing: 5) {
+                            ForEach(entry.topTasks) { task in
+                                SlimTaskRow(task: task, accent: pal.a)
+                            }
+                            if entry.pending > 4 {
+                                Text("+ \(entry.pending - 4) more tasks")
+                                    .font(.system(size: 9, weight: .semibold))
+                                    .foregroundColor(pal.a.opacity(0.50))
+                                    .padding(.leading, 6)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 14)
+
+                Spacer(minLength: 0)
+
+                // ── BOTTOM MOMENTUM BAR ──
+                VStack(spacing: 3) {
+                    HStack {
+                        Text(momentumLabel)
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(pal.a.opacity(0.60))
+                        Spacer()
+                        Text("\(entry.momentum)%")
+                            .font(.system(size: 9, weight: .black))
+                            .foregroundColor(.white.opacity(0.35))
+                    }
+                    GeometryReader { g in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.white.opacity(0.07)).frame(height: 4)
+                            Capsule()
+                                .fill(LinearGradient(colors: [pal.a, pal.b],
+                                                     startPoint: .leading, endPoint: .trailing))
+                                .frame(width: g.size.width * CGFloat(entry.momentum) / 100, height: 4)
+                                .shadow(color: pal.glow.opacity(0.9), radius: 4)
+                        }
+                    }
+                    .frame(height: 4).clipShape(Capsule())
+                }
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
             }
         }
         .containerBackground(entry.theme.background, for: .widget)
-    }
-
-    private func statPill(emoji: String, value: String, label: String) -> some View {
-        VStack(spacing: 3) {
-            Text(emoji).font(.system(size: 16))
-            Text(value).font(.system(size: 15, weight: .black, design: .rounded)).foregroundColor(.white)
-            Text(label).font(.system(size: 8, weight: .semibold)).foregroundColor(.white.opacity(0.24)).kerning(0.3)
-        }
-        .frame(maxWidth: .infinity).padding(.vertical, 10)
-        .background(Color.white.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(pal.a.opacity(0.18), lineWidth: 1))
     }
 }
 
@@ -745,10 +814,38 @@ struct OpusHomeWidgetView: View {
     }
 }
 
+struct OpusLockProvider: TimelineProvider {
+    func placeholder(in context: Context) -> OpusEntry {
+        OpusEntry(date: .now, streak: 7, momentum: 65, pending: 2, total: 5,
+                  topTasks: [WidgetTask(id: UUID(), title: "Review PR", isCompleted: false, category: "Work")],
+                  userName: "", theme: .obsidian)
+    }
+    func getSnapshot(in context: Context, completion: @escaping (OpusEntry) -> Void) {
+        completion(placeholder(in: context))
+    }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<OpusEntry>) -> Void) {
+        let d        = UserDefaults(suiteName: sharedSuite) ?? .standard
+        let streak   = d.integer(forKey: "streak")
+        let momentum = d.integer(forKey: "momentum")
+        var pending  = 0; var top = [WidgetTask]()
+        if let data  = d.data(forKey: "todayTasks_v1"),
+           let tasks = try? JSONDecoder().decode([WidgetTask].self, from: data) {
+            let open = tasks.filter { !$0.isCompleted }
+            pending  = open.count
+            top      = Array(open.prefix(1))
+        }
+        let entry = OpusEntry(date: .now, streak: streak, momentum: momentum,
+                              pending: pending, total: 0, topTasks: top,
+                              userName: "", theme: .obsidian)
+        let next = Calendar.current.date(byAdding: .minute, value: 15, to: .now)!
+        completion(Timeline(entries: [entry], policy: .after(next)))
+    }
+}
+
 struct OpusLockWidget: Widget {
     let kind = "OpusLockWidget"
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: OpusWidgetIntent.self, provider: OpusProvider()) { entry in
+        StaticConfiguration(kind: kind, provider: OpusLockProvider()) { entry in
             OpusLockWidgetView(entry: entry)
         }
         .configurationDisplayName("Opus")

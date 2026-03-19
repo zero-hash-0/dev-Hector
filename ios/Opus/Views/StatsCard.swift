@@ -318,7 +318,7 @@ struct StatsCard: View {
             HStack(alignment: .center, spacing: 0) {
 
                 // Left: Momentum Ring + mood tag
-                VStack(spacing: 8) {
+                VStack(spacing: 16) {
                     MomentumRing(value: momentum)
 
                     HStack(spacing: 4) {
