@@ -29,23 +29,26 @@ enum TaskSchedule: String, Codable {
 
 // MARK: - Task Repeat
 enum TaskRepeat: String, CaseIterable, Codable {
-    case none    = "none"
-    case daily   = "daily"
-    case weekly  = "weekly"
+    case none     = "none"
+    case daily    = "daily"
+    case weekdays = "weekdays"
+    case weekly   = "weekly"
 
     var label: String {
         switch self {
-        case .none:   return "No repeat"
-        case .daily:  return "Every day"
-        case .weekly: return "Every week"
+        case .none:     return "No repeat"
+        case .daily:    return "Every day"
+        case .weekdays: return "Weekdays"
+        case .weekly:   return "Every week"
         }
     }
 
     var icon: String {
         switch self {
-        case .none:   return "minus"
-        case .daily:  return "arrow.clockwise"
-        case .weekly: return "calendar.badge.clock"
+        case .none:     return "minus"
+        case .daily:    return "arrow.clockwise"
+        case .weekdays: return "briefcase.fill"
+        case .weekly:   return "calendar.badge.clock"
         }
     }
 }
@@ -60,6 +63,7 @@ struct OpusTask: Identifiable, Codable {
     var dueLabel: String?     // human-readable label shown in UI
     var isCompleted: Bool
     var taskRepeat: TaskRepeat
+    var originWeekday: Int?   // 1=Sun…7=Sat — only set for .weekly tasks
 
     init(
         id: UUID = UUID(),
@@ -79,6 +83,10 @@ struct OpusTask: Identifiable, Codable {
         self.dueLabel = dueLabel
         self.isCompleted = isCompleted
         self.taskRepeat = taskRepeat
+        // Capture the day of week for weekly recurring tasks
+        self.originWeekday = taskRepeat == .weekly
+            ? Calendar.current.component(.weekday, from: Date())
+            : nil
     }
 }
 

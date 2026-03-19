@@ -104,11 +104,14 @@ final class DashboardViewModel: ObservableObject {
                     dueDate: Date?, dueLabel: String?, taskRepeat: TaskRepeat) {
         guard let idx = todayTasks.firstIndex(where: { $0.id == task.id }) else { return }
         NotificationManager.shared.cancelDueDateNotification(for: task.id)
-        todayTasks[idx].title      = title
-        todayTasks[idx].category   = category
-        todayTasks[idx].dueDate    = dueDate
-        todayTasks[idx].dueLabel   = dueLabel
-        todayTasks[idx].taskRepeat = taskRepeat
+        todayTasks[idx].title         = title
+        todayTasks[idx].category      = category
+        todayTasks[idx].dueDate       = dueDate
+        todayTasks[idx].dueLabel      = dueLabel
+        todayTasks[idx].taskRepeat    = taskRepeat
+        todayTasks[idx].originWeekday = taskRepeat == .weekly
+            ? Calendar.current.component(.weekday, from: Date())
+            : nil
         if dueDate != nil {
             let updated = todayTasks[idx]
             Task { await NotificationManager.shared.scheduleDueDateNotification(for: updated) }
@@ -133,6 +136,10 @@ final class DashboardViewModel: ObservableObject {
         let todayStr  = fmt.string(from: today)
 
         if lastStr != todayStr {
+            let cal        = Calendar.current
+            let todayWD    = cal.component(.weekday, from: Date()) // 1=Sun…7=Sat
+            let isWeekend  = todayWD == 1 || todayWD == 7
+
             // Separate recurring from one-off completed tasks
             let completedNonRecurring = todayTasks.filter { $0.isCompleted && $0.taskRepeat == .none }
             let completedRecurring    = todayTasks.filter { $0.isCompleted && $0.taskRepeat != .none }
@@ -144,21 +151,45 @@ final class DashboardViewModel: ObservableObject {
                 completedHistory.insert(entry, at: 0)
             }
 
-            // Reset recurring tasks to pending for today
-            let resetRecurring: [OpusTask] = completedRecurring.map { task in
-                var t = task
-                t.isCompleted = false
-                // For weekly tasks, only carry forward if today is the same weekday
-                if task.taskRepeat == .weekly {
-                    // Carry forward always — keep it simple for now
+            // Reset recurring tasks — respecting their repeat rules
+            var toReset: [OpusTask] = []
+            var toRemove: [UUID]    = []
+
+            for task in completedRecurring {
+                switch task.taskRepeat {
+                case .daily:
+                    // Resets every day
+                    var t = task; t.isCompleted = false; toReset.append(t)
+                case .weekdays:
+                    // Only resets on Mon–Fri; hide on weekends
+                    if isWeekend {
+                        toRemove.append(task.id)       // remove for today, re-appear Monday
+                    } else {
+                        var t = task; t.isCompleted = false; toReset.append(t)
+                    }
+                case .weekly:
+                    // Only resets on the same weekday it was created
+                    if todayWD == (task.originWeekday ?? todayWD) {
+                        var t = task; t.isCompleted = false; toReset.append(t)
+                    } else {
+                        toRemove.append(task.id)       // not this task's day — hide until then
+                    }
+                case .none:
+                    break
                 }
-                return t
             }
 
-            // Remove all completed non-recurring tasks; keep pending + reset recurring
-            todayTasks.removeAll { $0.isCompleted && $0.taskRepeat == .none }
-            // Re-insert reset recurring tasks (they were already in todayTasks, just reset)
-            for t in resetRecurring {
+            // Also hide pending weekday tasks on weekends
+            let pendingWeekdayOnWeekend = todayTasks.filter {
+                !$0.isCompleted && $0.taskRepeat == .weekdays && isWeekend
+            }.map(\.id)
+            let allToRemove = Set(toRemove + pendingWeekdayOnWeekend)
+
+            // Apply: remove non-recurring completed + tasks that shouldn't show today
+            todayTasks.removeAll { ($0.isCompleted && $0.taskRepeat == .none) || allToRemove.contains($0.id) }
+
+            // Reset the recurring tasks that qualified
+            for t in toReset {
                 if let idx = todayTasks.firstIndex(where: { $0.id == t.id }) {
                     todayTasks[idx] = t
                 }
