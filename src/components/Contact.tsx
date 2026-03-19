@@ -83,7 +83,7 @@ export default function Contact() {
             {/* Contact buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
               <a
-                href="mailto:hello@dev-hector.com"
+                href="mailto:gh0stly@riseup.net"
                 className="flex items-center gap-2 px-7 py-3 rounded border text-sm transition-all duration-200"
                 style={{ borderColor: "rgba(0,255,65,0.5)", color: "#00ff41" }}
                 onMouseEnter={(e) => {
@@ -97,7 +97,7 @@ export default function Contact() {
                   el.style.color      = "#00ff41";
                 }}
               >
-                $ mail hello@dev-hector.com
+                $ mail gh0stly@riseup.net
               </a>
 
               <a
