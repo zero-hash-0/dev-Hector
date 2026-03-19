@@ -414,7 +414,38 @@ struct StatsCard: View {
             }
             .padding(.vertical, 14)
         }
-        .liquidGlass(cornerRadius: 26)
+        .background {
+            RoundedRectangle(cornerRadius: 26)
+                .fill(Color(hex: "#0F0A1F"))
+                .overlay(alignment: .topLeading) {
+                    // Purple ambient bloom behind momentum ring
+                    Ellipse()
+                        .fill(Color(hex: "#6E6BF5").opacity(0.18))
+                        .frame(width: 180, height: 140)
+                        .blur(radius: 44)
+                        .offset(x: -20, y: -20)
+                        .allowsHitTesting(false)
+                }
+                .overlay {
+                    // Top-heavy gradient border glow
+                    RoundedRectangle(cornerRadius: 26)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color(hex: "#A78BFA").opacity(0.70),
+                                    Color(hex: "#6E6BF5").opacity(0.30),
+                                    Color(hex: "#8A4AF3").opacity(0.06)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+                .shadow(color: Color(hex: "#6E6BF5").opacity(0.22), radius: 32, x: 0, y: 10)
+                .shadow(color: .black.opacity(0.65), radius: 18, x: 0, y: 8)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 26))
     }
 }
 

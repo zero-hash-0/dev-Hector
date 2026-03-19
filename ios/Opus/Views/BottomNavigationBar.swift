@@ -100,24 +100,31 @@ struct BottomNavigationBar: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 14)
             .background {
-                // Capsule is constrained to match the HStack size — no more full-screen expansion
                 ZStack {
-                    Capsule().fill(.ultraThinMaterial)
+                    // Rich opaque dark-purple base
+                    Capsule().fill(Color(hex: "#110D24"))
+                    // Subtle violet shimmer on top half
                     Capsule().fill(
                         LinearGradient(
-                            colors: [Color(hex: "#6E6BF5").opacity(0.20), Color(hex: "#8A4AF3").opacity(0.10)],
-                            startPoint: .top, endPoint: .bottom
+                            colors: [Color(hex: "#6E6BF5").opacity(0.28), Color.clear],
+                            startPoint: .top, endPoint: .center
                         )
                     )
+                    // Top-bright border glow
                     Capsule().stroke(
                         LinearGradient(
-                            colors: [Color(hex: "#A78BFA").opacity(0.50), Color(hex: "#6E6BF5").opacity(0.18)],
+                            colors: [
+                                Color(hex: "#A78BFA").opacity(0.80),
+                                Color(hex: "#6E6BF5").opacity(0.40),
+                                Color(hex: "#8A4AF3").opacity(0.10)
+                            ],
                             startPoint: .topLeading, endPoint: .bottomTrailing
                         ),
                         lineWidth: 1
                     )
                 }
-                .shadow(color: .black.opacity(0.5), radius: 28, x: 0, y: 10)
+                .shadow(color: Color(hex: "#6E6BF5").opacity(0.30), radius: 24, x: 0, y: 6)
+                .shadow(color: .black.opacity(0.60), radius: 30, x: 0, y: 12)
             }
         }
         .padding(.horizontal, 20)
@@ -135,24 +142,41 @@ private struct TabBarItem: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
-                Image(systemName: tab.icon)
-                    .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(
-                        isSelected
-                            ? AnyShapeStyle(LinearGradient(
-                                colors: [Color(hex: "#A78BFA"), Color(hex: "#8A4AF3")],
-                                startPoint: .top, endPoint: .bottom))
-                            : AnyShapeStyle(Color.white.opacity(0.35))
-                    )
-                    .scaleEffect(isSelected ? 1.08 : 1.0)
-                    .animation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+                ZStack {
+                    // Glow halo behind selected icon
+                    if isSelected {
+                        Circle()
+                            .fill(Color(hex: "#8A4AF3").opacity(0.18))
+                            .frame(width: 36, height: 36)
+                            .blur(radius: 8)
+                    }
+                    Image(systemName: tab.icon)
+                        .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(
+                            isSelected
+                                ? AnyShapeStyle(LinearGradient(
+                                    colors: [Color(hex: "#C4B5FD"), Color(hex: "#8A4AF3")],
+                                    startPoint: .top, endPoint: .bottom))
+                                : AnyShapeStyle(Color.white.opacity(0.30))
+                        )
+                        .scaleEffect(isSelected ? 1.10 : 1.0)
+                        .animation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+                }
 
                 Text(tab.label)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(isSelected ? Color(hex: "#A78BFA") : .white.opacity(0.35))
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
+                    .foregroundColor(isSelected ? Color(hex: "#C4B5FD") : .white.opacity(0.30))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
+
+                // Active indicator dot
+                Circle()
+                    .fill(Color(hex: "#8A4AF3"))
+                    .frame(width: 4, height: 4)
+                    .shadow(color: Color(hex: "#8A4AF3").opacity(0.9), radius: 4)
+                    .opacity(isSelected ? 1 : 0)
+                    .animation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
