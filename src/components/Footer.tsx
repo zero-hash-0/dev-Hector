@@ -58,7 +58,7 @@ export default function Footer() {
             [x/twitter]
           </a>
           <a
-            href="mailto:hello@dev-hector.com"
+            href="mailto:gh0stly@riseup.net"
             className="transition-colors hover:text-[#00ff41]"
           >
             [email]
