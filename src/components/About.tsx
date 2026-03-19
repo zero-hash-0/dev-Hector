@@ -25,7 +25,7 @@ const TAGS = [
 
 export default function About() {
   return (
-    <section id="about" className="pt-6 pb-8 px-6 max-w-5xl mx-auto">
+    <section id="about" className="pt-3 pb-4 px-6 max-w-5xl mx-auto">
       <CmdHeader cmd="cat about.md" />
 
       <div

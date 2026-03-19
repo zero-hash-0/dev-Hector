@@ -13,7 +13,7 @@ const SSH_OUTPUT = [
 
 export default function Contact() {
   return (
-    <section id="contact" className="pt-6 pb-8 px-6 max-w-5xl mx-auto font-mono">
+    <section id="contact" className="pt-3 pb-4 px-6 max-w-5xl mx-auto font-mono">
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">

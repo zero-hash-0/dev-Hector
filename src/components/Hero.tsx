@@ -153,7 +153,7 @@ export default function Hero() {
       />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 pt-20 pb-6 font-mono">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 pt-20 pb-3 font-mono">
 
         {/* Top border label */}
         <div className="flex items-center gap-3 mb-7 text-xs" style={{ color: "#2d5a30" }}>
@@ -165,7 +165,7 @@ export default function Hero() {
 
         {/* Boot terminal */}
         <div
-          className="rounded border mb-8 overflow-hidden terminal-window"
+          className="rounded border mb-5 overflow-hidden terminal-window"
           style={{ borderColor: "rgba(0,255,65,0.15)", background: "rgba(2,11,2,0.82)" }}
         >
           {/* Title bar */}
@@ -201,7 +201,7 @@ export default function Hero() {
 
         {/* ASCII art name */}
         {showAscii && (
-          <div className="mb-8 overflow-x-auto">
+          <div className="mb-5 overflow-x-auto">
             <div
               className="text-[7px] sm:text-[9px] md:text-[12px] leading-tight whitespace-pre font-mono phosphor"
               style={{ color: "#00ff41" }}
@@ -301,7 +301,7 @@ export default function Hero() {
         )}
 
         {/* Bottom border label */}
-        <div className="flex items-center gap-3 mt-8 text-xs" style={{ color: "#2d5a30" }}>
+        <div className="flex items-center gap-3 mt-5 text-xs" style={{ color: "#2d5a30" }}>
           <span>└─</span>
           <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
           <span style={{ color: "#1a4a1d" }}>END BOOT SEQUENCE</span>
