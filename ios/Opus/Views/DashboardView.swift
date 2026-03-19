@@ -92,6 +92,21 @@ final class DashboardViewModel: ObservableObject {
         showAddTask     = false
     }
 
+    func updateTask(_ task: OpusTask, title: String, category: TaskCategory,
+                    dueDate: Date?, dueLabel: String?, taskRepeat: TaskRepeat) {
+        guard let idx = todayTasks.firstIndex(where: { $0.id == task.id }) else { return }
+        NotificationManager.shared.cancelDueDateNotification(for: task.id)
+        todayTasks[idx].title      = title
+        todayTasks[idx].category   = category
+        todayTasks[idx].dueDate    = dueDate
+        todayTasks[idx].dueLabel   = dueLabel
+        todayTasks[idx].taskRepeat = taskRepeat
+        if dueDate != nil {
+            let updated = todayTasks[idx]
+            Task { await NotificationManager.shared.scheduleDueDateNotification(for: updated) }
+        }
+    }
+
     func promoteToToday(_ task: OpusTask) {
         guard let idx = laterTasks.firstIndex(where: { $0.id == task.id }) else { return }
         var promoted = laterTasks[idx]
@@ -276,7 +291,8 @@ struct DashboardView: View {
                                     momentum: vm.momentum,
                                     streak: vm.streak,
                                     tasksCompleted: vm.completedTasks.count,
-                                    tasksTotal: vm.todayTasks.count
+                                    tasksTotal: vm.todayTasks.count,
+                                    history: vm.completedHistory
                                 )
                                 .padding(.horizontal, 20)
                                 taskListSection
@@ -323,13 +339,17 @@ struct DashboardView: View {
                         }
                         .zIndex(4)
 
-                    taskDetailCard(task, geo: geo)
-                        .matchedGeometryEffect(id: task.id, in: cardNS)
-                        .zIndex(5)
-                        .transition(.asymmetric(
-                            insertion: .scale(scale: 0.92).combined(with: .opacity),
-                            removal:   .scale(scale: 0.92).combined(with: .opacity)
-                        ))
+                    TaskDetailCard(task: task, vm: vm) {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                            focusedTask = nil
+                        }
+                    }
+                    .matchedGeometryEffect(id: task.id, in: cardNS)
+                    .zIndex(5)
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.92).combined(with: .opacity),
+                        removal:   .scale(scale: 0.92).combined(with: .opacity)
+                    ))
                 }
             }
             .ignoresSafeArea(edges: .all)
@@ -660,127 +680,6 @@ struct DashboardView: View {
                     }
                 }
             )
-    }
-
-    // MARK: - Task Detail Card (matchedGeometryEffect destination)
-    @ViewBuilder
-    private func taskDetailCard(_ task: OpusTask, geo: GeometryProxy) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-
-            // Top row: category + close
-            HStack {
-                Text(task.category.rawValue)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(task.category.color)
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 5)
-                    .background(task.category.color.opacity(0.15))
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(task.category.color.opacity(0.3), lineWidth: 0.5))
-
-                Spacer()
-
-                Button {
-                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
-                        focusedTask = nil
-                    }
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.55))
-                        .frame(width: 30, height: 30)
-                        .background(Color.white.opacity(0.09))
-                        .clipShape(Circle())
-                }
-            }
-            .padding(.bottom, 20)
-
-            // Title
-            Text(task.title)
-                .font(.system(size: 26, weight: .bold))
-                .foregroundColor(.white)
-                .padding(.bottom, 12)
-
-            // Due label
-            if let due = task.dueLabel {
-                HStack(spacing: 8) {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.35))
-                    Text("Due: \(due)")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white.opacity(0.45))
-                }
-                .padding(.bottom, 24)
-            }
-
-            Divider()
-                .background(Color.white.opacity(0.08))
-                .padding(.bottom, 20)
-
-            // Actions
-            HStack(spacing: 12) {
-                Button {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    withAnimation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.65)) {
-                        vm.toggle(task)
-                    }
-                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
-                        focusedTask = nil
-                    }
-                } label: {
-                    Label(task.isCompleted ? "Mark Incomplete" : "Mark Complete",
-                          systemImage: task.isCompleted ? "arrow.uturn.backward" : "checkmark.circle.fill")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 13)
-                        .background(
-                            LinearGradient(
-                                colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
-                                startPoint: .leading, endPoint: .trailing
-                            )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-
-                Button {
-                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
-                    vm.deleteTask(task)
-                    withAnimation(reduceMotion ? .none : .spring(response: 0.45, dampingFraction: 0.85)) {
-                        focusedTask = nil
-                    }
-                } label: {
-                    Image(systemName: "trash.fill")
-                        .font(.system(size: 15))
-                        .foregroundColor(.white.opacity(0.7))
-                        .frame(width: 48, height: 48)
-                        .background(Color.white.opacity(0.07))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
-                        )
-                }
-            }
-        }
-        .padding(24)
-        .background {
-            RoundedRectangle(cornerRadius: 26)
-                .fill(Color(hex: "#1A1A1E"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 26)
-                        .stroke(
-                            LinearGradient(
-                                colors: [Color.white.opacity(0.18), Color.white.opacity(0.04)],
-                                startPoint: .topLeading, endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(color: .black.opacity(0.6), radius: 40, x: 0, y: 20)
-        }
-        .padding(.horizontal, 20)
     }
 
     // MARK: - Done Section
@@ -1119,6 +1018,264 @@ struct DashboardView: View {
         .preferredColorScheme(.dark)
     }
 
+}
+
+// MARK: - Task Detail Card
+struct TaskDetailCard: View {
+    let task: OpusTask
+    @ObservedObject var vm: DashboardViewModel
+    let onDismiss: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isEditing = false
+    @State private var editTitle: String
+    @State private var editCategory: TaskCategory
+    @State private var editHasDueDate: Bool
+    @State private var editDueDate: Date
+    @State private var editRepeat: TaskRepeat
+
+    init(task: OpusTask, vm: DashboardViewModel, onDismiss: @escaping () -> Void) {
+        self.task = task
+        self.vm = vm
+        self.onDismiss = onDismiss
+        _editTitle      = State(initialValue: task.title)
+        _editCategory   = State(initialValue: task.category)
+        _editHasDueDate = State(initialValue: task.dueDate != nil)
+        _editDueDate    = State(initialValue: task.dueDate ?? Date())
+        _editRepeat     = State(initialValue: task.taskRepeat)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+
+            // ── Header row ──
+            HStack {
+                if isEditing {
+                    Text("Edit Task")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.40))
+                } else {
+                    Text(task.category.rawValue)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(task.category.color)
+                        .padding(.horizontal, 11).padding(.vertical, 5)
+                        .background(task.category.color.opacity(0.15))
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(task.category.color.opacity(0.3), lineWidth: 0.5))
+                }
+                Spacer()
+                if !isEditing {
+                    Button {
+                        withAnimation(reduceMotion ? .none : .spring(response: 0.3, dampingFraction: 0.75)) {
+                            isEditing = true
+                        }
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.55))
+                            .frame(width: 30, height: 30)
+                            .background(Color.white.opacity(0.09))
+                            .clipShape(Circle())
+                    }
+                    .padding(.trailing, 6)
+                }
+                Button { onDismiss() } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.55))
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.09))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.bottom, 20)
+
+            if isEditing {
+                editContent
+            } else {
+                viewContent
+            }
+        }
+        .padding(24)
+        .background {
+            RoundedRectangle(cornerRadius: 26)
+                .fill(Color(hex: "#1A1A1E"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 26)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.18), Color.white.opacity(0.04)],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            ), lineWidth: 1
+                        )
+                )
+                .shadow(color: .black.opacity(0.6), radius: 40, x: 0, y: 20)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    // ── View mode ──
+    private var viewContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(task.title)
+                .font(.system(size: 26, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.bottom, 12)
+
+            if let due = task.dueLabel {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar").font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.35))
+                    Text("Due: \(due)").font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.45))
+                }
+                .padding(.bottom, 24)
+            } else {
+                Spacer().frame(height: 24)
+            }
+
+            Divider().background(Color.white.opacity(0.08)).padding(.bottom, 20)
+
+            HStack(spacing: 12) {
+                Button {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.35, dampingFraction: 0.65)) {
+                        vm.toggle(task)
+                    }
+                    onDismiss()
+                } label: {
+                    Label(task.isCompleted ? "Mark Incomplete" : "Mark Complete",
+                          systemImage: task.isCompleted ? "arrow.uturn.backward" : "checkmark.circle.fill")
+                        .font(.system(size: 14, weight: .semibold)).foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 13)
+                        .background(LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                                   startPoint: .leading, endPoint: .trailing))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                Button {
+                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
+                    vm.deleteTask(task)
+                    onDismiss()
+                } label: {
+                    Image(systemName: "trash.fill").font(.system(size: 15))
+                        .foregroundColor(.white.opacity(0.7))
+                        .frame(width: 48, height: 48)
+                        .background(Color.white.opacity(0.07))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.08), lineWidth: 0.5))
+                }
+            }
+        }
+    }
+
+    // ── Edit mode ──
+    private var editContent: some View {
+        VStack(alignment: .leading, spacing: 18) {
+
+            // Title
+            TextField("Task title", text: $editTitle)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.white)
+                .padding(12)
+                .background(Color.white.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(hex: "#8A4AF3").opacity(0.30), lineWidth: 0.75))
+
+            // Category
+            VStack(alignment: .leading, spacing: 8) {
+                Text("CATEGORY")
+                    .font(.system(size: 9, weight: .black)).foregroundColor(.white.opacity(0.28)).kerning(1.0)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(TaskCategory.allCases) { cat in
+                            Button { editCategory = cat } label: {
+                                Text(cat.rawValue)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(editCategory == cat ? .white : cat.color)
+                                    .padding(.horizontal, 14).padding(.vertical, 7)
+                                    .background(editCategory == cat ? cat.color : cat.color.opacity(0.12))
+                                    .clipShape(Capsule())
+                                    .overlay(Capsule().stroke(cat.color.opacity(editCategory == cat ? 0 : 0.3), lineWidth: 0.75))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Due date
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle(isOn: $editHasDueDate) {
+                    Text("DUE DATE")
+                        .font(.system(size: 9, weight: .black)).foregroundColor(.white.opacity(0.28)).kerning(1.0)
+                }
+                .tint(Color(hex: "#8A4AF3"))
+                if editHasDueDate {
+                    DatePicker("", selection: $editDueDate, displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                        .colorScheme(.dark)
+                        .labelsHidden()
+                }
+            }
+
+            // Repeat
+            VStack(alignment: .leading, spacing: 8) {
+                Text("REPEAT")
+                    .font(.system(size: 9, weight: .black)).foregroundColor(.white.opacity(0.28)).kerning(1.0)
+                HStack(spacing: 8) {
+                    ForEach(TaskRepeat.allCases, id: \.self) { rep in
+                        Button { editRepeat = rep } label: {
+                            HStack(spacing: 5) {
+                                Image(systemName: rep.icon).font(.system(size: 11))
+                                Text(rep.label).font(.system(size: 11, weight: .semibold))
+                            }
+                            .foregroundColor(editRepeat == rep ? .white : .white.opacity(0.45))
+                            .padding(.horizontal, 10).padding(.vertical, 7)
+                            .background(editRepeat == rep ? Color(hex: "#8A4AF3") : Color.white.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }
+            }
+
+            // Save / Cancel
+            HStack(spacing: 10) {
+                Button {
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.3)) { isEditing = false }
+                } label: {
+                    Text("Cancel").font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .background(Color.white.opacity(0.07))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                Button {
+                    let dueDate: Date? = editHasDueDate ? editDueDate : nil
+                    let dueLabel: String? = {
+                        guard editHasDueDate else { return nil }
+                        let cal = Calendar.current
+                        if cal.isDateInToday(editDueDate)    { return "today" }
+                        if cal.isDateInTomorrow(editDueDate) { return "tomorrow" }
+                        let f = DateFormatter(); f.dateFormat = "MMM d"
+                        return f.string(from: editDueDate)
+                    }()
+                    vm.updateTask(task,
+                                  title: editTitle.trimmingCharacters(in: .whitespaces).isEmpty ? task.title : editTitle,
+                                  category: editCategory,
+                                  dueDate: dueDate,
+                                  dueLabel: dueLabel,
+                                  taskRepeat: editRepeat)
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    withAnimation(reduceMotion ? .none : .spring(response: 0.3)) { isEditing = false }
+                } label: {
+                    Text("Save").font(.system(size: 14, weight: .semibold)).foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .background(LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                                   startPoint: .leading, endPoint: .trailing))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Preview

@@ -36,7 +36,9 @@ struct OpusApp: App {
                 .preferredColorScheme(.dark)
                 .onAppear {
                     Task {
+                        #if !targetEnvironment(simulator)
                         await NotificationManager.shared.requestPermission()
+                        #endif
                     }
                 }
         }
