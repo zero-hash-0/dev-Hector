@@ -1,188 +1,313 @@
 "use client";
 
-import { useEffect } from "react";
-import Image from "next/image";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import TerminalWindow from "./TerminalWindow";
+import { useEffect, useRef, useState } from "react";
 
-// ── Grain ─────────────────────────────────────────────────────────────────────
-function GrainOverlay() {
+// ── Binary Rain Canvas ────────────────────────────────────────────────────────
+function BinaryRain() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+
+    const FONT_SIZE = 14;
+    let cols = 0;
+    let drops: number[] = [];
+    let speeds: number[] = [];
+
+    const setup = () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      cols   = Math.floor(canvas.width / FONT_SIZE);
+      drops  = Array.from({ length: cols }, () => -Math.random() * 60);
+      speeds = Array.from({ length: cols }, () => 0.3 + Math.random() * 0.7);
+    };
+
+    setup();
+    window.addEventListener("resize", setup);
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(2,11,2,0.065)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${FONT_SIZE}px "Courier New", monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        drops[i] += speeds[i];
+        if (drops[i] * FONT_SIZE > canvas.height && Math.random() > 0.975) {
+          drops[i] = -Math.random() * 40;
+        }
+        if (drops[i] < 0) continue;
+
+        const y   = drops[i] * FONT_SIZE;
+        const bit = Math.random() > 0.5 ? "1" : "0";
+        const isHead = (drops[i] % 1) < speeds[i] * 1.2;
+
+        if (isHead) {
+          ctx.fillStyle = "rgba(200,255,210,0.92)";
+        } else {
+          const fade = Math.min(1, drops[i] / 18);
+          ctx.fillStyle = `rgba(0,255,65,${0.08 + fade * 0.38})`;
+        }
+        ctx.fillText(bit, i * FONT_SIZE, y);
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    animId = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", setup);
+    };
+  }, []);
+
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed inset-0 z-0 select-none"
-      style={{
-        opacity: 0.022,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        backgroundRepeat: "repeat",
-        backgroundSize: "180px 180px",
-      }}
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+      style={{ opacity: 0.4 }}
     />
   );
 }
 
-// ── Ambient glow ──────────────────────────────────────────────────────────────
-function AmbientGlow() {
-  const mouseX = useMotionValue(0.4);
-  const mouseY = useMotionValue(0.35);
-  const sx = useSpring(mouseX, { stiffness: 35, damping: 22 });
-  const sy = useSpring(mouseY, { stiffness: 35, damping: 22 });
-  const x  = useTransform(sx, [0, 1], ["-15%", "25%"]);
-  const y  = useTransform(sy, [0, 1], ["-15%", "25%"]);
+// ── Boot sequence lines ───────────────────────────────────────────────────────
+type BootLine = {
+  text:   string;
+  delay:  number;
+  color?: string;
+  bright?: boolean;
+};
 
-  useEffect(() => {
-    const mq = window.matchMedia("(pointer: fine)");
-    if (!mq.matches) return;
-    const fn = (e: MouseEvent) => {
-      mouseX.set(e.clientX / window.innerWidth);
-      mouseY.set(e.clientY / window.innerHeight);
-    };
-    window.addEventListener("mousemove", fn);
-    return () => window.removeEventListener("mousemove", fn);
-  }, [mouseX, mouseY]);
+const BOOT: BootLine[] = [
+  { text: "BIOS v2.4.1  ·  Hector Systems Corp.", delay: 0,    color: "#4a8a50" },
+  { text: "Copyright (c) 2024  ·  All Rights Reserved", delay: 60,   color: "#2d5a30" },
+  { text: "", delay: 100 },
+  { text: "Mounting encrypted volumes ............. [  OK  ]", delay: 180,  color: "#4a8a50" },
+  { text: "Loading firewall ruleset ............... [  OK  ]", delay: 290,  color: "#4a8a50" },
+  { text: "Establishing secure tunnel ............. [  OK  ]", delay: 410,  color: "#4a8a50" },
+  { text: "Running integrity checks ............... [  OK  ]", delay: 530,  color: "#4a8a50" },
+  { text: "Activating threat detection engine ..... [  OK  ]", delay: 650,  color: "#4a8a50" },
+  { text: "Verifying credentials .................. [  OK  ]", delay: 780,  color: "#4a8a50" },
+  { text: "", delay: 860 },
+  { text: "▸  AUTHENTICATION SUCCESSFUL  ·  SYSTEM READY", delay: 960,  color: "#00ff41", bright: true },
+  { text: "", delay: 1040 },
+  { text: "Welcome back, root.  Last login: today.", delay: 1120, color: "#4a8a50" },
+];
 
-  return (
-    <motion.div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden" style={{ x, y }}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2.5, ease: "easeOut" }}
-        className="absolute top-[-20%] left-[-10%] h-[600px] w-[800px]"
-        style={{
-          background: "radial-gradient(ellipse 55% 50% at 40% 45%, rgba(138,74,243,0.09) 0%, transparent 70%)",
-          filter: "blur(50px)",
-        }}
-      />
-    </motion.div>
-  );
-}
+// ── ASCII name ────────────────────────────────────────────────────────────────
+const ASCII = [
+  "██╗  ██╗███████╗ ██████╗████████╗ ██████╗ ██████╗",
+  "██║  ██║██╔════╝██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗",
+  "███████║█████╗  ██║        ██║   ██║   ██║██████╔╝",
+  "██╔══██║██╔══╝  ██║        ██║   ██║   ██║██╔══██╗",
+  "██║  ██║███████╗╚██████╗   ██║   ╚██████╔╝██║  ██║",
+  "╚═╝  ╚═╝╚══════╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝",
+];
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 export default function Hero() {
+  const [bootLines, setBootLines] = useState<BootLine[]>([]);
+  const [showAscii, setShowAscii] = useState(false);
+  const [showCtas,  setShowCtas]  = useState(false);
+
+  useEffect(() => {
+    const ids: ReturnType<typeof setTimeout>[] = [];
+
+    BOOT.forEach((line, i) => {
+      const id = setTimeout(() => {
+        setBootLines((prev) => [...prev, line]);
+        if (i === BOOT.length - 1) {
+          const a = setTimeout(() => setShowAscii(true), 220);
+          const b = setTimeout(() => setShowCtas(true),  620);
+          ids.push(a, b);
+        }
+      }, line.delay + i * 20);
+      ids.push(id);
+    });
+
+    return () => ids.forEach(clearTimeout);
+  }, []);
+
   return (
-    <section className="relative overflow-hidden bg-background">
-      <GrainOverlay />
-      <AmbientGlow />
+    <section
+      className="relative overflow-hidden"
+      style={{ background: "#020b02" }}
+    >
+      {/* Binary rain */}
+      <BinaryRain />
 
-      <div className="relative z-10 mx-auto w-full max-w-4xl px-4 pt-20 pb-14 sm:px-6 sm:pt-24 md:px-8 md:pt-36 md:pb-28">
+      {/* Moving scan line */}
+      <div className="scan-line" />
 
-        {/* ── Compact profile row — sits just above the terminal ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="flex items-center gap-4 mb-6"
+      {/* Radial vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(2,11,2,0.82) 100%)",
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 pt-20 pb-6 font-mono">
+
+        {/* Top border label */}
+        <div className="flex items-center gap-3 mb-7 text-xs" style={{ color: "#2d5a30" }}>
+          <span>┌─</span>
+          <span style={{ color: "#1a4a1d" }}>HECTOR.SYS · BOOT SEQUENCE · v2.4.1</span>
+          <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
+          <span>─┐</span>
+        </div>
+
+        {/* Boot terminal */}
+        <div
+          className="rounded border mb-8 overflow-hidden terminal-window"
+          style={{ borderColor: "rgba(0,255,65,0.15)", background: "rgba(2,11,2,0.82)" }}
         >
-          {/* small avatar with glow ring */}
-          <div className="relative shrink-0">
-            <div
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: "radial-gradient(circle, rgba(138,74,243,0.5) 0%, transparent 70%)",
-                filter: "blur(10px)",
-                transform: "scale(1.3)",
-              }}
-            />
-            <div
-              className="relative rounded-full p-[2px]"
-              style={{ background: "linear-gradient(135deg, #8a4af3, #6e6bf5, rgba(138,74,243,0.5))" }}
-            >
-              <div className="rounded-full overflow-hidden w-11 h-11 bg-surface">
-                <Image
-                  src="/hector.jpg"
-                  alt="Hector"
-                  width={44}
-                  height={44}
-                  className="w-full h-full object-cover"
-                  priority
-                />
+          {/* Title bar */}
+          <div
+            className="flex items-center gap-2 px-4 py-2 border-b text-xs"
+            style={{ borderColor: "rgba(0,255,65,0.1)", background: "rgba(0,255,65,0.04)" }}
+          >
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ff3b30", boxShadow: "0 0 4px #ff3b30" }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ffcc02", boxShadow: "0 0 4px #ffcc02" }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
+            <span className="mx-auto" style={{ color: "#1a4a1d" }}>
+              root@hector — bash — 120×40
+            </span>
+          </div>
+
+          {/* Lines */}
+          <div className="px-5 py-4 text-xs leading-6" style={{ minHeight: 200 }}>
+            {bootLines.map((line, i) => (
+              <div
+                key={i}
+                className="h-6"
+                style={{
+                  color:       line.color ?? "#2d5a30",
+                  fontWeight:  line.bright ? "700" : "400",
+                  textShadow:  line.bright ? "0 0 10px rgba(0,255,65,0.6)" : "none",
+                }}
+              >
+                {line.text}
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ASCII art name */}
+        {showAscii && (
+          <div className="mb-8 overflow-x-auto">
+            <div
+              className="text-[7px] sm:text-[9px] md:text-[12px] leading-tight whitespace-pre font-mono phosphor"
+              style={{ color: "#00ff41" }}
+            >
+              {ASCII.map((row, i) => (
+                <div
+                  key={i}
+                  style={{ animation: `slideInRow 0.3s ease ${i * 0.055}s both` }}
+                >
+                  {row}
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-3 flex flex-wrap items-center gap-3 text-xs"
+              style={{ color: "#2d5a30" }}
+            >
+              <span>Developer</span>
+              <span style={{ color: "#0a2e0c" }}>·</span>
+              <span>Product Builder</span>
+              <span style={{ color: "#0a2e0c" }}>·</span>
+              <span>Cybersecurity</span>
+              <span style={{ color: "#0a2e0c" }}>·</span>
+              <span>Florida, USA</span>
+              <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
             </div>
           </div>
+        )}
 
-          {/* name + tagline */}
-          <div>
-            <p className="text-foreground font-semibold text-[15px] leading-tight">Hector Ruiz</p>
-            <p className="font-mono text-[11px] tracking-wide mt-0.5" style={{ color: "#52525b" }}>
-              Developer · Product Builder · Cybersecurity
-            </p>
-          </div>
-
-          {/* Florida badge */}
-          <span
-            className="ml-auto font-mono text-[10px] tracking-[0.15em] uppercase px-3 py-1 rounded-full border hidden sm:block"
-            style={{ color: "#8a4af3", borderColor: "rgba(138,74,243,0.25)", background: "rgba(138,74,243,0.06)" }}
+        {/* CTAs */}
+        {showCtas && (
+          <div
+            className="flex flex-wrap items-center gap-4 fade-up"
           >
-            Florida
-          </span>
-        </motion.div>
-
-        {/* ── Terminal ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <TerminalWindow />
-        </motion.div>
-
-        {/* ── CTAs ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.42, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-wrap items-center gap-3 mt-8"
-        >
-          <motion.a
-            href="#projects"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold text-white"
-            style={{ background: "#8a4af3" }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          >
-            View Work
-            <motion.span whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 500, damping: 25 }}>→</motion.span>
-            <span className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ background: "#6e6bf5" }} />
-          </motion.a>
-
-          <motion.a
-            href="#contact"
-            className="inline-flex items-center rounded-full border px-7 py-3 text-sm text-muted transition-all duration-200 hover:text-foreground"
-            style={{ borderColor: "#1e1b26" }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          >
-            Let&apos;s Build Something
-          </motion.a>
-
-          <div className="flex items-center gap-4 ml-auto">
-            <motion.a
-              href="https://github.com/zero-hash-0"
-              target="_blank" rel="noopener noreferrer"
-              aria-label="GitHub"
-              className="text-muted hover:text-foreground transition-colors"
-              whileHover={{ scale: 1.12, y: -1 }} whileTap={{ scale: 0.95 }}
+            <a
+              href="#projects"
+              className="flex items-center gap-2 px-6 py-2.5 rounded border text-sm transition-all duration-200"
+              style={{ borderColor: "rgba(0,255,65,0.5)", color: "#00ff41" }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.background = "#00ff41";
+                el.style.color      = "#020b02";
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.background = "transparent";
+                el.style.color      = "#00ff41";
+              }}
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-              </svg>
-            </motion.a>
-            <motion.a
-              href="https://x.com/notT0KY0"
-              target="_blank" rel="noopener noreferrer"
-              aria-label="X"
-              className="text-muted hover:text-foreground transition-colors"
-              whileHover={{ scale: 1.12, y: -1 }} whileTap={{ scale: 0.95 }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </motion.a>
-          </div>
-        </motion.div>
+              <span style={{ color: "inherit" }}>$</span> ls projects/
+            </a>
 
+            <a
+              href="#contact"
+              className="flex items-center gap-2 px-6 py-2.5 rounded border text-sm transition-all duration-200"
+              style={{ borderColor: "rgba(0,255,65,0.18)", color: "#4a8a50" }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.color       = "#00ff41";
+                el.style.borderColor = "rgba(0,255,65,0.4)";
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.color       = "#4a8a50";
+                el.style.borderColor = "rgba(0,255,65,0.18)";
+              }}
+            >
+              <span>$</span> ssh contact@hector.dev
+            </a>
+
+            <div className="flex items-center gap-5 ml-auto">
+              <a
+                href="https://github.com/zero-hash-0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs transition-colors"
+                style={{ color: "#1a4a1d" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#00ff41")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#1a4a1d")}
+              >
+                [github]
+              </a>
+              <a
+                href="https://x.com/notT0KY0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs transition-colors"
+                style={{ color: "#1a4a1d" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#00ff41")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#1a4a1d")}
+              >
+                [x/twitter]
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom border label */}
+        <div className="flex items-center gap-3 mt-8 text-xs" style={{ color: "#2d5a30" }}>
+          <span>└─</span>
+          <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
+          <span style={{ color: "#1a4a1d" }}>END BOOT SEQUENCE</span>
+          <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
+          <span>─┘</span>
+        </div>
       </div>
     </section>
   );
