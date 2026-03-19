@@ -7,6 +7,7 @@ struct Project: Identifiable, Codable {
     var emoji: String
     var colorHex: String
     var tasks: [OpusTask]
+    var isArchived: Bool = false
 
     var color: Color { Color(hex: colorHex) }
     var completedCount: Int { tasks.filter(\.isCompleted).count }

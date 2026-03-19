@@ -12,13 +12,36 @@ final class ProjectsViewModel: ObservableObject {
 
     init() { load() }
 
+    var activeProjects:   [Project] { projects.filter { !$0.isArchived } }
+    var archivedProjects: [Project] { projects.filter {  $0.isArchived } }
+
     func addProject() {
         guard !newName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         let colors = ["#8A4AF3", "#60A5FA", "#34D399", "#F87171", "#A78BFA"]
-        let hex = colors[projects.count % colors.count]
+        let hex = colors[activeProjects.count % colors.count]
         projects.append(Project(name: newName.trimmingCharacters(in: .whitespaces),
                                 emoji: newEmoji, colorHex: hex))
         newName = ""; newEmoji = "📁"; showAdd = false
+    }
+
+    func rename(_ project: Project, name: String, emoji: String) {
+        guard let idx = projects.firstIndex(where: { $0.id == project.id }) else { return }
+        projects[idx].name  = name.trimmingCharacters(in: .whitespaces)
+        projects[idx].emoji = emoji
+    }
+
+    func archive(_ project: Project) {
+        guard let idx = projects.firstIndex(where: { $0.id == project.id }) else { return }
+        projects[idx].isArchived = true
+    }
+
+    func unarchive(_ project: Project) {
+        guard let idx = projects.firstIndex(where: { $0.id == project.id }) else { return }
+        projects[idx].isArchived = false
+    }
+
+    func delete(_ project: Project) {
+        projects.removeAll { $0.id == project.id }
     }
 
     // MARK: - Persistence
@@ -39,6 +62,10 @@ final class ProjectsViewModel: ObservableObject {
 struct ProjectsView: View {
     @StateObject private var vm = ProjectsViewModel()
     @State private var expandedProject: Project? = nil
+    @State private var renamingProject: Project? = nil
+    @State private var renameText  = ""
+    @State private var renameEmoji = ""
+    @State private var showArchived = false
     let geo: GeometryProxy
 
     var body: some View {
@@ -58,6 +85,7 @@ struct ProjectsView: View {
                 }
             }
         }
+        .sheet(item: $renamingProject) { _ in renameSheet }
     }
 
     // MARK: Header
@@ -67,7 +95,7 @@ struct ProjectsView: View {
                 Text("Projects")
                     .font(.system(size: 30, weight: .bold))
                     .foregroundColor(.white)
-                Text("\(vm.projects.count) active · \(vm.projects.reduce(0) { $0 + $1.completedCount }) tasks done")
+                Text("\(vm.activeProjects.count) active · \(vm.activeProjects.reduce(0) { $0 + $1.completedCount }) tasks done")
                     .font(.system(size: 13))
                     .foregroundColor(.white.opacity(0.38))
             }
@@ -90,19 +118,150 @@ struct ProjectsView: View {
 
     // MARK: Grid
     private var projectGrid: some View {
-        Group {
-            if vm.projects.isEmpty {
+        VStack(spacing: 12) {
+            if vm.activeProjects.isEmpty && vm.archivedProjects.isEmpty {
                 emptyProjectsState
             } else {
+                // Active projects
                 VStack(spacing: 12) {
-                    ForEach(vm.projects) { project in
+                    ForEach(vm.activeProjects) { project in
                         ProjectCard(project: project)
                             .onTapGesture { expandedProject = project }
+                            .contextMenu {
+                                Button {
+                                    renameText  = project.name
+                                    renameEmoji = project.emoji
+                                    renamingProject = project
+                                } label: {
+                                    Label("Rename", systemImage: "pencil")
+                                }
+                                Button {
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    withAnimation { vm.archive(project) }
+                                } label: {
+                                    Label("Archive", systemImage: "archivebox")
+                                }
+                                Divider()
+                                Button(role: .destructive) {
+                                    withAnimation { vm.delete(project) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash.fill")
+                                }
+                            }
                     }
                 }
-                .padding(.horizontal, 16)
+
+                // Archived section
+                if !vm.archivedProjects.isEmpty {
+                    VStack(spacing: 8) {
+                        Button {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                showArchived.toggle()
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "archivebox")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.white.opacity(0.38))
+                                Text("Archived (\(vm.archivedProjects.count))")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.38))
+                                Spacer()
+                                Image(systemName: showArchived ? "chevron.up" : "chevron.down")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.25))
+                            }
+                            .padding(.horizontal, 4)
+                        }
+                        .buttonStyle(.plain)
+
+                        if showArchived {
+                            VStack(spacing: 8) {
+                                ForEach(vm.archivedProjects) { project in
+                                    ProjectCard(project: project)
+                                        .opacity(0.55)
+                                        .contextMenu {
+                                            Button {
+                                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                withAnimation { vm.unarchive(project) }
+                                            } label: {
+                                                Label("Unarchive", systemImage: "arrow.uturn.up")
+                                            }
+                                            Divider()
+                                            Button(role: .destructive) {
+                                                withAnimation { vm.delete(project) }
+                                            } label: {
+                                                Label("Delete", systemImage: "trash.fill")
+                                            }
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.top, 4)
+                }
             }
         }
+        .padding(.horizontal, 16)
+    }
+
+    // MARK: Rename Sheet
+    private var renameSheet: some View {
+        NavigationStack {
+            ZStack {
+                Color(hex: "#0D0D10").ignoresSafeArea()
+                VStack(spacing: 20) {
+                    HStack(spacing: 12) {
+                        TextField("Emoji", text: $renameEmoji)
+                            .font(.system(size: 28))
+                            .multilineTextAlignment(.center)
+                            .frame(width: 60)
+                            .padding(12)
+                            .background(Color.white.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                        TextField("Project name", text: $renameText)
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.white.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(hex: "#8A4AF3").opacity(0.3), lineWidth: 1))
+                    }
+
+                    Button {
+                        if let project = renamingProject {
+                            vm.rename(project, name: renameText, emoji: renameEmoji)
+                        }
+                        renamingProject = nil
+                    } label: {
+                        Text("Save")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity).padding()
+                            .background(LinearGradient(colors: [Color(hex: "#6E6BF5"), Color(hex: "#8A4AF3")],
+                                                       startPoint: .leading, endPoint: .trailing))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .disabled(renameText.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity(renameText.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
+
+                    Spacer()
+                }
+                .padding(20)
+            }
+            .navigationTitle("Rename Project")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { renamingProject = nil }.foregroundColor(.white.opacity(0.55))
+                }
+            }
+        }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+        .preferredColorScheme(.dark)
     }
 
     private var emptyProjectsState: some View {
