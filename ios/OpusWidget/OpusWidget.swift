@@ -156,6 +156,7 @@ struct SmallWidgetView: View {
             LinearGradient(colors: [pal.a.opacity(0.1), Color.clear],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
 
+            // Ring — centered with balanced Spacers (badge row is independent below)
             VStack(spacing: 0) {
                 Spacer()
 
@@ -189,31 +190,34 @@ struct SmallWidgetView: View {
                                 .foregroundStyle(LinearGradient(colors: [pal.a, pal.b],
                                                                 startPoint: .top, endPoint: .bottom))
                             Text(entry.pending == 1 ? "task left" : "tasks left")
-                                .font(.system(size: 8, weight: .bold))
-                                .foregroundColor(.white.opacity(0.3))
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white.opacity(0.55))
                                 .kerning(0.4)
                         }
                     }
                 }
 
                 Spacer()
+            }
 
-                // Bottom row
+            // Bottom row — pinned to bottom, outside the centering VStack
+            VStack {
+                Spacer()
                 HStack {
                     OpusMark(size: 18)
                     Spacer()
                     HStack(spacing: 4) {
                         Text("🔥")
-                            .font(.system(size: 12))
+                            .font(.system(size: 13))
                         Text("\(entry.streak)")
-                            .font(.system(size: 13, weight: .black, design: .rounded))
+                            .font(.system(size: 14, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.07))
+                    .background(Color.white.opacity(0.13))
                     .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 0.5))
+                    .overlay(Capsule().stroke(Color.white.opacity(0.20), lineWidth: 0.5))
                 }
                 .padding(.horizontal, 13)
                 .padding(.bottom, 12)

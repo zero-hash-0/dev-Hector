@@ -260,7 +260,7 @@ struct ProjectCard: View {
         .padding(18)
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color(hex: "#1A1A1E"))
+                .fill(Color(hex: "#130E1E"))
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(

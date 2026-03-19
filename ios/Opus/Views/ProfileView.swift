@@ -243,8 +243,8 @@ struct ProfileView: View {
         .padding(.vertical, 18)
         .background {
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color(hex: "#1A1A1E"))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.07), lineWidth: 0.5))
+                .fill(Color(hex: "#130E1E"))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color(hex: "#8A4AF3").opacity(0.18), lineWidth: 0.5))
                 .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
         }
     }

@@ -37,7 +37,7 @@ struct BottomNavigationBar: View {
     private let rightTabs: [AppTab] = [.focus, .profile]
 
     var body: some View {
-        VStack(spacing: -28) {
+        VStack(spacing: -34) {
             // ── FAB — floats above the pill, overlaps it by half ──
             Button(action: onAdd) {
                 ZStack {
@@ -105,13 +105,13 @@ struct BottomNavigationBar: View {
                     Capsule().fill(.ultraThinMaterial)
                     Capsule().fill(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.14), Color.white.opacity(0.05)],
+                            colors: [Color(hex: "#6E6BF5").opacity(0.20), Color(hex: "#8A4AF3").opacity(0.10)],
                             startPoint: .top, endPoint: .bottom
                         )
                     )
                     Capsule().stroke(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.40), Color.white.opacity(0.08)],
+                            colors: [Color(hex: "#A78BFA").opacity(0.50), Color(hex: "#6E6BF5").opacity(0.18)],
                             startPoint: .topLeading, endPoint: .bottomTrailing
                         ),
                         lineWidth: 1
