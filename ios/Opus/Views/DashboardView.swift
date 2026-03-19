@@ -48,6 +48,14 @@ final class DashboardViewModel: ObservableObject {
         Task { await NotificationManager.shared.scheduleDailyMorningReminder(pendingCount: pendingTasks.count) }
     }
 
+    func movePendingTask(from source: UUID, to destination: UUID) {
+        guard source != destination,
+              let fromIdx = todayTasks.firstIndex(where: { $0.id == source }),
+              let toIdx   = todayTasks.firstIndex(where: { $0.id == destination }) else { return }
+        todayTasks.move(fromOffsets: IndexSet(integer: fromIdx),
+                        toOffset: toIdx > fromIdx ? toIdx + 1 : toIdx)
+    }
+
     func deleteTask(_ task: OpusTask) {
         NotificationManager.shared.cancelDueDateNotification(for: task.id)
         withAnimation(.spring(response: 0.4)) {
@@ -244,6 +252,7 @@ struct DashboardView: View {
     @State private var showSettings       = false
     @State private var focusedTask: OpusTask? = nil
     @State private var filterCategory: TaskCategory? = nil
+    @State private var draggingTask: OpusTask? = nil
     @Namespace private var cardNS
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -591,9 +600,22 @@ struct DashboardView: View {
                     ForEach(displayedPending) { task in
                         taskCard(task)
                             .matchedGeometryEffect(id: task.id, in: cardNS, isSource: focusedTask?.id != task.id)
+                            .opacity(draggingTask?.id == task.id ? 0.4 : 1.0)
+                            .scaleEffect(draggingTask?.id == task.id ? 0.97 : 1.0)
+                            .onDrag {
+                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                draggingTask = task
+                                return NSItemProvider(object: task.id.uuidString as NSString)
+                            }
+                            .onDrop(of: [.text], delegate: TaskDropDelegate(
+                                task: task,
+                                vm: vm,
+                                draggingTask: $draggingTask
+                            ))
                     }
                 }
                 .padding(.horizontal, 16)
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: vm.todayTasks.map(\.id))
             }
 
             // Done section
@@ -1018,6 +1040,29 @@ struct DashboardView: View {
         .preferredColorScheme(.dark)
     }
 
+}
+
+// MARK: - Drag-to-Reorder Drop Delegate
+struct TaskDropDelegate: DropDelegate {
+    let task: OpusTask
+    let vm: DashboardViewModel
+    @Binding var draggingTask: OpusTask?
+
+    func dropEntered(info: DropInfo) {
+        guard let dragging = draggingTask, dragging.id != task.id else { return }
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            vm.movePendingTask(from: dragging.id, to: task.id)
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggingTask = nil
+        return true
+    }
 }
 
 // MARK: - Task Detail Card
