@@ -49,6 +49,11 @@ set(BROWSER_SOURCES
     src/security/ContentSecurityPolicy.cpp
     src/security/SameOriginPolicy.cpp
     src/security/SandboxFlags.cpp
+
+    src/js/Lexer.cpp
+    src/js/Value.cpp
+    src/js/Parser.cpp
+    src/js/Interpreter.cpp
 )
 
 add_executable(ladybird ${BROWSER_SOURCES})

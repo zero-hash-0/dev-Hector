@@ -14,6 +14,7 @@
 #include "render/Renderer.h"
 #include "security/ContentSecurityPolicy.h"
 #include "security/SameOriginPolicy.h"
+#include "js/Interpreter.h"
 
 #include <iostream>
 #include <string>
@@ -114,7 +115,20 @@ int main(int argc, char* argv[]) {
     // ── 6. Build layout tree ──────────────────────────────────────────────────
     auto layout = layout::BlockFormattingContext::build(*doc, sheet);
 
-    // ── 7. Render ─────────────────────────────────────────────────────────────
+    // ── 7. Execute inline scripts ─────────────────────────────────────────────
+    js::Interpreter js_engine(std::cout);
+    auto script_elements = doc->get_elements_by_tag("script");
+    for (auto* script : script_elements) {
+        std::string src = script->text_content();
+        if (src.empty()) continue;
+        try {
+            js_engine.run(src);
+        } catch (const std::exception& ex) {
+            std::cerr << YELLOW << "[JS] " << ex.what() << RESET << '\n';
+        }
+    }
+
+    // ── 8. Render ─────────────────────────────────────────────────────────────
     std::string title = doc->title();
     render::render_to_terminal(*layout, title.empty() ? url.to_string() : title);
 

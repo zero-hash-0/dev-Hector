@@ -5,6 +5,7 @@ set(TEST_SOURCES
     test_tokenizer.cpp
     test_parser.cpp
     test_csp.cpp
+    test_js.cpp
 )
 
 foreach(src ${TEST_SOURCES})
@@ -28,6 +29,10 @@ foreach(src ${TEST_SOURCES})
         ${CMAKE_SOURCE_DIR}/src/security/ContentSecurityPolicy.cpp
         ${CMAKE_SOURCE_DIR}/src/security/SameOriginPolicy.cpp
         ${CMAKE_SOURCE_DIR}/src/security/SandboxFlags.cpp
+        ${CMAKE_SOURCE_DIR}/src/js/Lexer.cpp
+        ${CMAKE_SOURCE_DIR}/src/js/Value.cpp
+        ${CMAKE_SOURCE_DIR}/src/js/Parser.cpp
+        ${CMAKE_SOURCE_DIR}/src/js/Interpreter.cpp
     )
     add_test(NAME ${name} COMMAND ${name})
 endforeach()
