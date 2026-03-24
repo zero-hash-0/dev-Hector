@@ -2,6 +2,7 @@ const SKILLS: Record<string, string[]> = {
   "iOS / Apple":  ["Swift", "SwiftUI", "WidgetKit", "Live Activities", "ActivityKit"],
   "Frontend":     ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
   "Backend":      ["Node.js", "PostgreSQL", "REST APIs", "Supabase"],
+  "Systems / C++": ["C++", "Browser Engines", "HTML Parsing", "CSS Layout", "Open Source"],
   "Security":     ["Systems Architecture", "Threat Modeling", "Security-first Design", "Pen Testing"],
   "Design":       ["Figma", "Design Systems", "Interaction Design", "Brand Strategy"],
   "Product":      ["Product Strategy", "Creative Direction", "UX Research", "Roadmapping"],
@@ -12,7 +13,7 @@ const SYSINFO = [
   { key: "Host",     val: "hector-dev-machine" },
   { key: "Shell",    val: "zsh 5.9" },
   { key: "Editor",   val: "Xcode · Cursor" },
-  { key: "Languages",val: "Swift  TypeScript  JS" },
+  { key: "Languages",val: "Swift  TypeScript  JS  C++" },
   { key: "Focus",    val: "Security-first Systems" },
   { key: "Uptime",   val: "7+ years coding" },
 ];
