@@ -57,6 +57,14 @@ std::unique_ptr<LayoutBox> BlockFormattingContext::build_for_node(const dom::Nod
 std::unique_ptr<LayoutBox> BlockFormattingContext::build_for_element(
     const dom::Element& el, const css::StyleSheet& sheet)
 {
+    // Never build layout boxes for non-visual elements
+    static const std::initializer_list<std::string_view> no_layout_tags = {
+        "script", "style", "noscript", "head", "meta", "link",
+        "template", "iframe", "svg", "canvas"
+    };
+    for (auto t : no_layout_tags)
+        if (el.tag_name() == t) return nullptr;
+
     auto classes = el.class_list();
     auto id      = el.get_attr("id");
     auto style   = css::Parser::compute_style(
