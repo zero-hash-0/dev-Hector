@@ -25,16 +25,15 @@ static void hr(int width = 72) {
 }
 
 // Returns true if the text looks like human-readable content.
-// Rejects long all-hex strings (RSC payloads, binary data, etc.).
+// Human text almost always contains letters outside [a-fA-F] (g-z) or spaces.
+// Strings ≥8 chars with neither are binary/encoded data (RSC payloads, hashes, etc.).
 static bool is_readable_text(const std::string& text) {
-    if (text.size() < 20) return true; // short strings are always fine
-    size_t hex_count = 0;
+    if (text.size() < 8) return true;
     for (unsigned char c : text) {
-        if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
-            ++hex_count;
+        if (c == ' ' || c == '\n' || c == '\t') return true; // has whitespace → human text
+        if ((c >= 'g' && c <= 'z') || (c >= 'G' && c <= 'Z')) return true; // has non-hex letter
     }
-    // If ≥80% of characters are hex digits, treat as encoded/binary data
-    return hex_count * 100 / text.size() < 80;
+    return false; // ≥8 chars, no spaces, no g-z letters → encoded data
 }
 
 static void render_box(const layout::LayoutBox& box, int indent, bool& last_was_block) {
