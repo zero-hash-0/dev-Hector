@@ -12,7 +12,7 @@ namespace net {
 // Immutable after construction. Use URL::parse() to build instances.
 class URL {
 public:
-    enum class Scheme { HTTP, HTTPS, Unknown };
+    enum class Scheme { HTTP, HTTPS, File, Unknown };
 
     struct ParseError {
         std::string reason;
@@ -35,7 +35,8 @@ public:
     // Returns "scheme://host:port" — used for same-origin checks
     [[nodiscard]] std::string origin() const;
 
-    [[nodiscard]] bool is_secure() const noexcept { return m_scheme == Scheme::HTTPS; }
+    [[nodiscard]] bool is_secure()    const noexcept { return m_scheme == Scheme::HTTPS; }
+    [[nodiscard]] bool is_file()      const noexcept { return m_scheme == Scheme::File; }
 
     // Resolve a relative URL against this base
     [[nodiscard]] std::optional<URL> resolve(std::string_view relative) const;

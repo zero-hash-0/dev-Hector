@@ -1,6 +1,9 @@
 #include "net/URL.h"
 #include "net/Request.h"
 #include "net/Response.h"
+
+#include <fstream>
+#include <sstream>
 #include "html/Parser.h"
 #include "html/Tokenizer.h"
 #include "css/Parser.h"
@@ -46,47 +49,58 @@ int main(int argc, char* argv[]) {
     }
     const auto& url = std::get<net::URL>(url_result);
 
-    std::cout << BOLD << GREEN << "LadyBird" << RESET << " v0.1  |  fetching "
+    std::cout << BOLD << GREEN << "LadyBird" << RESET << " v0.1  |  loading "
               << url.to_string() << '\n';
 
-    // ── 2. Fetch ──────────────────────────────────────────────────────────────
-    net::Request request(url);
-    auto fetch_result = request.send();
+    std::string html;
+    auto csp = security::ContentSecurityPolicy::permissive();
 
-    if (std::holds_alternative<net::NetworkError>(fetch_result)) {
-        std::cerr << RED << "Network error: "
-                  << std::get<net::NetworkError>(fetch_result).message
-                  << RESET << '\n';
-        return 1;
-    }
+    // ── 2. Fetch or read ──────────────────────────────────────────────────────
+    if (url.is_file()) {
+        // file:// — read directly from disk
+        std::string path = url.path();
+        std::ifstream fs(path);
+        if (!fs) {
+            std::cerr << RED << "Cannot open file: " << path << RESET << '\n';
+            return 1;
+        }
+        std::ostringstream ss;
+        ss << fs.rdbuf();
+        html = ss.str();
+        std::cout << YELLOW << "file " << path << RESET << '\n';
+    } else {
+        net::Request request(url);
+        auto fetch_result = request.send();
 
-    const auto& response = std::get<net::Response>(fetch_result);
+        if (std::holds_alternative<net::NetworkError>(fetch_result)) {
+            std::cerr << RED << "Network error: "
+                      << std::get<net::NetworkError>(fetch_result).message
+                      << RESET << '\n';
+            return 1;
+        }
 
-    std::cout << YELLOW << "HTTP " << response.status_code
-              << " " << response.status_text << RESET << '\n';
+        const auto& response = std::get<net::Response>(fetch_result);
+        std::cout << YELLOW << "HTTP " << response.status_code
+                  << " " << response.status_text << RESET << '\n';
 
-    if (!response.ok()) {
-        std::cerr << RED << "Server returned non-2xx status." << RESET << '\n';
-        return 1;
-    }
+        if (!response.ok()) {
+            std::cerr << RED << "Server returned non-2xx status." << RESET << '\n';
+            return 1;
+        }
 
-    // ── 3. Content-Security-Policy ────────────────────────────────────────────
-    auto csp_header = response.header("content-security-policy");
-    auto csp = csp_header.empty()
-             ? security::ContentSecurityPolicy::permissive()
-             : security::ContentSecurityPolicy::parse(csp_header, url);
+        auto csp_header = response.header("content-security-policy");
+        if (!csp_header.empty())
+            csp = security::ContentSecurityPolicy::parse(csp_header, url);
 
-    if (csp.upgrade_insecure_requests() && !url.is_secure()) {
-        std::cerr << YELLOW
-                  << "Note: page requests upgrade-insecure-requests but was loaded over HTTP."
-                  << RESET << '\n';
-    }
-    if (csp.block_all_mixed_content()) {
-        std::cout << GREEN << "[CSP] block-all-mixed-content active." << RESET << '\n';
+        if (csp.upgrade_insecure_requests() && !url.is_secure())
+            std::cerr << YELLOW << "Note: page sets upgrade-insecure-requests." << RESET << '\n';
+        if (csp.block_all_mixed_content())
+            std::cout << GREEN << "[CSP] block-all-mixed-content active." << RESET << '\n';
+
+        html = response.body_as_string();
     }
 
     // ── 4. Parse HTML ─────────────────────────────────────────────────────────
-    auto html  = response.body_as_string();
     auto doc   = html::Parser::parse(html, url);
 
     // ── 5. Extract and parse stylesheets ──────────────────────────────────────

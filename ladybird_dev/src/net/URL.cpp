@@ -31,6 +31,18 @@ std::variant<URL, URL::ParseError> URL::parse(std::string_view raw) {
     std::string scheme_str = to_lower(std::string(raw.substr(0, scheme_end)));
     if (scheme_str == "https")       url.m_scheme = Scheme::HTTPS;
     else if (scheme_str == "http")   url.m_scheme = Scheme::HTTP;
+    else if (scheme_str == "file") {
+        // file:///path/to/file — host is empty, path starts after ://
+        url.m_scheme = Scheme::File;
+        url.m_host   = {};
+        url.m_port   = 0;
+        // Everything after "file://" is the path
+        std::string_view file_rest = raw.substr(scheme_end + 3);
+        // Strip leading slash for file:///abs/path → /abs/path
+        url.m_path = file_rest.empty() ? "/" : std::string(file_rest);
+        // Override to_string for file:// so it serialises cleanly
+        return url;
+    }
     else                             return ParseError{ "unsupported scheme: " + scheme_str };
 
     // ── Authority (host:port) ────────────────────────────────────────────────
@@ -106,6 +118,8 @@ std::optional<URL> URL::parse_or_null(std::string_view raw) {
 }
 
 std::string URL::to_string() const {
+    if (m_scheme == Scheme::File)
+        return "file://" + m_path;
     std::ostringstream ss;
     ss << (m_scheme == Scheme::HTTPS ? "https" : "http") << "://";
     ss << m_host;
@@ -119,6 +133,7 @@ std::string URL::to_string() const {
 }
 
 std::string URL::origin() const {
+    if (m_scheme == Scheme::File) return "null"; // file:// has opaque origin
     std::ostringstream ss;
     ss << (m_scheme == Scheme::HTTPS ? "https" : "http") << "://";
     ss << m_host;
