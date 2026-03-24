@@ -180,8 +180,18 @@ void Parser::process_before_head(Token& t) {
 }
 
 void Parser::process_in_head(Token& t) {
+    // Discard raw-text content (script/style) in head too
+    if (!m_raw_text_element.empty()) {
+        if (t.type == TokenType::EndTag && t.tag_name == m_raw_text_element) {
+            if (in_scope(m_raw_text_element))
+                pop_until(m_raw_text_element);
+            m_raw_text_element.clear();
+        }
+        return;
+    }
+
     if (t.type == TokenType::Character) {
-        // Insert all characters — handles text inside <title>, <script>, <style>
+        // Insert characters only for non-raw-text elements (e.g. <title>)
         if (!t.data.empty()) insert_character(t.data[0]);
         return;
     }
@@ -195,6 +205,8 @@ void Parser::process_in_head(Token& t) {
     if (t.is_start_tag("title") || t.is_start_tag("style") ||
         t.is_start_tag("script") || t.is_start_tag("link")) {
         insert_element(t.tag_name, t.attributes);
+        if (is_raw_text_element(t.tag_name))
+            m_raw_text_element = t.tag_name;
         return;
     }
 
@@ -236,6 +248,16 @@ void Parser::process_after_head(Token& t) {
 }
 
 void Parser::process_in_body(Token& t) {
+    // While inside a raw-text element, discard all tokens until its closing tag
+    if (!m_raw_text_element.empty()) {
+        if (t.type == TokenType::EndTag && t.tag_name == m_raw_text_element) {
+            if (in_scope(m_raw_text_element))
+                pop_until(m_raw_text_element);
+            m_raw_text_element.clear();
+        }
+        return; // discard everything else (characters, nested tags, etc.)
+    }
+
     if (t.type == TokenType::Character) {
         if (!t.data.empty()) insert_character(t.data[0]);
         return;
@@ -254,8 +276,12 @@ void Parser::process_in_body(Token& t) {
             return;
         }
 
-        // Heading / block elements — simple push
         insert_element(tag, t.attributes);
+
+        // Enter raw-text mode for script/style so their content isn't parsed
+        if (is_raw_text_element(tag))
+            m_raw_text_element = tag;
+
         return;
     }
 

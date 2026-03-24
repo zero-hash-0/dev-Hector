@@ -74,6 +74,7 @@ private:
     std::vector<std::shared_ptr<dom::Element>> m_open_elements;
     InsertionMode                          m_mode { InsertionMode::Initial };
     std::shared_ptr<dom::Element>          m_head_element;
+    std::string                            m_raw_text_element; // non-empty while inside script/style
 };
 
 } // namespace html
