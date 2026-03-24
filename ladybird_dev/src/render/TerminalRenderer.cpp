@@ -45,6 +45,14 @@ static void render_box(const layout::LayoutBox& box, int indent, bool& last_was_
     auto& tag = el->tag_name();
     [[maybe_unused]] auto& style = box.style();
 
+    // ── Tags whose content must never be rendered as text ────────────────────
+    static const std::initializer_list<std::string_view> skip_tags = {
+        "script", "style", "noscript", "svg", "canvas",
+        "meta", "link", "head", "template", "iframe"
+    };
+    for (auto s : skip_tags)
+        if (tag == s) return;
+
     // ── Block-level elements ─────────────────────────────────────────────────
     if (box.type() == layout::BoxType::Block || box.type() == layout::BoxType::AnonymousBlock) {
         if (!last_was_block) std::cout << '\n';
