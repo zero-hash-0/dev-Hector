@@ -11,11 +11,15 @@ add_compile_options(
     -Wformat=2 -Wformat-security
     -Wconversion -Wshadow
     -fstack-protector-strong
-    -fPIE
     -D_FORTIFY_SOURCE=2
 )
+if(NOT APPLE)
+    add_compile_options(-fPIE)
+endif()
 
-add_link_options(-pie -Wl,-z,relro,-z,now)
+if(NOT APPLE)
+    add_link_options(-pie -Wl,-z,relro,-z,now)
+endif()
 
 # ── Dependencies ──────────────────────────────────────────────────────────────
 find_package(OpenSSL REQUIRED)
