@@ -38,9 +38,16 @@ static bool is_readable_text(const std::string& text) {
 
 static void render_box(const layout::LayoutBox& box, int indent, bool& last_was_block) {
     if (box.type() == layout::BoxType::Text) {
-        if (!box.text().empty() && is_readable_text(box.text())) {
-            std::cout << box.text();
-            last_was_block = false;
+        const auto& t = box.text();
+        if (!t.empty()) {
+            bool ok = is_readable_text(t);
+            std::cerr << (ok ? "[TEXT-PASS  " : "[TEXT-BLOCK ")
+                      << t.size() << "] "
+                      << t.substr(0, 72) << '\n';
+            if (ok) {
+                std::cout << t;
+                last_was_block = false;
+            }
         }
         return;
     }
