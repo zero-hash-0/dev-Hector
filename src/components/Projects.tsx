@@ -27,8 +27,8 @@ const PROJECTS: Project[] = [
     modified:  "Mar 2026",
     desc:      "Contributing to Ladybird, an independent web browser built from scratch with no legacy baggage. A community effort to build a truly independent browser engine — writing C++ for the HTML parser, layout engine, and JS runtime.",
     tech:      ["C++", "Web Standards", "HTML Parser", "CSS Layout", "Open Source"],
-    link:      "https://github.com/LadybirdBrowser/ladybird",
-    linkLabel: "view project",
+    link:      "/ladybird",
+    linkLabel: "view work",
   },
   {
     name:      "Opus",
