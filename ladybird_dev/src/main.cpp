@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
     auto layout = layout::BlockFormattingContext::build(*doc, sheet);
 
     // ── 7. Execute inline scripts ─────────────────────────────────────────────
-    js::Interpreter js_engine(std::cout);
+    js::Interpreter js_engine(std::cerr); // JS output goes to stderr, not the rendered page
     auto script_elements = doc->get_elements_by_tag("script");
     for (auto* script : script_elements) {
         std::string src = script->text_content();

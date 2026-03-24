@@ -71,6 +71,7 @@ std::unique_ptr<LayoutBox> BlockFormattingContext::build_for_element(
         sheet, el.tag_name(), classes, id, el.get_attr("style"));
 
     if (style.hidden) return nullptr;
+    if (el.has_attr("hidden")) return nullptr;
 
     BoxType btype = style.is_inline() ? BoxType::Inline : BoxType::Block;
     auto box = std::make_unique<LayoutBox>(btype, const_cast<dom::Element*>(&el), style);

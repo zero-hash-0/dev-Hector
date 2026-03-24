@@ -27,14 +27,14 @@ static void hr(int width = 72) {
 // Returns true if the text looks like human-readable content.
 // Rejects long all-hex strings (RSC payloads, binary data, etc.).
 static bool is_readable_text(const std::string& text) {
-    if (text.size() < 32) return true; // short strings are fine
+    if (text.size() < 20) return true; // short strings are always fine
     size_t hex_count = 0;
     for (unsigned char c : text) {
         if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
             ++hex_count;
     }
-    // If >95% of characters are hex digits, treat as binary dump
-    return hex_count * 100 / text.size() < 95;
+    // If ≥80% of characters are hex digits, treat as encoded/binary data
+    return hex_count * 100 / text.size() < 80;
 }
 
 static void render_box(const layout::LayoutBox& box, int indent, bool& last_was_block) {

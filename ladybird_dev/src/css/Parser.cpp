@@ -167,7 +167,10 @@ static ComputedStyle ua_defaults(std::string_view tag) {
 void Parser::apply_declarations(ComputedStyle& style,
                                   const std::vector<Declaration>& decls) {
     for (auto& d : decls) {
-        if      (d.property == "display")          style.display       = d.value;
+        if      (d.property == "display") {
+            style.display = d.value;
+            if (d.value == "none") style.hidden = true;
+        }
         else if (d.property == "color")             style.color         = d.value;
         else if (d.property == "background" ||
                  d.property == "background-color")  style.background    = d.value;
