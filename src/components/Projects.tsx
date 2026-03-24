@@ -17,6 +17,20 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
+    name:      "Ladybird",
+    dir:       "ladybird/",
+    status:    "CONTRIBUTING",
+    statusClr: "#bf7fff",
+    perms:     "drwxr-xr-x",
+    type:      "Browser Engine",
+    size:      "—",
+    modified:  "Mar 2026",
+    desc:      "Contributing to Ladybird, an independent web browser built from scratch with no legacy baggage. A community effort to build a truly independent browser engine — writing C++ for the HTML parser, layout engine, and JS runtime.",
+    tech:      ["C++", "Web Standards", "HTML Parser", "CSS Layout", "Open Source"],
+    link:      "https://github.com/LadybirdBrowser/ladybird",
+    linkLabel: "view project",
+  },
+  {
     name:      "Opus",
     dir:       "opus/",
     status:    "BETA",
@@ -154,6 +168,8 @@ export default function Projects() {
                 {p.link && (
                   <a
                     href={p.link}
+                    target={p.link.startsWith("http") ? "_blank" : undefined}
+                    rel={p.link.startsWith("http") ? "noopener noreferrer" : undefined}
                     className="text-xs px-4 py-1.5 rounded border transition-all duration-200"
                     style={{ borderColor: "rgba(0,255,65,0.4)", color: "#00ff41" }}
                     onMouseEnter={(e) => {
@@ -178,7 +194,7 @@ export default function Projects() {
 
       {/* Result line */}
       <div className="mt-5 flex items-center gap-2 text-xs" style={{ color: "#1a4a1d" }}>
-        <span>3 directories listed</span>
+        <span>4 directories listed</span>
         <span>·</span>
         <span style={{ color: "#2d5a30" }}>root@hector:~/projects$</span>
         <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
