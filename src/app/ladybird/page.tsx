@@ -110,12 +110,12 @@ export default function LadybirdPage() {
           backdropFilter: "blur(12px)",
         }}
       >
-        <div className="flex items-center gap-3">
-          <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
-          <span style={{ color: "#2d5a30" }}>root@hector:~$</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="w-1.5 h-1.5 shrink-0 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
+          <span className="hidden sm:inline" style={{ color: "#2d5a30" }}>root@hector:~$</span>
           <span style={{ color: "#4a8a50" }}>cd ladybird/</span>
         </div>
-        <div className="flex items-center gap-5" style={{ color: "#1a4a1d" }}>
+        <div className="flex items-center gap-4" style={{ color: "#1a4a1d" }}>
           <Link
             href="/"
             className="transition-colors hover:text-[#00ff41]"
@@ -130,11 +130,11 @@ export default function LadybirdPage() {
           >
             [upstream]
           </a>
-          <span className="tabular-nums" style={{ color: "#2d5a30" }}>{time}</span>
+          <span className="hidden sm:inline tabular-nums" style={{ color: "#2d5a30" }}>{time}</span>
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 sm:space-y-10">
 
         {/* ── Hero ── */}
         <section>

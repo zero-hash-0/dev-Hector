@@ -76,7 +76,7 @@ const PROJECTS: Project[] = [
 
 export default function Projects() {
   return (
-    <section id="projects" className="pt-3 pb-4 px-6 max-w-5xl mx-auto font-mono">
+    <section id="projects" className="pt-3 pb-4 px-4 sm:px-6 max-w-5xl mx-auto font-mono">
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">

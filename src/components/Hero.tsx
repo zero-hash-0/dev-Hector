@@ -153,7 +153,7 @@ export default function Hero() {
       />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 pt-20 pb-3 font-mono">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-5 pt-16 sm:pt-20 pb-3 font-mono">
 
         {/* Top border label */}
         <div className="flex items-center gap-3 mb-7 text-xs" style={{ color: "#2d5a30" }}>
@@ -182,7 +182,7 @@ export default function Hero() {
           </div>
 
           {/* Lines */}
-          <div className="px-5 py-4 text-xs leading-6" style={{ minHeight: 200 }}>
+          <div className="px-5 py-4 text-xs leading-6 overflow-x-auto" style={{ minHeight: 200 }}>
             {bootLines.map((line, i) => (
               <div
                 key={i}
@@ -273,7 +273,7 @@ export default function Hero() {
               <span>$</span> ssh contact@hector.dev
             </a>
 
-            <div className="flex items-center gap-5 ml-auto">
+            <div className="flex items-center gap-5 w-full sm:w-auto sm:ml-auto">
               <a
                 href="https://github.com/zero-hash-0"
                 target="_blank"

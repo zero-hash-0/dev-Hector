@@ -34,7 +34,7 @@ const MINI_ASCII = [
 
 export default function Skills() {
   return (
-    <section id="skills" className="pt-3 pb-4 px-6 max-w-5xl mx-auto font-mono">
+    <section id="skills" className="pt-3 pb-4 px-4 sm:px-6 max-w-5xl mx-auto font-mono">
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">

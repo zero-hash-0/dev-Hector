@@ -13,7 +13,7 @@ const SSH_OUTPUT = [
 
 export default function Contact() {
   return (
-    <section id="contact" className="pt-3 pb-4 px-6 max-w-5xl mx-auto font-mono">
+    <section id="contact" className="pt-3 pb-4 px-4 sm:px-6 max-w-5xl mx-auto font-mono">
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">
@@ -38,7 +38,7 @@ export default function Contact() {
 
         <div className="px-6 py-5">
           {/* SSH handshake output */}
-          <div className="text-xs leading-6 mb-6">
+          <div className="text-xs leading-6 mb-6 overflow-x-auto">
             {SSH_OUTPUT.map((line, i) => (
               <div
                 key={i}
