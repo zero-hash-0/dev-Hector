@@ -101,6 +101,48 @@ int main(int argc, char* argv[]) {
         html = response.body_as_string();
     }
 
+    // ── 3b. Strip raw-text element content before parsing ─────────────────────
+    // Removes content between <script>…</script> and <style>…</style> so that
+    // inline JS/CSS payloads (e.g. Next.js RSC flight data) never reach the DOM.
+    auto strip_raw_text = [](std::string& src,
+                              std::string_view open_tag,
+                              std::string_view close_tag) {
+        std::string out;
+        out.reserve(src.size());
+        size_t i = 0;
+        while (i < src.size()) {
+            // Case-insensitive search for open_tag
+            if (src.size() - i >= open_tag.size()) {
+                bool match = true;
+                for (size_t k = 0; k < open_tag.size() && match; ++k)
+                    match = (std::tolower(static_cast<unsigned char>(src[i+k]))
+                             == static_cast<unsigned char>(open_tag[k]));
+                if (match) {
+                    // Copy through to end of opening tag (find '>'), then skip content
+                    size_t tag_end = src.find('>', i);
+                    if (tag_end == std::string::npos) { out += src[i++]; continue; }
+                    out.append(src, i, tag_end - i + 1); // keep the open tag
+                    i = tag_end + 1;
+                    // Find close tag (case-insensitive)
+                    size_t close = std::string::npos;
+                    for (size_t j = i; j + close_tag.size() <= src.size(); ++j) {
+                        bool cm = true;
+                        for (size_t k = 0; k < close_tag.size() && cm; ++k)
+                            cm = (std::tolower(static_cast<unsigned char>(src[j+k]))
+                                  == static_cast<unsigned char>(close_tag[k]));
+                        if (cm) { close = j; break; }
+                    }
+                    if (close != std::string::npos) i = close; // skip content; close tag copied below
+                    continue;
+                }
+            }
+            out += src[i++];
+        }
+        src = std::move(out);
+    };
+    strip_raw_text(html, "<script", "</script>");
+    strip_raw_text(html, "<style",  "</style>");
+
     // ── 4. Parse HTML ─────────────────────────────────────────────────────────
     auto doc   = html::Parser::parse(html, url);
 
