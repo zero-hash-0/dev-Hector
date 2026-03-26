@@ -7,9 +7,10 @@ import { JellycatCard } from '@/components/jellycat/JellycatCard'
 import { StatsBar } from '@/components/jellycat/StatsBar'
 import { AddModal } from '@/components/jellycat/AddModal'
 import { DetailModal } from '@/components/jellycat/DetailModal'
+import { SeriesView } from '@/components/jellycat/SeriesView'
 import type { JellycatItem } from '@/components/jellycat/types'
 
-type Tab    = 'collection' | 'wishlist'
+type Tab    = 'collection' | 'wishlist' | 'series'
 type Filter = 'all' | 'favourites'
 type Sort   = 'name' | 'newest' | 'oldest' | 'price-high' | 'price-low'
 
@@ -137,7 +138,8 @@ export default function JellycatPage() {
         {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-[#0F1E32] border border-[#1A3050] rounded-xl p-1 w-fit">
           {([['collection', `Collection${owned.length ? ` · ${owned.length}` : ''}`],
-             ['wishlist',   `Wishlist${wishlist.length ? ` · ${wishlist.length}` : ''}`]] as [Tab, string][])
+             ['wishlist',   `Wishlist${wishlist.length ? ` · ${wishlist.length}` : ''}`],
+             ['series',     'Series']] as [Tab, string][])
             .map(([t, label]) => (
               <button
                 key={t}
@@ -153,8 +155,13 @@ export default function JellycatPage() {
             ))}
         </div>
 
+        {/* Series view */}
+        {tab === 'series' && (
+          <SeriesView items={items} onDetail={setDetail} />
+        )}
+
         {/* Toolbar */}
-        {pool.length > 0 && (
+        {tab !== 'series' && pool.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -193,8 +200,8 @@ export default function JellycatPage() {
           </motion.div>
         )}
 
-        {/* Empty state */}
-        {pool.length === 0 ? (
+        {/* Empty state — only for collection/wishlist tabs */}
+        {tab !== 'series' && pool.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -219,11 +226,11 @@ export default function JellycatPage() {
               {tab === 'wishlist' ? 'Add to Wishlist' : 'Add your first Jellycat'}
             </motion.button>
           </motion.div>
-        ) : filtered.length === 0 ? (
+        ) : tab !== 'series' && filtered.length === 0 ? (
           <p className="text-[#4A6580] text-sm text-center py-16">
             No results for &ldquo;{search}&rdquo;
           </p>
-        ) : (
+        ) : tab !== 'series' ? (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             <AnimatePresence>
               {filtered.map((item) => (
@@ -238,7 +245,7 @@ export default function JellycatPage() {
               ))}
             </AnimatePresence>
           </motion.div>
-        )}
+        ) : null}
       </div>
 
       <AddModal

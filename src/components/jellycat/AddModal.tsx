@@ -31,13 +31,26 @@ interface Props {
 export function AddModal({ open, item, onClose, onSave }: Props) {
   const [form, setForm] = useState<JellycatItem>(blank())
   const [preview, setPreview] = useState(false)
+  const [imgTab, setImgTab] = useState<'url' | 'upload'>('url')
 
   useEffect(() => {
     if (open) {
       setForm(item ?? blank())
       setPreview(false)
+      setImgTab('url')
     }
   }, [open, item])
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      set('imageUrl', reader.result as string)
+      setPreview(true)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const set = <K extends keyof JellycatItem>(key: K, value: JellycatItem[K]) =>
     setForm((f) => ({ ...f, [key]: value }))
@@ -119,22 +132,53 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
                     </select>
                   </Field>
 
-                  <Field label="Image URL">
-                    <input
-                      type="url"
-                      value={form.imageUrl}
-                      onChange={(e) => {
-                        set('imageUrl', e.target.value)
-                        setPreview(false)
-                      }}
-                      onBlur={() => setPreview(!!form.imageUrl)}
-                      placeholder="https://…"
-                      className={input}
-                    />
-                  </Field>
+                  <div>
+                    <label className="block text-xs text-[#4A6580] mb-1">Photo</label>
+                    {/* Tab toggle */}
+                    <div className="flex gap-1 mb-2 bg-[#0A1320] border border-[#1A3050] rounded-xl p-1 w-fit">
+                      {(['url', 'upload'] as const).map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setImgTab(t)}
+                          className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                            imgTab === t
+                              ? 'bg-[#3DD6CE] text-[#0A1320]'
+                              : 'text-[#4A6580] hover:text-white'
+                          }`}
+                        >
+                          {t === 'url' ? '🔗 URL' : '📷 Upload'}
+                        </button>
+                      ))}
+                    </div>
+
+                    {imgTab === 'url' ? (
+                      <input
+                        type="url"
+                        value={form.imageUrl.startsWith('data:') ? '' : form.imageUrl}
+                        onChange={(e) => { set('imageUrl', e.target.value); setPreview(false) }}
+                        onBlur={() => setPreview(!!form.imageUrl)}
+                        placeholder="https://…"
+                        className={input}
+                      />
+                    ) : (
+                      <label className={`${input} flex items-center gap-2 cursor-pointer`}>
+                        <span className="text-[#3DD6CE] text-xs">Choose photo</span>
+                        <span className="text-[#2A4060] text-xs truncate">
+                          {form.imageUrl.startsWith('data:') ? 'Photo selected ✓' : 'No file chosen'}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileUpload}
+                        />
+                      </label>
+                    )}
+                  </div>
 
                   {preview && form.imageUrl && (
-                    <div className="rounded-xl overflow-hidden w-28 h-28 bg-[#0A1320] border border-[#1A3050]">
+                    <div className="relative rounded-xl overflow-hidden w-28 h-28 bg-[#0A1320] border border-[#1A3050]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={form.imageUrl}
@@ -142,6 +186,13 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
                         className="w-full h-full object-cover"
                         onError={() => setPreview(false)}
                       />
+                      <button
+                        type="button"
+                        onClick={() => { set('imageUrl', ''); setPreview(false) }}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white text-xs flex items-center justify-center"
+                      >
+                        ×
+                      </button>
                     </div>
                   )}
 

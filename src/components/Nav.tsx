@@ -87,6 +87,17 @@ export default function Nav() {
           );
         })}
 
+        {/* Jellycat link */}
+        <a
+          href="/jellycat"
+          className="flex items-center gap-1.5 px-4 py-2.5 border-r transition-all duration-150"
+          style={{ borderColor: "rgba(0,255,65,0.1)", color: "#2d5a30" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#4a8a50"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#2d5a30"; }}
+        >
+          🧸
+        </a>
+
         {/* right status */}
         <div
           className="flex items-center gap-3 px-4 ml-auto"
@@ -137,6 +148,15 @@ export default function Nav() {
               cd {l.label}/
             </a>
           ))}
+          <a
+            href="/jellycat"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-5 py-3 text-xs transition-colors"
+            style={{ color: "#4a8a50" }}
+          >
+            <span style={{ color: "#2d5a30" }}>$</span>
+            cd jellycat/ 🧸
+          </a>
         </div>
       )}
     </header>
