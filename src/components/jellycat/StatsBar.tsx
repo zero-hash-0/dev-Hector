@@ -19,10 +19,10 @@ export function StatsBar({ items }: { items: JellycatItem[] }) {
       {stats.map((s) => (
         <div
           key={s.label}
-          className="bg-white rounded-2xl px-5 py-3 shadow-sm border border-pink-100"
+          className="bg-[#0F1E32] rounded-xl px-5 py-3 border border-[#1A3050]"
         >
-          <div className="text-2xl font-bold text-[#3d2c2c]">{s.value}</div>
-          <div className="text-xs text-[#b08080]">{s.label}</div>
+          <div className="text-2xl font-bold text-[#3DD6CE]">{s.value}</div>
+          <div className="text-xs text-[#4A6580]">{s.label}</div>
         </div>
       ))}
     </div>

@@ -56,7 +56,7 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
           />
 
           <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
@@ -65,17 +65,17 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 16 }}
               transition={{ duration: 0.2 }}
-              className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+              className="bg-[#0F1E32] border border-[#1A3050] rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-xl font-bold text-[#3d2c2c]">
+                  <h2 className="text-xl font-bold text-white">
                     {item ? 'Edit Jellycat' : 'Add Jellycat'} 🧸
                   </h2>
                   <button
                     type="button"
                     onClick={onClose}
-                    className="w-8 h-8 rounded-full bg-pink-50 text-[#b08080] hover:bg-pink-100 flex items-center justify-center text-lg transition-colors"
+                    className="w-8 h-8 rounded-full bg-white/5 text-[#4A6580] hover:bg-white/10 flex items-center justify-center text-lg transition-colors"
                   >
                     ×
                   </button>
@@ -133,7 +133,7 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
                   </Field>
 
                   {preview && form.imageUrl && (
-                    <div className="rounded-2xl overflow-hidden w-28 h-28 bg-pink-50 border border-pink-100">
+                    <div className="rounded-xl overflow-hidden w-28 h-28 bg-[#0A1320] border border-[#1A3050]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={form.imageUrl}
@@ -186,22 +186,22 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
                       type="checkbox"
                       checked={form.isFavorite}
                       onChange={(e) => set('isFavorite', e.target.checked)}
-                      className="w-4 h-4 accent-pink-400"
+                      className="w-4 h-4 accent-[#3DD6CE]"
                     />
-                    <span className="text-sm text-[#3d2c2c]">Mark as favourite ⭐</span>
+                    <span className="text-sm text-[#7A96B4]">Mark as favourite ⭐</span>
                   </label>
 
                   <div className="flex gap-3 pt-2">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="flex-1 py-2.5 rounded-2xl border border-pink-200 text-[#b08080] text-sm hover:bg-pink-50 transition-colors"
+                      className="flex-1 py-2.5 rounded-xl border border-[#1A3050] text-[#4A6580] text-sm hover:bg-white/5 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 py-2.5 rounded-2xl bg-pink-400 text-white text-sm font-medium hover:bg-pink-500 transition-colors shadow-sm"
+                      className="flex-1 py-2.5 rounded-xl bg-[#3DD6CE] text-[#0A1320] text-sm font-bold hover:bg-[#2EC5BD] transition-colors"
                     >
                       {item ? 'Save Changes' : 'Add to Collection'}
                     </button>
@@ -217,12 +217,12 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
 }
 
 const input =
-  'w-full px-3 py-2 rounded-xl border border-pink-200 bg-pink-50/40 text-[#3d2c2c] text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder-[#c9a8a8]'
+  'w-full px-3 py-2 rounded-xl border border-[#1A3050] bg-[#0A1320] text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3DD6CE]/40 placeholder-[#2A4060]'
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <label className="block text-xs text-[#b08080] mb-1">{label}</label>
+      <label className="block text-xs text-[#4A6580] mb-1">{label}</label>
       {children}
     </div>
   )
