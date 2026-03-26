@@ -17,6 +17,7 @@ function blank(): JellycatItem {
     pricePaid: null,
     notes: '',
     isFavorite: false,
+    isWishlist: false,
   }
 }
 
@@ -181,15 +182,26 @@ export function AddModal({ open, item, onClose, onSave }: Props) {
                     />
                   </Field>
 
-                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={form.isFavorite}
-                      onChange={(e) => set('isFavorite', e.target.checked)}
-                      className="w-4 h-4 accent-[#3DD6CE]"
-                    />
-                    <span className="text-sm text-[#7A96B4]">Mark as favourite ⭐</span>
-                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={form.isFavorite}
+                        onChange={(e) => set('isFavorite', e.target.checked)}
+                        className="w-4 h-4 accent-[#3DD6CE]"
+                      />
+                      <span className="text-sm text-[#7A96B4]">Mark as favourite ⭐</span>
+                    </label>
+                    <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={form.isWishlist}
+                        onChange={(e) => set('isWishlist', e.target.checked)}
+                        className="w-4 h-4 accent-[#3DD6CE]"
+                      />
+                      <span className="text-sm text-[#7A96B4]">Add to wishlist 🌟</span>
+                    </label>
+                  </div>
 
                   <div className="flex gap-3 pt-2">
                     <button

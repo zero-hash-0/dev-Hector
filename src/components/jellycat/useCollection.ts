@@ -12,7 +12,11 @@ export function useCollection() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) setItems(JSON.parse(raw))
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        // Normalise items from older versions that lack newer fields
+        setItems(parsed.map((i: JellycatItem) => ({ isWishlist: false, ...i })))
+      }
     } catch {}
     setLoaded(true)
   }, [])

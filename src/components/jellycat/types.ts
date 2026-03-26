@@ -8,6 +8,7 @@ export interface JellycatItem {
   pricePaid: number | null
   notes: string
   isFavorite: boolean
+  isWishlist: boolean
 }
 
 /** Base64url encode a collection for sharing via URL path segment */

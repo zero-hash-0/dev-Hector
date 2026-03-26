@@ -14,12 +14,13 @@ const SIZE_LABELS: Record<string, string> = {
 interface Props {
   item: JellycatItem
   readOnly?: boolean
+  onDetail?: (item: JellycatItem) => void
   onEdit?: (item: JellycatItem) => void
   onDelete?: (id: string) => void
   onToggleFavorite?: (id: string) => void
 }
 
-export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorite }: Props) {
+export function JellycatCard({ item, readOnly, onDetail, onEdit, onDelete, onToggleFavorite }: Props) {
   return (
     <motion.div
       layout
@@ -30,7 +31,10 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
       className="bg-[#0F1E32] rounded-2xl overflow-hidden border border-[#1A3050] group transition-all duration-300 hover:border-[#3DD6CE]/40 hover:shadow-[0_0_24px_rgba(61,214,206,0.08)]"
     >
       {/* Image */}
-      <div className="aspect-square bg-[#0A1320] overflow-hidden relative">
+      <div
+        className="aspect-square bg-[#0A1320] overflow-hidden relative cursor-pointer"
+        onClick={() => onDetail?.(item)}
+      >
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -41,6 +45,12 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl select-none opacity-60">
             🧸
+          </div>
+        )}
+
+        {item.isWishlist && (
+          <div className="absolute bottom-2 left-2 bg-[#3DD6CE] text-[#0A1320] text-[10px] font-bold px-2 py-0.5 rounded-full">
+            Wishlist
           </div>
         )}
 
