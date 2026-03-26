@@ -27,10 +27,10 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.2 }}
-      className="bg-white rounded-3xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.06)] border border-pink-100 group"
+      className="bg-[#0F1E32] rounded-2xl overflow-hidden border border-[#1A3050] group transition-all duration-300 hover:border-[#3DD6CE]/40 hover:shadow-[0_0_24px_rgba(61,214,206,0.08)]"
     >
       {/* Image */}
-      <div className="aspect-square bg-pink-50 overflow-hidden relative">
+      <div className="aspect-square bg-[#0A1320] overflow-hidden relative">
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -39,7 +39,7 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-5xl select-none">
+          <div className="w-full h-full flex items-center justify-center text-5xl select-none opacity-60">
             🧸
           </div>
         )}
@@ -47,7 +47,7 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
         {!readOnly && onToggleFavorite && (
           <button
             onClick={() => onToggleFavorite(item.id)}
-            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-base transition-transform hover:scale-110 shadow-sm"
+            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-[#0A1320]/80 backdrop-blur-sm flex items-center justify-center text-base transition-transform hover:scale-110"
             aria-label={item.isFavorite ? 'Remove from favourites' : 'Add to favourites'}
           >
             {item.isFavorite ? '⭐' : '☆'}
@@ -60,18 +60,18 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
 
       {/* Info */}
       <div className="p-4">
-        <h3 className="font-semibold text-[#3d2c2c] text-sm leading-tight mb-2 truncate">
+        <h3 className="font-semibold text-white text-sm leading-tight mb-2 truncate">
           {item.name}
         </h3>
 
         <div className="flex flex-wrap gap-1.5 mb-2">
           {item.series && (
-            <span className="text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-[#3DD6CE]/15 text-[#3DD6CE] px-2 py-0.5 rounded-full border border-[#3DD6CE]/20">
               {item.series}
             </span>
           )}
           {item.size && (
-            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-white/5 text-[#7A96B4] px-2 py-0.5 rounded-full border border-white/10">
               {SIZE_LABELS[item.size]}
             </span>
           )}
@@ -79,7 +79,7 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
 
         <div className="space-y-0.5">
           {item.acquiredDate && (
-            <p className="text-xs text-[#b08080]">
+            <p className="text-xs text-[#4A6580]">
               {new Date(item.acquiredDate).toLocaleDateString('en-US', {
                 month: 'short',
                 year: 'numeric',
@@ -87,10 +87,10 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
             </p>
           )}
           {item.pricePaid != null && item.pricePaid > 0 && (
-            <p className="text-xs text-[#b08080]">${item.pricePaid.toFixed(2)}</p>
+            <p className="text-xs text-[#4A6580]">${item.pricePaid.toFixed(2)}</p>
           )}
           {item.notes && (
-            <p className="text-xs text-[#b08080] line-clamp-2 mt-1">{item.notes}</p>
+            <p className="text-xs text-[#4A6580] line-clamp-2 mt-1">{item.notes}</p>
           )}
         </div>
 
@@ -99,7 +99,7 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
             {onEdit && (
               <button
                 onClick={() => onEdit(item)}
-                className="flex-1 text-xs py-1.5 rounded-xl bg-pink-50 text-pink-700 hover:bg-pink-100 transition-colors"
+                className="flex-1 text-xs py-1.5 rounded-lg bg-[#3DD6CE]/10 text-[#3DD6CE] hover:bg-[#3DD6CE]/20 transition-colors border border-[#3DD6CE]/20"
               >
                 Edit
               </button>
@@ -107,7 +107,7 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
             {onDelete && (
               <button
                 onClick={() => onDelete(item.id)}
-                className="flex-1 text-xs py-1.5 rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-colors"
+                className="flex-1 text-xs py-1.5 rounded-lg bg-white/5 text-[#4A6580] hover:bg-red-500/10 hover:text-red-400 transition-colors border border-white/10"
               >
                 Remove
               </button>
