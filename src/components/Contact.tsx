@@ -1,13 +1,13 @@
 "use client";
 
 const SSH_OUTPUT = [
-  { text: "SSH-2.0-OpenSSH_9.0",                                     color: "#4a8a50" },
-  { text: "The authenticity of host 'hector.dev' can't be confirmed.", color: "#4a8a50" },
-  { text: "ED25519 key fingerprint is SHA256:xK9Lm2PqR7vN3bTqW5uZ...", color: "#4a8a50" },
+  { text: "SSH-2.0-OpenSSH_9.0",                                     color: "#9dc49d" },
+  { text: "The authenticity of host 'hector.dev' can't be confirmed.", color: "#9dc49d" },
+  { text: "ED25519 key fingerprint is SHA256:xK9Lm2PqR7vN3bTqW5uZ...", color: "#9dc49d" },
   { text: "",                                                          color: "" },
   { text: "▸  Connection established.",                                color: "#00ff41", bright: true },
-  { text: "▸  Encryption: AES-256-GCM  ·  HMAC: SHA2-256",           color: "#2d5a30" },
-  { text: "▸  Perfect Forward Secrecy enabled.",                       color: "#2d5a30" },
+  { text: "▸  Encryption: AES-256-GCM  ·  HMAC: SHA2-256",           color: "#5e9463" },
+  { text: "▸  Perfect Forward Secrecy enabled.",                       color: "#5e9463" },
   { text: "",                                                          color: "" },
 ];
 
@@ -17,13 +17,13 @@ export default function Contact() {
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <span style={{ color: "#2d5a30" }}>root@hector:~$</span>
-        <span style={{ color: "#4a8a50" }}>ssh contact@hector.dev</span>
+        <span style={{ color: "#5e9463" }}>root@hector:~$</span>
+        <span style={{ color: "#9dc49d" }}>ssh contact@hector.dev</span>
       </div>
 
       <div
         className="border rounded overflow-hidden terminal-window"
-        style={{ borderColor: "rgba(0,255,65,0.15)", background: "rgba(2,11,2,0.75)" }}
+        style={{ borderColor: "rgba(0,255,65,0.15)", background: "rgba(6,13,6,0.75)" }}
       >
         {/* Title bar */}
         <div
@@ -33,7 +33,7 @@ export default function Contact() {
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ff3b30", boxShadow: "0 0 4px #ff3b30" }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ffcc02", boxShadow: "0 0 4px #ffcc02" }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
-          <span className="mx-auto" style={{ color: "#1a4a1d" }}>root@local — ssh hector.dev</span>
+          <span className="mx-auto" style={{ color: "#3d6642" }}>root@local — ssh hector.dev</span>
         </div>
 
         <div className="px-6 py-5">
@@ -55,16 +55,16 @@ export default function Contact() {
           </div>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 mb-8" style={{ color: "#0a2e0c" }}>
-            <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
-            <span className="text-xs" style={{ color: "#1a4a1d" }}>SECURE CHANNEL OPEN</span>
-            <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
+          <div className="flex items-center gap-3 mb-8" style={{ color: "#142e16" }}>
+            <span className="flex-1 border-t" style={{ borderColor: "#142e16" }} />
+            <span className="text-xs" style={{ color: "#3d6642" }}>SECURE CHANNEL OPEN</span>
+            <span className="flex-1 border-t" style={{ borderColor: "#142e16" }} />
           </div>
 
           {/* Main CTA block */}
           <div className="text-center py-4 space-y-5">
             <div>
-              <p className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: "#2d5a30" }}>
+              <p className="text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: "#5e9463" }}>
                 Contact
               </p>
               <h2
@@ -75,7 +75,7 @@ export default function Contact() {
               </h2>
             </div>
 
-            <p className="text-sm max-w-md mx-auto leading-relaxed" style={{ color: "#4a8a50" }}>
+            <p className="text-sm max-w-md mx-auto leading-relaxed" style={{ color: "#9dc49d" }}>
               Available for freelance, collaboration, and projects that matter.
               My inbox is open — response within 24 hours.
             </p>
@@ -89,7 +89,7 @@ export default function Contact() {
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
                   el.style.background = "#00ff41";
-                  el.style.color      = "#020b02";
+                  el.style.color      = "#060d06";
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
@@ -105,7 +105,7 @@ export default function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-7 py-3 rounded border text-sm transition-all duration-200"
-                style={{ borderColor: "rgba(0,255,65,0.18)", color: "#4a8a50" }}
+                style={{ borderColor: "rgba(0,255,65,0.18)", color: "#9dc49d" }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement;
                   el.style.color       = "#00ff41";
@@ -113,7 +113,7 @@ export default function Contact() {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLElement;
-                  el.style.color       = "#4a8a50";
+                  el.style.color       = "#9dc49d";
                   el.style.borderColor = "rgba(0,255,65,0.18)";
                 }}
               >
@@ -123,7 +123,7 @@ export default function Contact() {
           </div>
 
           {/* Prompt */}
-          <div className="mt-8 flex items-center gap-2 text-xs" style={{ color: "#2d5a30" }}>
+          <div className="mt-8 flex items-center gap-2 text-xs" style={{ color: "#5e9463" }}>
             <span>root@hector.dev:~$</span>
             <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
           </div>

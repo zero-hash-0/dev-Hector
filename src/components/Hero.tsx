@@ -31,7 +31,7 @@ function BinaryRain() {
     window.addEventListener("resize", setup);
 
     const draw = () => {
-      ctx.fillStyle = "rgba(2,11,2,0.065)";
+      ctx.fillStyle = "rgba(6,13,6,0.065)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `${FONT_SIZE}px "Courier New", monospace`;
 
@@ -83,19 +83,19 @@ type BootLine = {
 };
 
 const BOOT: BootLine[] = [
-  { text: "BIOS v2.4.1  ·  Hector Systems Corp.", delay: 0,    color: "#4a8a50" },
-  { text: "Copyright (c) 2024  ·  All Rights Reserved", delay: 60,   color: "#2d5a30" },
+  { text: "BIOS v2.4.1  ·  Hector Systems Corp.", delay: 0,    color: "#9dc49d" },
+  { text: "Copyright (c) 2024  ·  All Rights Reserved", delay: 60,   color: "#5e9463" },
   { text: "", delay: 100 },
-  { text: "Mounting encrypted volumes ............. [  OK  ]", delay: 180,  color: "#4a8a50" },
-  { text: "Loading firewall ruleset ............... [  OK  ]", delay: 290,  color: "#4a8a50" },
-  { text: "Establishing secure tunnel ............. [  OK  ]", delay: 410,  color: "#4a8a50" },
-  { text: "Running integrity checks ............... [  OK  ]", delay: 530,  color: "#4a8a50" },
-  { text: "Activating threat detection engine ..... [  OK  ]", delay: 650,  color: "#4a8a50" },
-  { text: "Verifying credentials .................. [  OK  ]", delay: 780,  color: "#4a8a50" },
+  { text: "Mounting encrypted volumes ............. [  OK  ]", delay: 180,  color: "#9dc49d" },
+  { text: "Loading firewall ruleset ............... [  OK  ]", delay: 290,  color: "#9dc49d" },
+  { text: "Establishing secure tunnel ............. [  OK  ]", delay: 410,  color: "#9dc49d" },
+  { text: "Running integrity checks ............... [  OK  ]", delay: 530,  color: "#9dc49d" },
+  { text: "Activating threat detection engine ..... [  OK  ]", delay: 650,  color: "#9dc49d" },
+  { text: "Verifying credentials .................. [  OK  ]", delay: 780,  color: "#9dc49d" },
   { text: "", delay: 860 },
   { text: "▸  AUTHENTICATION SUCCESSFUL  ·  SYSTEM READY", delay: 960,  color: "#00ff41", bright: true },
   { text: "", delay: 1040 },
-  { text: "Welcome back, root.  Last login: today.", delay: 1120, color: "#4a8a50" },
+  { text: "Welcome back, root.  Last login: today.", delay: 1120, color: "#9dc49d" },
 ];
 
 // ── ASCII name ────────────────────────────────────────────────────────────────
@@ -135,7 +135,7 @@ export default function Hero() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: "#020b02" }}
+      style={{ background: "#060d06" }}
     >
       {/* Binary rain */}
       <BinaryRain />
@@ -148,7 +148,7 @@ export default function Hero() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(2,11,2,0.82) 100%)",
+            "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(6,13,6,0.82) 100%)",
         }}
       />
 
@@ -156,17 +156,17 @@ export default function Hero() {
       <div className="relative z-10 w-full max-w-5xl mx-auto px-5 pt-20 pb-3 font-mono">
 
         {/* Top border label */}
-        <div className="flex items-center gap-3 mb-7 text-xs" style={{ color: "#2d5a30" }}>
+        <div className="flex items-center gap-3 mb-7 text-xs" style={{ color: "#5e9463" }}>
           <span>┌─</span>
-          <span style={{ color: "#1a4a1d" }}>HECTOR.SYS · BOOT SEQUENCE · v2.4.1</span>
-          <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
+          <span style={{ color: "#3d6642" }}>HECTOR.SYS · BOOT SEQUENCE · v2.4.1</span>
+          <span className="flex-1 border-t" style={{ borderColor: "#142e16" }} />
           <span>─┐</span>
         </div>
 
         {/* Boot terminal */}
         <div
           className="rounded border mb-5 overflow-hidden terminal-window"
-          style={{ borderColor: "rgba(0,255,65,0.15)", background: "rgba(2,11,2,0.82)" }}
+          style={{ borderColor: "rgba(0,255,65,0.15)", background: "rgba(6,13,6,0.82)" }}
         >
           {/* Title bar */}
           <div
@@ -176,7 +176,7 @@ export default function Hero() {
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ff3b30", boxShadow: "0 0 4px #ff3b30" }} />
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ffcc02", boxShadow: "0 0 4px #ffcc02" }} />
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
-            <span className="mx-auto" style={{ color: "#1a4a1d" }}>
+            <span className="mx-auto" style={{ color: "#3d6642" }}>
               root@hector — bash — 120×40
             </span>
           </div>
@@ -188,7 +188,7 @@ export default function Hero() {
                 key={i}
                 className="h-6"
                 style={{
-                  color:       line.color ?? "#2d5a30",
+                  color:       line.color ?? "#5e9463",
                   fontWeight:  line.bright ? "700" : "400",
                   textShadow:  line.bright ? "0 0 10px rgba(0,255,65,0.6)" : "none",
                 }}
@@ -218,14 +218,14 @@ export default function Hero() {
 
             <div
               className="mt-3 flex flex-wrap items-center gap-3 text-xs"
-              style={{ color: "#2d5a30" }}
+              style={{ color: "#9dc49d" }}
             >
               <span>Developer</span>
-              <span style={{ color: "#0a2e0c" }}>·</span>
+              <span style={{ color: "#3d6642" }}>·</span>
               <span>Product Builder</span>
-              <span style={{ color: "#0a2e0c" }}>·</span>
+              <span style={{ color: "#3d6642" }}>·</span>
               <span>Cybersecurity</span>
-              <span style={{ color: "#0a2e0c" }}>·</span>
+              <span style={{ color: "#3d6642" }}>·</span>
               <span>Florida, USA</span>
               <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
             </div>
@@ -244,7 +244,7 @@ export default function Hero() {
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLElement;
                 el.style.background = "#00ff41";
-                el.style.color      = "#020b02";
+                el.style.color      = "#060d06";
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLElement;
@@ -258,7 +258,7 @@ export default function Hero() {
             <a
               href="#contact"
               className="flex items-center gap-2 px-6 py-2.5 rounded border text-sm transition-all duration-200"
-              style={{ borderColor: "rgba(0,255,65,0.18)", color: "#4a8a50" }}
+              style={{ borderColor: "rgba(0,255,65,0.18)", color: "#9dc49d" }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLElement;
                 el.style.color       = "#00ff41";
@@ -266,7 +266,7 @@ export default function Hero() {
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLElement;
-                el.style.color       = "#4a8a50";
+                el.style.color       = "#9dc49d";
                 el.style.borderColor = "rgba(0,255,65,0.18)";
               }}
             >
@@ -279,9 +279,9 @@ export default function Hero() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs transition-colors"
-                style={{ color: "#1a4a1d" }}
+                style={{ color: "#3d6642" }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#00ff41")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#1a4a1d")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#3d6642")}
               >
                 [github]
               </a>
@@ -290,9 +290,9 @@ export default function Hero() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs transition-colors"
-                style={{ color: "#1a4a1d" }}
+                style={{ color: "#3d6642" }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#00ff41")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#1a4a1d")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#3d6642")}
               >
                 [x/twitter]
               </a>
@@ -301,11 +301,11 @@ export default function Hero() {
         )}
 
         {/* Bottom border label */}
-        <div className="flex items-center gap-3 mt-5 text-xs" style={{ color: "#2d5a30" }}>
+        <div className="flex items-center gap-3 mt-5 text-xs" style={{ color: "#5e9463" }}>
           <span>└─</span>
-          <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
-          <span style={{ color: "#1a4a1d" }}>END BOOT SEQUENCE</span>
-          <span className="flex-1 border-t" style={{ borderColor: "#0a2e0c" }} />
+          <span className="flex-1 border-t" style={{ borderColor: "#142e16" }} />
+          <span style={{ color: "#3d6642" }}>END BOOT SEQUENCE</span>
+          <span className="flex-1 border-t" style={{ borderColor: "#142e16" }} />
           <span>─┘</span>
         </div>
       </div>

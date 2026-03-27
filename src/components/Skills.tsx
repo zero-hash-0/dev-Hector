@@ -18,7 +18,7 @@ const SYSINFO = [
 ];
 
 const PALETTE = [
-  "#020b02","#0a2e0c","#2d5a30","#4a8a50",
+  "#060d06","#112e13","#3d6642","#5e9463",
   "#00cc33","#00ff41","#00ffff","#ff0055",
 ];
 
@@ -37,13 +37,13 @@ export default function Skills() {
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <span style={{ color: "#2d5a30" }}>root@hector:~$</span>
-        <span style={{ color: "#4a8a50" }}>neofetch --skills</span>
+        <span style={{ color: "#5e9463" }}>root@hector:~$</span>
+        <span style={{ color: "#9dc49d" }}>neofetch --skills</span>
       </div>
 
       <div
         className="border rounded overflow-hidden terminal-window"
-        style={{ borderColor: "rgba(0,255,65,0.14)", background: "rgba(2,11,2,0.72)" }}
+        style={{ borderColor: "rgba(0,255,65,0.14)", background: "rgba(6,13,6,0.72)" }}
       >
         {/* Terminal title bar */}
         <div
@@ -53,7 +53,7 @@ export default function Skills() {
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ff3b30", boxShadow: "0 0 4px #ff3b30" }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ffcc02", boxShadow: "0 0 4px #ffcc02" }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
-          <span className="mx-auto" style={{ color: "#1a4a1d" }}>hector@dev — neofetch</span>
+          <span className="mx-auto" style={{ color: "#3d6642" }}>hector@dev — neofetch</span>
         </div>
 
         <div className="p-6 sm:p-8 grid md:grid-cols-[220px,1fr] gap-8 items-start">
@@ -70,11 +70,11 @@ export default function Skills() {
 
             <div className="space-y-1 text-xs">
               <div className="phosphor-dim" style={{ color: "#00ff41" }}>hector@dev</div>
-              <div style={{ color: "#2d5a30" }}>──────────</div>
+              <div style={{ color: "#5e9463" }}>──────────</div>
               {SYSINFO.map(({ key, val }) => (
                 <div key={key} className="flex gap-2">
                   <span className="w-[88px] shrink-0 phosphor-dim" style={{ color: "#00ff41" }}>{key}:</span>
-                  <span style={{ color: "#4a8a50" }}>{val}</span>
+                  <span style={{ color: "#9dc49d" }}>{val}</span>
                 </div>
               ))}
             </div>
@@ -108,8 +108,8 @@ export default function Skills() {
                 </div>
                 <div className="space-y-1">
                   {items.map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-xs" style={{ color: "#4a8a50" }}>
-                      <span style={{ color: "#1a4a1d" }}>▸</span>
+                    <div key={item} className="flex items-center gap-2 text-xs" style={{ color: "#9dc49d" }}>
+                      <span style={{ color: "#3d6642" }}>▸</span>
                       {item}
                     </div>
                   ))}

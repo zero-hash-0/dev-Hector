@@ -26,9 +26,9 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
 
         {/* Left: status */}
-        <div className="flex items-center gap-3" style={{ color: "#1a4a1d" }}>
+        <div className="flex items-center gap-3" style={{ color: "#3d6642" }}>
           <span className="w-1.5 h-1.5 rounded-full status-pulse" style={{ background: "#00ff41" }} />
-          <span style={{ color: "#2d5a30" }}>root@hector.dev</span>
+          <span style={{ color: "#5e9463" }}>root@hector.dev</span>
           <span>·</span>
           <span>ONLINE</span>
           {uptime > 0 && (
@@ -40,7 +40,7 @@ export default function Footer() {
         </div>
 
         {/* Center: links */}
-        <div className="flex items-center gap-5" style={{ color: "#1a4a1d" }}>
+        <div className="flex items-center gap-5" style={{ color: "#3d6642" }}>
           <a
             href="https://github.com/zero-hash-0"
             target="_blank"
@@ -66,10 +66,10 @@ export default function Footer() {
         </div>
 
         {/* Right: copyright + time */}
-        <div className="flex items-center gap-3" style={{ color: "#1a4a1d" }}>
+        <div className="flex items-center gap-3" style={{ color: "#3d6642" }}>
           <span>&copy; {year} hector</span>
           <span>·</span>
-          <span className="tabular-nums" style={{ color: "#2d5a30" }}>{time}</span>
+          <span className="tabular-nums" style={{ color: "#5e9463" }}>{time}</span>
         </div>
 
       </div>

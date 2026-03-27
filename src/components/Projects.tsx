@@ -80,8 +80,8 @@ export default function Projects() {
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <span style={{ color: "#2d5a30" }}>root@hector:~$</span>
-        <span style={{ color: "#4a8a50" }}>ls -la ~/projects/</span>
+        <span style={{ color: "#5e9463" }}>root@hector:~$</span>
+        <span style={{ color: "#9dc49d" }}>ls -la ~/projects/</span>
       </div>
 
       {/* Dir listing header */}
@@ -90,7 +90,7 @@ export default function Projects() {
         style={{
           gridTemplateColumns: "120px 1fr 80px 50px 80px",
           borderColor: "rgba(0,255,65,0.08)",
-          color: "#1a4a1d",
+          color: "#3d6642",
         }}
       >
         <span>permissions</span>
@@ -102,9 +102,9 @@ export default function Projects() {
 
       {/* Phantom dir entries */}
       {["./", "../"].map((d) => (
-        <div key={d} className="px-5 py-1.5 text-[10px] flex gap-4" style={{ color: "#1a4a1d" }}>
+        <div key={d} className="px-5 py-1.5 text-[10px] flex gap-4" style={{ color: "#3d6642" }}>
           <span className="w-28">drwxr-xr-x</span>
-          <span style={{ color: "#2d5a30" }}>{d}</span>
+          <span style={{ color: "#5e9463" }}>{d}</span>
         </div>
       ))}
 
@@ -114,18 +114,18 @@ export default function Projects() {
           <div
             key={p.name}
             className="border rounded overflow-hidden card-glow-project"
-            style={{ borderColor: "rgba(0,255,65,0.1)", background: "rgba(2,11,2,0.7)" }}
+            style={{ borderColor: "rgba(0,255,65,0.1)", background: "rgba(6,13,6,0.7)" }}
           >
             {/* Directory row */}
             <div
               className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-3 border-b text-[10px]"
               style={{ borderColor: "rgba(0,255,65,0.07)", background: "rgba(0,255,65,0.03)" }}
             >
-              <span style={{ color: "#1a4a1d" }}>{p.perms}</span>
+              <span style={{ color: "#3d6642" }}>{p.perms}</span>
               <span className="phosphor-dim" style={{ color: "#00ff41" }}>{p.dir}</span>
-              <span style={{ color: "#2d5a30" }}>{p.type}</span>
-              <span style={{ color: "#1a4a1d" }}>{p.size}</span>
-              <span style={{ color: "#1a4a1d" }}>{p.modified}</span>
+              <span style={{ color: "#5e9463" }}>{p.type}</span>
+              <span style={{ color: "#3d6642" }}>{p.size}</span>
+              <span style={{ color: "#3d6642" }}>{p.modified}</span>
               <span
                 className="ml-auto px-2 py-0.5 rounded border text-[9px] font-bold tracking-wider"
                 style={{
@@ -148,8 +148,8 @@ export default function Projects() {
                 {p.name}
               </h3>
 
-              <p className="text-xs leading-relaxed mb-4" style={{ color: "#4a8a50", lineHeight: 1.85 }}>
-                <span style={{ color: "#1a4a1d" }}>$ cat README.md — </span>
+              <p className="text-xs leading-relaxed mb-4" style={{ color: "#9dc49d", lineHeight: 1.85 }}>
+                <span style={{ color: "#5e9463" }}>$ cat README.md — </span>
                 {p.desc}
               </p>
 
@@ -159,7 +159,7 @@ export default function Projects() {
                     <span
                       key={t}
                       className="text-[10px] px-2.5 py-0.5 rounded border"
-                      style={{ borderColor: "rgba(0,255,65,0.1)", color: "#2d5a30" }}
+                      style={{ borderColor: "rgba(0,255,65,0.1)", color: "#5e9463" }}
                     >
                       {t}
                     </span>
@@ -173,7 +173,7 @@ export default function Projects() {
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLElement;
                       el.style.background = "#00ff41";
-                      el.style.color      = "#020b02";
+                      el.style.color      = "#060d06";
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget as HTMLElement;
@@ -191,10 +191,10 @@ export default function Projects() {
       </div>
 
       {/* Result line */}
-      <div className="mt-5 flex items-center gap-2 text-xs" style={{ color: "#1a4a1d" }}>
+      <div className="mt-5 flex items-center gap-2 text-xs" style={{ color: "#3d6642" }}>
         <span>4 directories listed</span>
         <span>·</span>
-        <span style={{ color: "#2d5a30" }}>root@hector:~/projects$</span>
+        <span style={{ color: "#5e9463" }}>root@hector:~/projects$</span>
         <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
       </div>
     </section>
