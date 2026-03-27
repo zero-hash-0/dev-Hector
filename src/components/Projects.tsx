@@ -58,6 +58,20 @@ const PROJECTS: Project[] = [
     link:      null,
     linkLabel: null,
   },
+  {
+    name:      "Project Brain",
+    dir:       "project-brain/",
+    status:    "SHIPPED",
+    statusClr: "#00d4ff",
+    perms:     "drwxr-xr-x",
+    type:      "Developer Tool",
+    size:      "8.6M",
+    modified:  "Mar 2026",
+    desc:      "Local-first developer tool that builds persistent repo understanding for AI coding agents. Analyzes your codebase into structured context — architecture, decisions, file intelligence — then generates tailored context packs for Claude Code and Codex so they hit the ground running.",
+    tech:      ["React", "TypeScript", "Tailwind CSS", "Vite", "Zustand"],
+    link:      "https://github.com/zero-hash-0/project-brain",
+    linkLabel: "view on github",
+  },
 ];
 
 export default function Projects() {
@@ -178,7 +192,7 @@ export default function Projects() {
 
       {/* Result line */}
       <div className="mt-5 flex items-center gap-2 text-xs" style={{ color: "#1a4a1d" }}>
-        <span>3 directories listed</span>
+        <span>4 directories listed</span>
         <span>·</span>
         <span style={{ color: "#2d5a30" }}>root@hector:~/projects$</span>
         <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
