@@ -1,5 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import ProjectsView from "./ProjectsView";
+import FocusMode from "./FocusMode";
+import ProfileView from "./ProfileView";
+import type { Task as SharedTask } from "./types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tag = "Work" | "Side" | "Learn";
@@ -384,61 +388,85 @@ export default function OpusApp() {
           </div>
         </div>
 
-        {/* TODAY */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 20px 8px" }}>
-          <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.4, color:"rgba(255,255,255,0.38)", textTransform:"uppercase" }}>Today</span>
-          <span style={{ fontSize:12, color:"rgba(255,255,255,0.28)" }}>{pending.length} remaining</span>
-        </div>
-        <div style={{ margin:"0 16px", borderRadius:16, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)", padding:"0 14px" }}>
-          {pending.map((t, i) => (
-            <div key={t.id}>
-              <TaskRow task={t} onToggle={() => toggle(t.id)}/>
-              {i < pending.length-1 && <div style={{ height:1, background:"rgba(255,255,255,0.06)" }}/>}
-            </div>
-          ))}
-          {pending.length === 0 && <p style={{ textAlign:"center", padding:"20px 0", color:"rgba(255,255,255,0.22)", fontSize:14 }}>All done! 🎉</p>}
-        </div>
+        {/* TODAY TAB */}
+        {activeTab === "today" && <>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 20px 8px" }}>
+            <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.4, color:"rgba(255,255,255,0.38)", textTransform:"uppercase" }}>Today</span>
+            <span style={{ fontSize:12, color:"rgba(255,255,255,0.28)" }}>{pending.length} remaining</span>
+          </div>
+          <div style={{ margin:"0 16px", borderRadius:16, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)", padding:"0 14px" }}>
+            {pending.map((t, i) => (
+              <div key={t.id}>
+                <TaskRow task={t} onToggle={() => toggle(t.id)}/>
+                {i < pending.length-1 && <div style={{ height:1, background:"rgba(255,255,255,0.06)" }}/>}
+              </div>
+            ))}
+            {pending.length === 0 && <p style={{ textAlign:"center", padding:"20px 0", color:"rgba(255,255,255,0.22)", fontSize:14 }}>All done! 🎉</p>}
+          </div>
 
-        {/* DONE */}
-        {done.length > 0 && (
-          <>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"18px 20px 8px" }}>
-              <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.4, color:"rgba(52,211,153,0.55)", textTransform:"uppercase" }}>Done</span>
-              <span style={{ fontSize:11, fontWeight:600, color:"#34d399", background:"rgba(52,211,153,0.1)", padding:"2px 8px", borderRadius:20 }}>{done.length}</span>
-            </div>
-            <div style={{ margin:"0 16px", borderRadius:16, background:"rgba(52,211,153,0.03)", border:"1px solid rgba(52,211,153,0.1)", padding:"0 14px" }}>
-              {done.map((t, i) => (
+          {done.length > 0 && (
+            <>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"18px 20px 8px" }}>
+                <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.4, color:"rgba(52,211,153,0.55)", textTransform:"uppercase" }}>Done</span>
+                <span style={{ fontSize:11, fontWeight:600, color:"#34d399", background:"rgba(52,211,153,0.1)", padding:"2px 8px", borderRadius:20 }}>{done.length}</span>
+              </div>
+              <div style={{ margin:"0 16px", borderRadius:16, background:"rgba(52,211,153,0.03)", border:"1px solid rgba(52,211,153,0.1)", padding:"0 14px" }}>
+                {done.map((t, i) => (
+                  <div key={t.id}>
+                    <TaskRow task={t} onToggle={() => toggle(t.id)}/>
+                    {i < done.length-1 && <div style={{ height:1, background:"rgba(255,255,255,0.06)" }}/>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div style={{ padding:"18px 20px 8px" }}>
+            <button onClick={() => setLaterOpen(o => !o)} style={{
+              display:"flex", alignItems:"center", gap:8, background:"none", border:"none", cursor:"pointer", padding:0,
+            }}>
+              <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.4, color:"rgba(255,255,255,0.38)", textTransform:"uppercase" }}>Later</span>
+              <span style={{ fontSize:11, color:"rgba(255,255,255,0.28)", background:"rgba(255,255,255,0.07)", padding:"2px 7px", borderRadius:10 }}>{laterTasks.length}</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" style={{ transition:"transform 0.3s ease", transform:laterOpen?"rotate(180deg)":"rotate(0deg)" }}>
+                <path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div style={{ overflow:"hidden", maxHeight:laterOpen?500:0, transition:"max-height 0.4s cubic-bezier(0.4,0,0.2,1)", margin:"0 16px" }}>
+            <div style={{ borderRadius:16, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)", padding:"0 14px" }}>
+              {laterTasks.map((t,i) => (
                 <div key={t.id}>
                   <TaskRow task={t} onToggle={() => toggle(t.id)}/>
-                  {i < done.length-1 && <div style={{ height:1, background:"rgba(255,255,255,0.06)" }}/>}
+                  {i < laterTasks.length-1 && <div style={{ height:1, background:"rgba(255,255,255,0.06)" }}/>}
                 </div>
               ))}
             </div>
-          </>
-        )}
-
-        {/* LATER */}
-        <div style={{ padding:"18px 20px 8px" }}>
-          <button onClick={() => setLaterOpen(o => !o)} style={{
-            display:"flex", alignItems:"center", gap:8, background:"none", border:"none", cursor:"pointer", padding:0,
-          }}>
-            <span style={{ fontSize:11, fontWeight:700, letterSpacing:1.4, color:"rgba(255,255,255,0.38)", textTransform:"uppercase" }}>Later</span>
-            <span style={{ fontSize:11, color:"rgba(255,255,255,0.28)", background:"rgba(255,255,255,0.07)", padding:"2px 7px", borderRadius:10 }}>{laterTasks.length}</span>
-            <svg width="12" height="12" viewBox="0 0 12 12" style={{ transition:"transform 0.3s ease", transform:laterOpen?"rotate(180deg)":"rotate(0deg)" }}>
-              <path d="M2 4L6 8L10 4" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-        <div style={{ overflow:"hidden", maxHeight:laterOpen?500:0, transition:"max-height 0.4s cubic-bezier(0.4,0,0.2,1)", margin:"0 16px" }}>
-          <div style={{ borderRadius:16, background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)", padding:"0 14px" }}>
-            {laterTasks.map((t,i) => (
-              <div key={t.id}>
-                <TaskRow task={t} onToggle={() => toggle(t.id)}/>
-                {i < laterTasks.length-1 && <div style={{ height:1, background:"rgba(255,255,255,0.06)" }}/>}
-              </div>
-            ))}
           </div>
-        </div>
+        </>}
+
+        {/* PROJECTS TAB */}
+        {activeTab === "projects" && <ProjectsView />}
+
+        {/* FOCUS TAB */}
+        {activeTab === "focus" && (() => {
+          const ft = pending[0];
+          if (!ft) return (
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", height:300, gap:12, color:"rgba(255,255,255,0.3)", fontSize:14 }}>
+              <span style={{ fontSize:36 }}>🎉</span>
+              <span>No pending tasks — enjoy the break!</span>
+            </div>
+          );
+          const sharedTask: SharedTask = {
+            id: String(ft.id), title: ft.title,
+            project: ft.tag, projectColor: TAG_COLORS[ft.tag].text,
+            energy: ft.priority === "high" ? "high" : ft.priority === "mid" ? "medium" : "low",
+            status: "today",
+          };
+          return <FocusMode task={sharedTask} onDone={() => { toggle(ft.id); setActiveTab("today"); }} onExit={() => setActiveTab("today")} />;
+        })()}
+
+        {/* PROFILE TAB */}
+        {activeTab === "profile" && <ProfileView />}
       </div>
 
       {/* FAB */}

@@ -45,23 +45,23 @@ export default function Nav() {
       <div
         className="pointer-events-auto hidden md:flex items-stretch rounded border overflow-hidden"
         style={{
-          background: scrolled ? "rgba(2,11,2,0.97)" : "rgba(2,11,2,0.88)",
-          borderColor: "rgba(0,255,65,0.18)",
+          background: scrolled ? "rgba(20,20,20,0.97)" : "rgba(20,20,20,0.88)",
+          borderColor: "rgba(218,119,86,0.2)",
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
-          boxShadow: "0 0 24px rgba(0,255,65,0.06), 0 4px 20px rgba(0,0,0,0.6)",
+          boxShadow: "0 0 24px rgba(218,119,86,0.06), 0 4px 20px rgba(0,0,0,0.6)",
         }}
       >
         {/* prompt */}
         <div
           className="flex items-center gap-2 px-4 border-r"
-          style={{ borderColor: "rgba(0,255,65,0.12)" }}
+          style={{ borderColor: "rgba(218,119,86,0.12)" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full status-pulse" style={{ background: "#00ff41" }} />
-          <span style={{ color: "#4a8a50" }}>root</span>
-          <span style={{ color: "#1a4a1d" }}>@</span>
-          <span style={{ color: "#00ff41" }}>hector</span>
-          <span style={{ color: "#1a4a1d" }}>:~$</span>
+          <span className="w-1.5 h-1.5 rounded-full status-pulse" style={{ background: "#DA7756" }} />
+          <span style={{ color: "#D4D4D4" }}>root</span>
+          <span style={{ color: "#4A4A4A" }}>@</span>
+          <span style={{ color: "#DA7756" }}>hector</span>
+          <span style={{ color: "#4A4A4A" }}>:~$</span>
         </div>
 
         {/* links */}
@@ -74,14 +74,14 @@ export default function Nav() {
               onClick={() => setActive(l.href)}
               className="flex items-center gap-1.5 px-4 py-2.5 border-r transition-all duration-150"
               style={{
-                borderColor: "rgba(0,255,65,0.1)",
-                color: isActive ? "#00ff41" : "#2d5a30",
-                background: isActive ? "rgba(0,255,65,0.07)" : "transparent",
+                borderColor: "rgba(218,119,86,0.1)",
+                color: isActive ? "#DA7756" : "#7A7A7A",
+                background: isActive ? "rgba(218,119,86,0.08)" : "transparent",
               }}
-              onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.color = "#4a8a50"; }}
-              onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.color = "#2d5a30"; }}
+              onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.color = "#D4D4D4"; }}
+              onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.color = "#7A7A7A"; }}
             >
-              {isActive && <span style={{ color: "#00ff41" }}>▶</span>}
+              {isActive && <span style={{ color: "#DA7756" }}>▶</span>}
               {l.label}
             </a>
           );
@@ -90,29 +90,31 @@ export default function Nav() {
         {/* right status */}
         <div
           className="flex items-center gap-3 px-4 ml-auto"
-          style={{ color: "#1a4a1d" }}
+          style={{ color: "#4A4A4A" }}
         >
-          <span style={{ color: "#00ff41" }}>◈</span>
-          <span style={{ color: "#2d5a30" }}>SECURE</span>
-          <span className="w-px h-3.5 mx-1" style={{ background: "rgba(0,255,65,0.12)" }} />
+          <span style={{ color: "#DA7756" }}>◈</span>
+          <span style={{ color: "#7A7A7A" }}>SECURE</span>
+          <span className="w-px h-3.5 mx-1" style={{ background: "rgba(218,119,86,0.12)" }} />
           <a
             href="https://github.com/zero-hash-0"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-[#00ff41]"
-            style={{ color: "#1a4a1d" }}
+            className="transition-colors"
+            style={{ color: "#4A4A4A" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#DA7756")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#4A4A4A")}
           >
             [github]
           </a>
-          <span className="w-px h-3.5 mx-1" style={{ background: "rgba(0,255,65,0.08)" }} />
-          <span className="tabular-nums" style={{ color: "#1a4a1d" }}>{time}</span>
+          <span className="w-px h-3.5 mx-1" style={{ background: "rgba(218,119,86,0.08)" }} />
+          <span className="tabular-nums" style={{ color: "#7A7A7A" }}>{time}</span>
         </div>
       </div>
 
       {/* ── Mobile button ── */}
       <button
         className="pointer-events-auto md:hidden absolute right-4 top-3 px-3 py-1.5 border rounded text-xs font-mono"
-        style={{ borderColor: "rgba(0,255,65,0.3)", color: "#00ff41", background: "rgba(2,11,2,0.92)" }}
+        style={{ borderColor: "rgba(218,119,86,0.35)", color: "#DA7756", background: "rgba(20,20,20,0.92)" }}
         onClick={() => setOpen(!open)}
         aria-label="Toggle menu"
       >
@@ -123,7 +125,7 @@ export default function Nav() {
       {open && (
         <div
           className="pointer-events-auto md:hidden absolute top-14 left-4 right-4 border rounded font-mono"
-          style={{ background: "rgba(2,11,2,0.97)", borderColor: "rgba(0,255,65,0.2)" }}
+          style={{ background: "rgba(20,20,20,0.97)", borderColor: "rgba(218,119,86,0.2)" }}
         >
           {LINKS.map((l) => (
             <a
@@ -131,9 +133,9 @@ export default function Nav() {
               href={l.href}
               onClick={() => { setOpen(false); setActive(l.href); }}
               className="flex items-center gap-3 px-5 py-3 border-b text-xs transition-colors"
-              style={{ borderColor: "rgba(0,255,65,0.08)", color: "#4a8a50" }}
+              style={{ borderColor: "rgba(218,119,86,0.08)", color: "#D4D4D4" }}
             >
-              <span style={{ color: "#2d5a30" }}>$</span>
+              <span style={{ color: "#7A7A7A" }}>$</span>
               cd {l.label}/
             </a>
           ))}
