@@ -21,14 +21,14 @@ export default function Footer() {
   return (
     <footer
       className="border-t font-mono text-[10px] px-6 py-4"
-      style={{ borderColor: "rgba(0,255,65,0.1)" }}
+      style={{ borderColor: "rgba(218,119,86,0.1)" }}
     >
       <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
 
         {/* Left: status */}
-        <div className="flex items-center gap-3" style={{ color: "#3d6642" }}>
-          <span className="w-1.5 h-1.5 rounded-full status-pulse" style={{ background: "#00ff41" }} />
-          <span style={{ color: "#5e9463" }}>root@hector.dev</span>
+        <div className="flex items-center gap-3" style={{ color: "#4A4A4A" }}>
+          <span className="w-1.5 h-1.5 rounded-full status-pulse" style={{ background: "#DA7756" }} />
+          <span style={{ color: "#7A7A7A" }}>root@hector.dev</span>
           <span>·</span>
           <span>ONLINE</span>
           {uptime > 0 && (
@@ -40,12 +40,14 @@ export default function Footer() {
         </div>
 
         {/* Center: links */}
-        <div className="flex items-center gap-5" style={{ color: "#3d6642" }}>
+        <div className="flex items-center gap-5" style={{ color: "#4A4A4A" }}>
           <a
             href="https://github.com/zero-hash-0"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-[#00ff41]"
+            className="transition-colors"
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#DA7756")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#4A4A4A")}
           >
             [github]
           </a>
@@ -53,23 +55,27 @@ export default function Footer() {
             href="https://x.com/notT0KY0"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-[#00ff41]"
+            className="transition-colors"
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#DA7756")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#4A4A4A")}
           >
             [x/twitter]
           </a>
           <a
             href="mailto:gh0stly@riseup.net"
-            className="transition-colors hover:text-[#00ff41]"
+            className="transition-colors"
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#DA7756")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#4A4A4A")}
           >
             [email]
           </a>
         </div>
 
         {/* Right: copyright + time */}
-        <div className="flex items-center gap-3" style={{ color: "#3d6642" }}>
+        <div className="flex items-center gap-3" style={{ color: "#4A4A4A" }}>
           <span>&copy; {year} hector</span>
           <span>·</span>
-          <span className="tabular-nums" style={{ color: "#5e9463" }}>{time}</span>
+          <span className="tabular-nums" style={{ color: "#7A7A7A" }}>{time}</span>
         </div>
 
       </div>

@@ -20,7 +20,7 @@ const PROJECTS: Project[] = [
     name:      "Opus",
     dir:       "opus/",
     status:    "BETA",
-    statusClr: "#00ff41",
+    statusClr: "#DA7756",
     perms:     "drwxr-xr-x",
     type:      "iOS App",
     size:      "4.2M",
@@ -80,8 +80,8 @@ export default function Projects() {
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <span style={{ color: "#5e9463" }}>root@hector:~$</span>
-        <span style={{ color: "#9dc49d" }}>ls -la ~/projects/</span>
+        <span style={{ color: "#7A7A7A" }}>root@hector:~$</span>
+        <span style={{ color: "#D4D4D4" }}>ls -la ~/projects/</span>
       </div>
 
       {/* Dir listing header */}
@@ -89,8 +89,8 @@ export default function Projects() {
         className="hidden sm:grid px-5 py-2 mb-1 text-[10px] gap-4 border-b"
         style={{
           gridTemplateColumns: "120px 1fr 80px 50px 80px",
-          borderColor: "rgba(0,255,65,0.08)",
-          color: "#3d6642",
+          borderColor: "rgba(218,119,86,0.08)",
+          color: "#4A4A4A",
         }}
       >
         <span>permissions</span>
@@ -102,9 +102,9 @@ export default function Projects() {
 
       {/* Phantom dir entries */}
       {["./", "../"].map((d) => (
-        <div key={d} className="px-5 py-1.5 text-[10px] flex gap-4" style={{ color: "#3d6642" }}>
+        <div key={d} className="px-5 py-1.5 text-[10px] flex gap-4" style={{ color: "#4A4A4A" }}>
           <span className="w-28">drwxr-xr-x</span>
-          <span style={{ color: "#5e9463" }}>{d}</span>
+          <span style={{ color: "#7A7A7A" }}>{d}</span>
         </div>
       ))}
 
@@ -114,18 +114,18 @@ export default function Projects() {
           <div
             key={p.name}
             className="border rounded overflow-hidden card-glow-project"
-            style={{ borderColor: "rgba(0,255,65,0.1)", background: "rgba(6,13,6,0.7)" }}
+            style={{ borderColor: "rgba(218,119,86,0.1)", background: "rgba(20,20,20,0.7)" }}
           >
             {/* Directory row */}
             <div
               className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-3 border-b text-[10px]"
-              style={{ borderColor: "rgba(0,255,65,0.07)", background: "rgba(0,255,65,0.03)" }}
+              style={{ borderColor: "rgba(218,119,86,0.07)", background: "rgba(218,119,86,0.03)" }}
             >
-              <span style={{ color: "#3d6642" }}>{p.perms}</span>
-              <span className="phosphor-dim" style={{ color: "#00ff41" }}>{p.dir}</span>
-              <span style={{ color: "#5e9463" }}>{p.type}</span>
-              <span style={{ color: "#3d6642" }}>{p.size}</span>
-              <span style={{ color: "#3d6642" }}>{p.modified}</span>
+              <span style={{ color: "#4A4A4A" }}>{p.perms}</span>
+              <span className="phosphor-dim" style={{ color: "#DA7756" }}>{p.dir}</span>
+              <span style={{ color: "#7A7A7A" }}>{p.type}</span>
+              <span style={{ color: "#4A4A4A" }}>{p.size}</span>
+              <span style={{ color: "#4A4A4A" }}>{p.modified}</span>
               <span
                 className="ml-auto px-2 py-0.5 rounded border text-[9px] font-bold tracking-wider"
                 style={{
@@ -143,13 +143,13 @@ export default function Projects() {
             <div className="px-5 py-4 sm:py-5">
               <h3
                 className="text-base font-bold mb-1 phosphor-dim"
-                style={{ color: "#00ff41" }}
+                style={{ color: "#DA7756" }}
               >
                 {p.name}
               </h3>
 
-              <p className="text-xs leading-relaxed mb-4" style={{ color: "#9dc49d", lineHeight: 1.85 }}>
-                <span style={{ color: "#5e9463" }}>$ cat README.md — </span>
+              <p className="text-xs leading-relaxed mb-4" style={{ color: "#D4D4D4", lineHeight: 1.85 }}>
+                <span style={{ color: "#7A7A7A" }}>$ cat README.md — </span>
                 {p.desc}
               </p>
 
@@ -159,7 +159,7 @@ export default function Projects() {
                     <span
                       key={t}
                       className="text-[10px] px-2.5 py-0.5 rounded border"
-                      style={{ borderColor: "rgba(0,255,65,0.1)", color: "#5e9463" }}
+                      style={{ borderColor: "rgba(218,119,86,0.12)", color: "#7A7A7A" }}
                     >
                       {t}
                     </span>
@@ -169,16 +169,16 @@ export default function Projects() {
                   <a
                     href={p.link}
                     className="text-xs px-4 py-1.5 rounded border transition-all duration-200"
-                    style={{ borderColor: "rgba(0,255,65,0.4)", color: "#00ff41" }}
+                    style={{ borderColor: "rgba(218,119,86,0.4)", color: "#DA7756" }}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLElement;
-                      el.style.background = "#00ff41";
-                      el.style.color      = "#060d06";
+                      el.style.background = "#DA7756";
+                      el.style.color      = "#141414";
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget as HTMLElement;
                       el.style.background = "transparent";
-                      el.style.color      = "#00ff41";
+                      el.style.color      = "#DA7756";
                     }}
                   >
                     ./{p.linkLabel} →
@@ -191,11 +191,11 @@ export default function Projects() {
       </div>
 
       {/* Result line */}
-      <div className="mt-5 flex items-center gap-2 text-xs" style={{ color: "#3d6642" }}>
+      <div className="mt-5 flex items-center gap-2 text-xs" style={{ color: "#4A4A4A" }}>
         <span>4 directories listed</span>
         <span>·</span>
-        <span style={{ color: "#5e9463" }}>root@hector:~/projects$</span>
-        <span className="cursor-blink" style={{ color: "#00ff41" }}>_</span>
+        <span style={{ color: "#7A7A7A" }}>root@hector:~/projects$</span>
+        <span className="cursor-blink" style={{ color: "#DA7756" }}>_</span>
       </div>
     </section>
   );

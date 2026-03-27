@@ -18,8 +18,8 @@ const SYSINFO = [
 ];
 
 const PALETTE = [
-  "#060d06","#112e13","#3d6642","#5e9463",
-  "#00cc33","#00ff41","#00ffff","#ff0055",
+  "#141414","#1C1C1C","#282828","#383838",
+  "#4A4A4A","#7A7A7A","#DA7756","#C4614A",
 ];
 
 const MINI_ASCII = [
@@ -37,44 +37,43 @@ export default function Skills() {
 
       {/* Section command */}
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <span style={{ color: "#5e9463" }}>root@hector:~$</span>
-        <span style={{ color: "#9dc49d" }}>neofetch --skills</span>
+        <span style={{ color: "#7A7A7A" }}>root@hector:~$</span>
+        <span style={{ color: "#D4D4D4" }}>neofetch --skills</span>
       </div>
 
       <div
         className="border rounded overflow-hidden terminal-window"
-        style={{ borderColor: "rgba(0,255,65,0.14)", background: "rgba(6,13,6,0.72)" }}
+        style={{ borderColor: "rgba(218,119,86,0.14)", background: "rgba(20,20,20,0.75)" }}
       >
         {/* Terminal title bar */}
         <div
           className="flex items-center gap-2 px-4 py-2.5 border-b text-xs"
-          style={{ borderColor: "rgba(0,255,65,0.09)", background: "rgba(0,255,65,0.03)" }}
+          style={{ borderColor: "rgba(218,119,86,0.09)", background: "rgba(218,119,86,0.03)" }}
         >
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ff3b30", boxShadow: "0 0 4px #ff3b30" }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#ffcc02", boxShadow: "0 0 4px #ffcc02" }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#00ff41", boxShadow: "0 0 5px #00ff41" }} />
-          <span className="mx-auto" style={{ color: "#3d6642" }}>hector@dev — neofetch</span>
+          <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#DA7756", boxShadow: "0 0 5px rgba(218,119,86,0.7)" }} />
+          <span className="mx-auto" style={{ color: "#4A4A4A" }}>hector@dev — neofetch</span>
         </div>
 
         <div className="p-6 sm:p-8 grid md:grid-cols-[220px,1fr] gap-8 items-start">
 
           {/* Left: sysinfo */}
           <div className="space-y-4">
-            {/* Mini ASCII */}
             <pre
               className="text-[9px] leading-tight phosphor"
-              style={{ color: "#00ff41" }}
+              style={{ color: "#DA7756" }}
             >
               {MINI_ASCII.join("\n")}
             </pre>
 
             <div className="space-y-1 text-xs">
-              <div className="phosphor-dim" style={{ color: "#00ff41" }}>hector@dev</div>
-              <div style={{ color: "#5e9463" }}>──────────</div>
+              <div className="phosphor-dim" style={{ color: "#DA7756" }}>hector@dev</div>
+              <div style={{ color: "#4A4A4A" }}>──────────</div>
               {SYSINFO.map(({ key, val }) => (
                 <div key={key} className="flex gap-2">
-                  <span className="w-[88px] shrink-0 phosphor-dim" style={{ color: "#00ff41" }}>{key}:</span>
-                  <span style={{ color: "#9dc49d" }}>{val}</span>
+                  <span className="w-[88px] shrink-0 phosphor-dim" style={{ color: "#DA7756" }}>{key}:</span>
+                  <span style={{ color: "#D4D4D4" }}>{val}</span>
                 </div>
               ))}
             </div>
@@ -85,7 +84,11 @@ export default function Skills() {
                 <div
                   key={c}
                   className="w-5 h-5 rounded-sm"
-                  style={{ background: c, boxShadow: c === "#00ff41" ? "0 0 6px #00ff41" : "none" }}
+                  style={{
+                    background: c,
+                    boxShadow: c === "#DA7756" ? "0 0 6px rgba(218,119,86,0.7)" : "none",
+                    border: "1px solid rgba(255,255,255,0.06)"
+                  }}
                   title={c}
                 />
               ))}
@@ -98,18 +101,18 @@ export default function Skills() {
               <div
                 key={cat}
                 className="border rounded p-3.5 space-y-2 card-glow"
-                style={{ borderColor: "rgba(0,255,65,0.1)", background: "rgba(0,0,0,0.2)" }}
+                style={{ borderColor: "rgba(218,119,86,0.1)", background: "rgba(0,0,0,0.2)" }}
               >
                 <div
                   className="text-[10px] tracking-widest uppercase phosphor-dim"
-                  style={{ color: "#00ff41" }}
+                  style={{ color: "#DA7756" }}
                 >
                   {cat}/
                 </div>
                 <div className="space-y-1">
                   {items.map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-xs" style={{ color: "#9dc49d" }}>
-                      <span style={{ color: "#3d6642" }}>▸</span>
+                    <div key={item} className="flex items-center gap-2 text-xs" style={{ color: "#D4D4D4" }}>
+                      <span style={{ color: "#4A4A4A" }}>▸</span>
                       {item}
                     </div>
                   ))}
