@@ -4,6 +4,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig        = require(ReplicatedStorage:WaitForChild("GameConfig"))
 
+-- Remove the default white Baseplate so colored tiles show correctly
+local baseplate = workspace:FindFirstChild("Baseplate")
+if baseplate then baseplate:Destroy() end
+
 -- ── Helpers ───────────────────────────────────────────────────────────────────
 
 local function part(props): Part
