@@ -73,9 +73,9 @@ GameConfig.SOUNDS = {
     click   = 6042053626,
     coin    = 4110933401,
     hatch   = 4612371928,
-    upgrade = 3360757350,
+    upgrade = 4612371928,  -- reuse hatch sound
     rebirth = 1841458716,
-    lucky   = 4447436800,
+    lucky   = 1841458716,  -- reuse rebirth sound
 }
 
 return GameConfig
