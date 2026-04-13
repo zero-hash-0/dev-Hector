@@ -1,0 +1,51 @@
+{
+  "name": "Obby Adventure",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "GameManager": {
+        "$path": "src/ServerScriptService/GameManager.server.lua"
+      },
+      "CheckpointManager": {
+        "$path": "src/ServerScriptService/CheckpointManager.server.lua"
+      },
+      "MapGenerator": {
+        "$path": "src/ServerScriptService/MapGenerator.server.lua"
+      },
+      "PlayerData": {
+        "$path": "src/ServerScriptService/PlayerData.lua"
+      }
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "GameConfig": {
+        "$path": "src/ReplicatedStorage/GameConfig.lua"
+      },
+      "RemoteEvents": {
+        "$className": "Folder",
+        "UpdateStage": {
+          "$className": "RemoteEvent"
+        },
+        "GameComplete": {
+          "$className": "RemoteEvent"
+        }
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "StageUI": {
+          "$path": "src/StarterPlayer/StarterPlayerScripts/StageUI.client.lua"
+        }
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts",
+        "CharacterController": {
+          "$path": "src/StarterPlayer/StarterCharacterScripts/CharacterController.client.lua"
+        }
+      }
+    }
+  }
+}
