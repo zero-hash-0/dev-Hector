@@ -14,7 +14,8 @@
         "LuckyClick":   { "$className": "RemoteEvent" },
         "PlaySound":    { "$className": "RemoteEvent" },
         "BuyItem":      { "$className": "RemoteFunction" },
-        "Rebirth":      { "$className": "RemoteFunction" }
+        "Rebirth":      { "$className": "RemoteFunction" },
+        "HatchReveal":  { "$className": "RemoteEvent" }
       }
     },
 

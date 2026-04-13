@@ -6,10 +6,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService      = game:GetService("TweenService")
 local RunService        = game:GetService("RunService")
 
-local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
-local Remotes    = ReplicatedStorage:WaitForChild("Remotes")
-local SyncData   = Remotes:WaitForChild("SyncData")
-local Notification = Remotes:WaitForChild("Notification")
+local GameConfig  = require(ReplicatedStorage:WaitForChild("GameConfig"))
+local Remotes     = ReplicatedStorage:WaitForChild("Remotes")
+local SyncData    = Remotes:WaitForChild("SyncData")
+local Notification  = Remotes:WaitForChild("Notification")
+local HatchReveal   = Remotes:WaitForChild("HatchReveal")
 local BuyItem    = Remotes:WaitForChild("BuyItem")
 local RebirthRF  = Remotes:WaitForChild("Rebirth")
 
@@ -262,3 +263,91 @@ RunService.Heartbeat:Connect(function()
 end)
 
 Notification.OnClientEvent:Connect(showToast)
+
+-- ── Hatch reveal popup ────────────────────────────────────────────────────────
+
+local rarityColors = {
+    Cat=Color3.fromRGB(200,200,200), Dog=Color3.fromRGB(180,130,80),
+    Fox=Color3.fromRGB(255,140,0),   Dragon=Color3.fromRGB(255,50,50),
+    Lion=Color3.fromRGB(255,220,0),  Tiger=Color3.fromRGB(255,160,0),
+    Griffin=Color3.fromRGB(255,215,0), Phoenix=Color3.fromRGB(255,80,0),
+    Unicorn=Color3.fromRGB(255,180,255), Kraken=Color3.fromRGB(0,180,255),
+    Leviathan=Color3.fromRGB(0,80,255),  Celestial=Color3.fromRGB(100,255,255),
+}
+
+HatchReveal.OnClientEvent:Connect(function(pet, eggId)
+    local petColor = rarityColors[pet.name] or Color3.fromRGB(255,215,0)
+
+    local revealGui = Instance.new("ScreenGui")
+    revealGui.ResetOnSpawn=false; revealGui.DisplayOrder=50
+    revealGui.IgnoreGuiInset=true; revealGui.Parent=playerGui
+
+    -- Dim bg
+    local bg = Instance.new("Frame")
+    bg.Size=UDim2.new(1,0,1,0); bg.BackgroundColor3=Color3.fromRGB(0,0,0)
+    bg.BackgroundTransparency=0.5; bg.BorderSizePixel=0; bg.Parent=revealGui
+
+    -- Card
+    local card = Instance.new("Frame")
+    card.Size=UDim2.new(0,360,0,260); card.AnchorPoint=Vector2.new(0.5,0.5)
+    card.Position=UDim2.new(0.5,0,0.5,0)
+    card.BackgroundColor3=Color3.fromRGB(18,18,28)
+    card.BackgroundTransparency=0; card.BorderSizePixel=0; card.Parent=revealGui
+    local cc=Instance.new("UICorner"); cc.CornerRadius=UDim.new(0,18); cc.Parent=card
+    local cs=Instance.new("UIStroke"); cs.Color=petColor; cs.Thickness=3; cs.Parent=card
+
+    -- "YOU HATCHED" header
+    local header=Instance.new("TextLabel"); header.Size=UDim2.new(1,0,0,40)
+    header.Position=UDim2.new(0,0,0,12); header.BackgroundTransparency=1
+    header.Font=Enum.Font.GothamBold; header.TextSize=20
+    header.TextColor3=Color3.fromRGB(180,180,200); header.Text="✨  YOU HATCHED  ✨"
+    header.Parent=card
+
+    -- Pet colour orb
+    local orb2=Instance.new("Frame"); orb2.Size=UDim2.new(0,80,0,80)
+    orb2.Position=UDim2.new(0.5,-40,0,55); orb2.BackgroundColor3=petColor
+    orb2.BorderSizePixel=0; orb2.Parent=card
+    local oc=Instance.new("UICorner"); oc.CornerRadius=UDim.new(0,40); oc.Parent=orb2
+
+    -- Pet name
+    local nameL=Instance.new("TextLabel"); nameL.Size=UDim2.new(1,-20,0,44)
+    nameL.Position=UDim2.new(0,10,0,145); nameL.BackgroundTransparency=1
+    nameL.Font=Enum.Font.GothamBold; nameL.TextSize=36
+    nameL.TextColor3=petColor; nameL.Text=pet.name; nameL.Parent=card
+
+    -- Passive bonus
+    local multi=Instance.new("TextLabel"); multi.Size=UDim2.new(1,-20,0,26)
+    multi.Position=UDim2.new(0,10,0,192); multi.BackgroundTransparency=1
+    multi.Font=Enum.Font.Gotham; multi.TextSize=18
+    multi.TextColor3=Color3.fromRGB(120,255,150)
+    multi.Text="+"..fmt(pet.multi).." coins/sec passive income"; multi.Parent=card
+
+    -- Close hint
+    local hint=Instance.new("TextLabel"); hint.Size=UDim2.new(1,0,0,22)
+    hint.Position=UDim2.new(0,0,1,-26); hint.BackgroundTransparency=1
+    hint.Font=Enum.Font.Gotham; hint.TextSize=14
+    hint.TextColor3=Color3.fromRGB(120,120,140); hint.Text="Click anywhere to close"
+    hint.Parent=card
+
+    -- Animate in
+    card.Size=UDim2.new(0,10,0,10)
+    TweenService:Create(card, TweenInfo.new(0.4,Enum.EasingStyle.Back),
+        {Size=UDim2.new(0,360,0,260)}):Play()
+
+    -- Close on click
+    bg.InputBegan:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or
+           i.UserInputType==Enum.UserInputType.Touch then
+            TweenService:Create(card,TweenInfo.new(0.2),{Size=UDim2.new(0,10,0,10)}):Play()
+            TweenService:Create(bg,TweenInfo.new(0.2),{BackgroundTransparency=1}):Play()
+            task.delay(0.25, function() revealGui:Destroy() end)
+        end
+    end)
+    -- Auto-close after 4 s
+    task.delay(4, function()
+        if revealGui.Parent then
+            TweenService:Create(card,TweenInfo.new(0.3),{Size=UDim2.new(0,10,0,10)}):Play()
+            task.delay(0.3, function() pcall(function() revealGui:Destroy() end) end)
+        end
+    end)
+end)

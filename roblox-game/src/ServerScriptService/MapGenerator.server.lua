@@ -130,9 +130,12 @@ for i, egg in ipairs(GameConfig.EGGS) do
                        Material=Enum.Material.SmoothPlastic }
     neonLight(pad, egg.color.Color, 2, 14)
 
-    part { Name="EggModel_"..egg.id, Shape=Enum.PartType.Ball,
+    local eggModel = part { Name="EggModel_"..egg.id, Shape=Enum.PartType.Ball,
            Size=Vector3.new(3,3.6,3), Position=Vector3.new(x,3,z),
            BrickColor=egg.color, Material=Enum.Material.Neon, collide=false }
+    local cd = Instance.new("ClickDetector")
+    cd.MaxActivationDistance = 20
+    cd.Parent = eggModel
 
     padLabel(pad, egg.name.."\n🪙 "..egg.cost, 6)
     addPrompt(pad, "Open Shop", egg.name)

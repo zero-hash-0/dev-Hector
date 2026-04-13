@@ -15,6 +15,7 @@ local PlayerData = require(ServerScriptService:WaitForChild("PlayerData"))
 local Remotes      = ReplicatedStorage:WaitForChild("Remotes")
 local BuyItem      = Remotes:WaitForChild("BuyItem")
 local Notification = Remotes:WaitForChild("Notification")
+local HatchReveal  = Remotes:WaitForChild("HatchReveal")
 
 -- ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -82,7 +83,8 @@ local function buyEgg(player: Player, id: string)
     -- Sync data so coin counter and pet list update
     if _G.SyncPlayerData then _G.SyncPlayerData(player) end
 
-    Notification:FireClient(player, ("You hatched a %s!"):format(petRecord.name))
+    -- Fire dramatic hatch reveal to client
+    HatchReveal:FireClient(player, petRecord, egg.id)
 
     return { success = true, message = "Hatched!", pet = petRecord }
 end

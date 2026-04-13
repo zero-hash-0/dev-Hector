@@ -24,15 +24,28 @@ local openEggPanel  = Instance.new("BindableEvent"); openEggPanel.Name  = "OpenE
 local openUpgPanel  = Instance.new("BindableEvent"); openUpgPanel.Name  = "OpenUpgPanel";  openUpgPanel.Parent  = script
 local doRebirth     = Instance.new("BindableEvent"); doRebirth.Name     = "DoRebirth";     doRebirth.Parent     = script
 
+local BuyItem = Remotes:WaitForChild("BuyItem")
+
 for _, egg in ipairs(GameConfig.EGGS) do
     task.spawn(function()
+        -- ProximityPrompt on the pad
         local pad    = waitForPad("EggPad_" .. egg.id)
         if not pad then return end
         local prompt = pad:WaitForChild("ProximityPrompt", 10)
-        if not prompt then return end
-        prompt.Triggered:Connect(function(trigPlayer)
-            if trigPlayer ~= player then return end
-            openEggPanel:Fire(egg.id)
+        if prompt then
+            prompt.Triggered:Connect(function(trigPlayer)
+                if trigPlayer ~= player then return end
+                openEggPanel:Fire(egg.id)
+            end)
+        end
+
+        -- ClickDetector on the egg ball — clicking it buys directly
+        local model = waitForPad("EggModel_" .. egg.id)
+        if not model then return end
+        local cd = model:WaitForChild("ClickDetector", 10)
+        if not cd then return end
+        cd.MouseClick:Connect(function()
+            BuyItem:InvokeServer({ type = "egg", id = egg.id })
         end)
     end)
 end
