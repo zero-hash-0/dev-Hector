@@ -1,50 +1,36 @@
 {
-  "name": "Obby Adventure",
+  "name": "Coin & Pet Simulator",
   "tree": {
     "$className": "DataModel",
-    "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "GameManager": {
-        "$path": "src/ServerScriptService/GameManager.server.lua"
-      },
-      "CheckpointManager": {
-        "$path": "src/ServerScriptService/CheckpointManager.server.lua"
-      },
-      "MapGenerator": {
-        "$path": "src/ServerScriptService/MapGenerator.server.lua"
-      },
-      "PlayerData": {
-        "$path": "src/ServerScriptService/PlayerData.lua"
-      }
-    },
+
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
-      "GameConfig": {
-        "$path": "src/ReplicatedStorage/GameConfig.lua"
-      },
-      "RemoteEvents": {
+      "GameConfig": { "$path": "src/ReplicatedStorage/GameConfig.lua" },
+      "Remotes": {
         "$className": "Folder",
-        "UpdateStage": {
-          "$className": "RemoteEvent"
-        },
-        "GameComplete": {
-          "$className": "RemoteEvent"
-        }
+        "ClickOrb":    { "$className": "RemoteEvent" },
+        "SyncData":    { "$className": "RemoteEvent" },
+        "Notification":{ "$className": "RemoteEvent" },
+        "BuyItem":     { "$className": "RemoteFunction" }
       }
     },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "PlayerData":    { "$path": "src/ServerScriptService/PlayerData.lua" },
+      "GameManager":   { "$path": "src/ServerScriptService/GameManager.server.lua" },
+      "ClickManager":  { "$path": "src/ServerScriptService/ClickManager.server.lua" },
+      "PetManager":    { "$path": "src/ServerScriptService/PetManager.server.lua" },
+      "ShopManager":   { "$path": "src/ServerScriptService/ShopManager.server.lua" },
+      "MapGenerator":  { "$path": "src/ServerScriptService/MapGenerator.server.lua" }
+    },
+
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "StageUI": {
-          "$path": "src/StarterPlayer/StarterPlayerScripts/StageUI.client.lua"
-        }
-      },
-      "StarterCharacterScripts": {
-        "$className": "StarterCharacterScripts",
-        "CharacterController": {
-          "$path": "src/StarterPlayer/StarterCharacterScripts/CharacterController.client.lua"
-        }
+        "MainUI":       { "$path": "src/StarterPlayer/StarterPlayerScripts/MainUI.client.lua" },
+        "ClickHandler": { "$path": "src/StarterPlayer/StarterPlayerScripts/ClickHandler.client.lua" }
       }
     }
   }

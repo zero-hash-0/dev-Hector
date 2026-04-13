@@ -1,124 +1,177 @@
 -- MapGenerator.server.lua (Script)
--- Procedurally generates the obby map at runtime so the game works without
--- needing manually placed parts in Studio.
+-- Builds the entire game world at runtime using only coloured BaseParts.
+-- No custom assets needed – everything is Roblox primitives.
 --
--- Layout:
---   • A spawn platform at X = -25
---   • 10 stage sections spaced STAGE_SPACING studs apart along the X axis
---   • Each section has a large green "Checkpoint_N" pad at the far end
---   • Platforms between sections get progressively smaller / more offset
---     to increase difficulty as stages go up
+-- Layout (top-down):
+--   Centre  → Giant glowing click orb (the main interactive object)
+--   Inner ring → 3 egg pads  (Basic / Super / Legendary)
+--   Outer ring → Upgrade shop pad
+--   Floor   → Colourful tile grid
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig        = require(ReplicatedStorage:WaitForChild("GameConfig"))
 
-local SPACING = GameConfig.STAGE_SPACING
+-- ── Helpers ───────────────────────────────────────────────────────────────────
 
--- ── Helpers ──────────────────────────────────────────────────────────────────
-
-local function makePart(name: string, size: Vector3, position: Vector3, color: BrickColor, parent: Instance?): Part
+local function part(props): Part
     local p = Instance.new("Part")
-    p.Name         = name
-    p.Size         = size
-    p.Position     = position
-    p.BrickColor   = color
-    p.Material     = Enum.Material.SmoothPlastic
-    p.Anchored     = true
-    p.TopSurface   = Enum.SurfaceType.Smooth
+    p.Anchored      = true
+    p.CanCollide    = props.collide ~= false
+    p.TopSurface    = Enum.SurfaceType.Smooth
     p.BottomSurface = Enum.SurfaceType.Smooth
-    p.Parent        = parent or workspace
+    for k, v in pairs(props) do
+        if k ~= "collide" then
+            (p :: any)[k] = v
+        end
+    end
+    p.Parent = workspace
     return p
 end
 
-local function addGlow(part: Part, color: Color3)
-    local light = Instance.new("PointLight")
-    light.Brightness = 2
-    light.Range      = 16
-    light.Color      = color
-    light.Parent     = part
+local function billboard(parent, text, yOffset, textColor)
+    local bg = Instance.new("BillboardGui")
+    bg.Size         = UDim2.new(0, 160, 0, 40)
+    bg.StudsOffset  = Vector3.new(0, yOffset, 0)
+    bg.AlwaysOnTop  = false
+    bg.Parent       = parent
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size                  = UDim2.new(1, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Font                  = Enum.Font.GothamBold
+    lbl.TextScaled            = true
+    lbl.TextColor3            = textColor or Color3.fromRGB(255, 255, 255)
+    lbl.Text                  = text
+    lbl.Parent                = bg
 end
 
--- ── Spawn platform ────────────────────────────────────────────────────────────
+local function neonLight(parent, color, brightness, range)
+    local l = Instance.new("PointLight")
+    l.Color      = color
+    l.Brightness = brightness or 3
+    l.Range      = range or 20
+    l.Parent     = parent
+end
 
-makePart(
-    "SpawnPlatform",
-    Vector3.new(20, 1, 20),
-    Vector3.new(-25, 0, 0),
-    BrickColor.new("Bright blue")
-)
+-- ── Floor tiles ───────────────────────────────────────────────────────────────
 
--- ── Stage sections ────────────────────────────────────────────────────────────
+local TILE_SIZE  = 8
+local GRID_HALF  = 8  -- tiles in each direction → 17×17 grid
 
-local rng = Random.new()
+local tileColors = {
+    Color3.fromRGB(80,  180, 255),
+    Color3.fromRGB(120, 220, 120),
+    Color3.fromRGB(255, 200,  80),
+    Color3.fromRGB(255, 120, 180),
+    Color3.fromRGB(180, 120, 255),
+}
 
-for stage = 1, GameConfig.MAX_STAGES do
-    local color      = GameConfig.STAGE_COLORS[stage] or BrickColor.new("Medium stone grey")
-    local baseX      = (stage - 1) * SPACING   -- X origin of this stage's section
-    local checkX     = baseX + SPACING - 5      -- checkpoint sits near the end of the section
-
-    -- ── Checkpoint platform ──────────────────────────────────────────────────
-    local checkpoint = makePart(
-        "Checkpoint_" .. stage,
-        Vector3.new(12, 1, 12),
-        Vector3.new(checkX, 0, 0),
-        BrickColor.new("Bright green")
-    )
-    addGlow(checkpoint, Color3.fromRGB(0, 255, 80))
-
-    -- Stage label (BillboardGui on the checkpoint)
-    local billboard = Instance.new("BillboardGui")
-    billboard.Size       = UDim2.new(0, 80, 0, 40)
-    billboard.StudsOffset = Vector3.new(0, 4, 0)
-    billboard.AlwaysOnTop = false
-    billboard.Parent      = checkpoint
-
-    local label = Instance.new("TextLabel")
-    label.Size              = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.Font              = Enum.Font.GothamBold
-    label.TextScaled        = true
-    label.TextColor3        = Color3.fromRGB(255, 255, 255)
-    label.Text              = "Stage " .. stage
-    label.Parent            = billboard
-
-    -- ── Jumping platforms between this checkpoint and the previous one ────────
-    -- Skip platforms before stage 1 (player spawns directly on Checkpoint_1).
-    if stage > 1 then
-        local prevCheckX  = (stage - 2) * SPACING + SPACING - 5
-        local sectionLen  = checkX - prevCheckX          -- distance to cover
-        local numPlatforms = 3 + stage                   -- more platforms = more jumps (harder)
-
-        for j = 1, numPlatforms do
-            local t = j / (numPlatforms + 1)
-            local x = prevCheckX + t * sectionLen
-
-            -- Height variation increases with stage difficulty
-            local yVariance = math.min(stage * 0.4, 4)
-            local y = rng:NextNumber(-yVariance, yVariance)
-
-            -- Lateral (Z) spread increases with stage
-            local zSpread = math.min(4 + stage * 0.5, 10)
-            local z = rng:NextNumber(-zSpread, zSpread)
-
-            -- Platform size shrinks with stage (harder = smaller platforms)
-            local width = math.max(2.5, 8 - stage * 0.45)
-
-            makePart(
-                ("Platform_%d_%d"):format(stage, j),
-                Vector3.new(width, 1, width),
-                Vector3.new(x, y, z),
-                color
-            )
-        end
+for tx = -GRID_HALF, GRID_HALF do
+    for tz = -GRID_HALF, GRID_HALF do
+        local colorIndex = ((math.abs(tx) + math.abs(tz)) % #tileColors) + 1
+        part {
+            Name     = "Tile",
+            Size     = Vector3.new(TILE_SIZE, 1, TILE_SIZE),
+            Position = Vector3.new(tx * TILE_SIZE, -0.5, tz * TILE_SIZE),
+            Color    = tileColors[colorIndex],
+            Material = Enum.Material.SmoothPlastic,
+        }
     end
 end
 
--- ── Void floor (visual boundary so the sky-box isn't empty below) ────────────
-makePart(
-    "VoidFloor",
-    Vector3.new(2000, 1, 2000),
-    Vector3.new(SPACING * GameConfig.MAX_STAGES / 2, GameConfig.VOID_HEIGHT + 10, 0),
-    BrickColor.new("Really black")
-)
+-- ── Click Orb (centre) ────────────────────────────────────────────────────────
 
-print(("[MapGenerator] Map ready – %d stages generated."):format(GameConfig.MAX_STAGES))
+local orb = part {
+    Name     = "ClickOrb",
+    Shape    = Enum.PartType.Ball,
+    Size     = Vector3.new(6, 6, 6),
+    Position = Vector3.new(0, 5, 0),
+    Color    = Color3.fromRGB(255, 215, 0),
+    Material = Enum.Material.Neon,
+}
+neonLight(orb, Color3.fromRGB(255, 200, 0), 5, 30)
+billboard(orb, "CLICK ME!", 5, Color3.fromRGB(255, 255, 0))
+
+-- Slow spin via BodyAngularVelocity (cosmetic)
+local bav = Instance.new("BodyAngularVelocity")
+bav.AngularVelocity = Vector3.new(0, 0.8, 0)
+bav.MaxTorque       = Vector3.new(0, math.huge, 0)
+bav.Parent          = orb
+
+-- ── Egg pads (inner ring, radius 18) ─────────────────────────────────────────
+
+local EGG_RADIUS = 18
+local eggAngles  = { 90, 210, 330 }  -- degrees
+
+for i, egg in ipairs(GameConfig.EGGS) do
+    local angle = math.rad(eggAngles[i])
+    local x     = math.cos(angle) * EGG_RADIUS
+    local z     = math.sin(angle) * EGG_RADIUS
+
+    -- Platform
+    local pad = part {
+        Name     = "EggPad_" .. egg.id,
+        Size     = Vector3.new(10, 1, 10),
+        Position = Vector3.new(x, 0, z),
+        BrickColor = egg.color,
+        Material = Enum.Material.SmoothPlastic,
+    }
+    neonLight(pad, egg.color.Color, 2, 14)
+
+    -- Egg model (sphere sitting on pad)
+    part {
+        Name     = "EggModel_" .. egg.id,
+        Shape    = Enum.PartType.Ball,
+        Size     = Vector3.new(3, 3.6, 3),
+        Position = Vector3.new(x, 3, z),
+        BrickColor = egg.color,
+        Material = Enum.Material.Neon,
+        collide  = false,
+    }
+
+    billboard(pad, egg.name .. "\n" .. egg.cost .. " coins", 6,
+        Color3.fromRGB(255, 255, 255))
+end
+
+-- ── Upgrade shop pad (outer ring) ────────────────────────────────────────────
+
+local shopPad = part {
+    Name     = "ShopPad",
+    Size     = Vector3.new(12, 1, 12),
+    Position = Vector3.new(0, 0, EGG_RADIUS + 10),
+    Color    = Color3.fromRGB(80, 200, 255),
+    Material = Enum.Material.SmoothPlastic,
+}
+neonLight(shopPad, Color3.fromRGB(80, 200, 255), 2, 16)
+
+-- Shop sign
+part {
+    Name     = "ShopSign",
+    Size     = Vector3.new(6, 3, 0.5),
+    Position = Vector3.new(0, 3.5, EGG_RADIUS + 10),
+    Color    = Color3.fromRGB(30, 30, 30),
+    Material = Enum.Material.SmoothPlastic,
+}
+billboard(shopPad, "UPGRADES SHOP", 7, Color3.fromRGB(80, 255, 255))
+
+-- ── Spawn pad ─────────────────────────────────────────────────────────────────
+
+part {
+    Name     = "SpawnBase",
+    Size     = Vector3.new(14, 1, 14),
+    Position = Vector3.new(0, 0, -EGG_RADIUS - 10),
+    Color    = Color3.fromRGB(100, 220, 130),
+    Material = Enum.Material.SmoothPlastic,
+}
+
+-- ── Sky void barrier ──────────────────────────────────────────────────────────
+
+part {
+    Name     = "VoidBarrier",
+    Size     = Vector3.new(1000, 1, 1000),
+    Position = Vector3.new(0, -80, 0),
+    Color    = Color3.fromRGB(10, 10, 10),
+    collide  = false,
+}
+
+print("[MapGenerator] World ready.")

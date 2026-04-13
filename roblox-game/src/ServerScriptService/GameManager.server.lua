@@ -1,51 +1,103 @@
 -- GameManager.server.lua (Script)
--- Bootstraps player sessions: initialises stage data, respawns players at their
--- last checkpoint, and fires RemoteEvents so clients can update their UI.
+-- Manages player sessions: loads/saves data, syncs state to clients,
+-- maintains the in-game leaderboard, and runs the auto-save loop.
 
-local Players           = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players             = game:GetService("Players")
+local ReplicatedStorage   = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
 local PlayerData = require(ServerScriptService:WaitForChild("PlayerData"))
 
-local RemoteEvents  = ReplicatedStorage:WaitForChild("RemoteEvents")
-local UpdateStage   = RemoteEvents:WaitForChild("UpdateStage")
-local GameComplete  = RemoteEvents:WaitForChild("GameComplete")
+local Remotes   = ReplicatedStorage:WaitForChild("Remotes")
+local SyncData  = Remotes:WaitForChild("SyncData")
 
--- Teleport a character to its current stage checkpoint (called after each respawn).
-local function spawnAtCheckpoint(player: Player)
-    local character = player.Character
-    if not character then return end
+-- ── Leaderboard setup ────────────────────────────────────────────────────────
 
-    local stage      = PlayerData:GetStage(player)
-    local checkpoint = workspace:FindFirstChild("Checkpoint_" .. stage)
-    local hrp        = character:FindFirstChild("HumanoidRootPart")
-
-    if checkpoint and hrp then
-        hrp.CFrame = checkpoint.CFrame + Vector3.new(0, 5, 0)
+local function getOrMakeStat(leaderstats, name, class)
+    local s = leaderstats:FindFirstChild(name)
+    if not s then
+        s = Instance.new(class)
+        s.Name   = name
+        s.Parent = leaderstats
     end
+    return s
 end
 
-local function onPlayerAdded(player: Player)
-    PlayerData:SetStage(player, 1)
+local function refreshLeaderboard(player: Player)
+    local data = PlayerData:Get(player)
+    if not data then return end
 
-    player.CharacterAdded:Connect(function(_character)
-        -- Brief wait for the physics simulation to settle before teleporting.
-        task.wait(0.5)
-        spawnAtCheckpoint(player)
-        UpdateStage:FireClient(player, PlayerData:GetStage(player))
-    end)
+    local ls = player:FindFirstChild("leaderstats")
+    if not ls then
+        ls = Instance.new("Folder")
+        ls.Name   = "leaderstats"
+        ls.Parent = player
+    end
+
+    getOrMakeStat(ls, "Coins", "IntValue").Value    = data.coins
+    getOrMakeStat(ls, "Lifetime", "IntValue").Value = data.lifetime
+    getOrMakeStat(ls, "Pets", "IntValue").Value     = #data.pets
+end
+
+-- ── Data sync helper ─────────────────────────────────────────────────────────
+-- Sends a trimmed snapshot to the client. We strip BrickColor objects and
+-- only send R/G/B so the data can cross the RemoteEvent boundary.
+
+function SyncPlayerData(player: Player)
+    local data = PlayerData:Get(player)
+    if not data then return end
+
+    -- Trim pets to what the client needs (avoid sending BrickColor userdata)
+    local petSnapshot = {}
+    for _, pet in ipairs(data.pets) do
+        table.insert(petSnapshot, {
+            name  = pet.name,
+            multi = pet.multi,
+            r     = pet.r,
+            g     = pet.g,
+            b     = pet.b,
+        })
+    end
+
+    SyncData:FireClient(player, {
+        coins    = data.coins,
+        lifetime = data.lifetime,
+        pets     = petSnapshot,
+        upgrades = data.upgrades,
+    })
+
+    refreshLeaderboard(player)
+end
+
+-- Make accessible to other server scripts.
+_G.SyncPlayerData = SyncPlayerData
+
+-- ── Player lifecycle ─────────────────────────────────────────────────────────
+
+local function onPlayerAdded(player: Player)
+    PlayerData:Load(player)
+    SyncPlayerData(player)
 end
 
 local function onPlayerRemoving(player: Player)
+    PlayerData:Save(player)
     PlayerData:Remove(player)
 end
 
 Players.PlayerAdded:Connect(onPlayerAdded)
 Players.PlayerRemoving:Connect(onPlayerRemoving)
 
--- Handle players who were already in the server before this script ran.
-for _, player in ipairs(Players:GetPlayers()) do
-    onPlayerAdded(player)
+for _, p in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(p)
 end
+
+-- ── Auto-save loop (every 60 s) ───────────────────────────────────────────────
+
+task.spawn(function()
+    while true do
+        task.wait(60)
+        for _, p in ipairs(Players:GetPlayers()) do
+            PlayerData:Save(p)
+        end
+    end
+end)
