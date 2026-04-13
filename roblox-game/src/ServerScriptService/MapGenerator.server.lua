@@ -110,6 +110,17 @@ luckyBurst.Parent = orb
 local EGG_RADIUS = 18
 local eggAngles  = { 90, 210, 330 }
 
+local function addPrompt(parent, action, object, distance)
+    local p = Instance.new("ProximityPrompt")
+    p.ActionText            = action
+    p.ObjectText            = object
+    p.HoldDuration          = 0
+    p.MaxActivationDistance = distance or 12
+    p.RequiresLineOfSight   = false
+    p.Parent                = parent
+    return p
+end
+
 for i, egg in ipairs(GameConfig.EGGS) do
     local angle = math.rad(eggAngles[i])
     local x, z  = math.cos(angle) * EGG_RADIUS, math.sin(angle) * EGG_RADIUS
@@ -124,6 +135,7 @@ for i, egg in ipairs(GameConfig.EGGS) do
            BrickColor=egg.color, Material=Enum.Material.Neon, collide=false }
 
     padLabel(pad, egg.name.."\n🪙 "..egg.cost, 6)
+    addPrompt(pad, "Open Shop", egg.name)
 end
 
 -- ── Upgrade shop pad ─────────────────────────────────────────────────────────
@@ -133,6 +145,7 @@ local shopPad = part { Name="ShopPad", Size=Vector3.new(12,1,12),
     Material=Enum.Material.SmoothPlastic }
 neonLight(shopPad, Color3.fromRGB(80,200,255), 2, 16)
 padLabel(shopPad, "⬆ UPGRADES SHOP", 7, Color3.fromRGB(80,255,255))
+addPrompt(shopPad, "Open Shop", "Upgrades")
 
 -- ── Rebirth pad ───────────────────────────────────────────────────────────────
 
@@ -141,6 +154,7 @@ local rebirthPad = part { Name="RebirthPad", Size=Vector3.new(12,1,12),
     Material=Enum.Material.Neon }
 neonLight(rebirthPad, Color3.fromRGB(180,0,255), 4, 20)
 padLabel(rebirthPad, "✨ REBIRTH\n(doubles all income)", 7, Color3.fromRGB(220,100,255))
+addPrompt(rebirthPad, "Rebirth", "2× All Income")
 
 -- Swirling rebirth particles (always-on, low rate)
 local rebirthParticle = Instance.new("ParticleEmitter")

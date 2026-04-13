@@ -199,13 +199,28 @@ local function showToast(msg)
     end)
 end
 
--- ── Panel toggles ────────────────────────────────────────────────────────────
+-- ── Panel toggles (buttons + proximity prompts) ──────────────────────────────
+
+local function openEggs()  eggPanel.Visible=true;  upgradePanel.Visible=false end
+local function openUpgrades() upgradePanel.Visible=true; eggPanel.Visible=false end
 
 shopBtn.MouseButton1Click:Connect(function()
     eggPanel.Visible=not eggPanel.Visible; upgradePanel.Visible=false
 end)
 upgradeBtn.MouseButton1Click:Connect(function()
     upgradePanel.Visible=not upgradePanel.Visible; eggPanel.Visible=false
+end)
+
+-- Wire proximity events from ProximityHandler (wait briefly for it to load)
+task.delay(2, function()
+    local ev = _G.ProximityEvents
+    if not ev then return end
+    ev.openEggPanel.Event:Connect(function() openEggs() end)
+    ev.openUpgPanel.Event:Connect(function() openUpgrades() end)
+    ev.doRebirth.Event:Connect(function()
+        local result = RebirthRF:InvokeServer()
+        if not result.success then showToast(result.message or "Need more coins!") end
+    end)
 end)
 
 -- ── SyncData ──────────────────────────────────────────────────────────────────
