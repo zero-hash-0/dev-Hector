@@ -1,7 +1,5 @@
 -- ClickHandler.client.lua (LocalScript)
--- Detects left-clicks on the ClickOrb part and fires the server remote.
--- Also handles mobile tap via ContextActionService.
--- Client-side throttle matches the server's CLICK_COOLDOWN.
+-- Detects clicks on the ClickOrb, fires server, plays particle/effects.
 
 local Players              = game:GetService("Players")
 local ReplicatedStorage    = game:GetService("ReplicatedStorage")
@@ -10,86 +8,108 @@ local ContextActionService = game:GetService("ContextActionService")
 local TweenService         = game:GetService("TweenService")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("GameConfig"))
+local Effects    = require(script.Parent:WaitForChild("Effects"))
+
 local Remotes    = ReplicatedStorage:WaitForChild("Remotes")
 local ClickOrb   = Remotes:WaitForChild("ClickOrb")
+local LuckyClick = Remotes:WaitForChild("LuckyClick")
 
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
--- ── Wait for the orb ─────────────────────────────────────────────────────────
-
 local orb: BasePart = workspace:WaitForChild("ClickOrb", 30)
 if not orb then return end
+
+local sparkle   = orb:WaitForChild("ClickSparkle")
+local luckyBurst = orb:WaitForChild("LuckyBurst")
+local originalSize = orb.Size
 
 -- ── Client-side throttle ──────────────────────────────────────────────────────
 
 local lastFire = 0
-local COOLDOWN = GameConfig.CLICK_COOLDOWN
 
 local function fireClick()
     local now = tick()
-    if now - lastFire < COOLDOWN then return end
+    if now - lastFire < GameConfig.CLICK_COOLDOWN then return end
     lastFire = now
+
     ClickOrb:FireServer()
-    animateOrb()
-end
 
--- ── Orb click animation ───────────────────────────────────────────────────────
-
-local originalSize = orb.Size
-
-function animateOrb()
+    -- Orb squeeze animation
     TweenService:Create(orb,
-        TweenInfo.new(0.07, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-        { Size = originalSize * 1.12 }
+        TweenInfo.new(0.06, Enum.EasingStyle.Quad),
+        { Size = originalSize * 1.14 }
     ):Play()
-    task.delay(0.07, function()
+    task.delay(0.06, function()
         TweenService:Create(orb,
-            TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            TweenInfo.new(0.14, Enum.EasingStyle.Back),
             { Size = originalSize }
         ):Play()
     end)
+
+    -- Sparkle burst
+    sparkle:Emit(12)
+
+    -- Floating coin text near orb
+    Effects.floatingText(orb.Position + Vector3.new(0, 4, 0), "+coins",
+        Color3.fromRGB(255, 215, 0))
 end
 
--- ── Mouse click detection ─────────────────────────────────────────────────────
+-- ── Lucky click visual (server confirms) ────────────────────────────────────
 
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
+LuckyClick.OnClientEvent:Connect(function(amount: number)
+    luckyBurst:Emit(40)
+    -- Big spin burst
+    TweenService:Create(orb,
+        TweenInfo.new(0.1, Enum.EasingStyle.Quad),
+        { Size = originalSize * 1.35 }
+    ):Play()
+    task.delay(0.1, function()
+        TweenService:Create(orb,
+            TweenInfo.new(0.3, Enum.EasingStyle.Elastic),
+            { Size = originalSize }
+        ):Play()
+    end)
+
+    local fmt = amount >= 1e6 and ("%.1fM"):format(amount/1e6)
+             or amount >= 1e3 and ("%.1fK"):format(amount/1e3)
+             or tostring(math.floor(amount))
+
+    Effects.luckyFlash("+" .. fmt)
+    Effects.floatingText(orb.Position + Vector3.new(0, 6, 0),
+        "✨ +" .. fmt, Color3.fromRGB(255, 80, 255))
+end)
+
+-- ── Mouse click ───────────────────────────────────────────────────────────────
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
     if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
 
-    -- Raycast from camera through mouse position
     local unitRay = camera:ScreenPointToRay(input.Position.X, input.Position.Y)
-    local result  = workspace:Raycast(
-        unitRay.Origin,
-        unitRay.Direction * 200,
-        RaycastParams.new()
-    )
+    local result  = workspace:Raycast(unitRay.Origin, unitRay.Direction * 200)
 
     if result and result.Instance == orb then
         fireClick()
     end
 end)
 
--- ── Mobile / gamepad tap ──────────────────────────────────────────────────────
+-- ── Mobile tap ────────────────────────────────────────────────────────────────
 
 ContextActionService:BindAction("TapOrb", function(_, state, _)
-    if state == Enum.UserInputState.Begin then
-        -- On mobile the player is expected to walk up and tap the orb;
-        -- any tap while near the orb counts.
-        local char = player.Character
-        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp and (hrp.Position - orb.Position).Magnitude < 20 then
-            fireClick()
-        end
+    if state ~= Enum.UserInputState.Begin then return end
+    local char = player.Character
+    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp and (hrp.Position - orb.Position).Magnitude < 20 then
+        fireClick()
     end
 end, true, Enum.KeyCode.ButtonR2)
 
--- ── Keyboard shortcut (Space bar near orb) ────────────────────────────────────
+-- ── Space bar shortcut ────────────────────────────────────────────────────────
 
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
     if input.KeyCode ~= Enum.KeyCode.Space then return end
-
     local char = player.Character
     local hrp  = char and char:FindFirstChild("HumanoidRootPart")
     if hrp and (hrp.Position - orb.Position).Magnitude < 20 then

@@ -8,21 +8,25 @@
       "GameConfig": { "$path": "src/ReplicatedStorage/GameConfig.lua" },
       "Remotes": {
         "$className": "Folder",
-        "ClickOrb":    { "$className": "RemoteEvent" },
-        "SyncData":    { "$className": "RemoteEvent" },
-        "Notification":{ "$className": "RemoteEvent" },
-        "BuyItem":     { "$className": "RemoteFunction" }
+        "ClickOrb":     { "$className": "RemoteEvent" },
+        "SyncData":     { "$className": "RemoteEvent" },
+        "Notification": { "$className": "RemoteEvent" },
+        "LuckyClick":   { "$className": "RemoteEvent" },
+        "PlaySound":    { "$className": "RemoteEvent" },
+        "BuyItem":      { "$className": "RemoteFunction" },
+        "Rebirth":      { "$className": "RemoteFunction" }
       }
     },
 
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "PlayerData":    { "$path": "src/ServerScriptService/PlayerData.lua" },
-      "GameManager":   { "$path": "src/ServerScriptService/GameManager.server.lua" },
-      "ClickManager":  { "$path": "src/ServerScriptService/ClickManager.server.lua" },
-      "PetManager":    { "$path": "src/ServerScriptService/PetManager.server.lua" },
-      "ShopManager":   { "$path": "src/ServerScriptService/ShopManager.server.lua" },
-      "MapGenerator":  { "$path": "src/ServerScriptService/MapGenerator.server.lua" }
+      "PlayerData":     { "$path": "src/ServerScriptService/PlayerData.lua" },
+      "GameManager":    { "$path": "src/ServerScriptService/GameManager.server.lua" },
+      "ClickManager":   { "$path": "src/ServerScriptService/ClickManager.server.lua" },
+      "PetManager":     { "$path": "src/ServerScriptService/PetManager.server.lua" },
+      "ShopManager":    { "$path": "src/ServerScriptService/ShopManager.server.lua" },
+      "RebirthManager": { "$path": "src/ServerScriptService/RebirthManager.server.lua" },
+      "MapGenerator":   { "$path": "src/ServerScriptService/MapGenerator.server.lua" }
     },
 
     "StarterPlayer": {
@@ -30,7 +34,9 @@
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
         "MainUI":       { "$path": "src/StarterPlayer/StarterPlayerScripts/MainUI.client.lua" },
-        "ClickHandler": { "$path": "src/StarterPlayer/StarterPlayerScripts/ClickHandler.client.lua" }
+        "ClickHandler": { "$path": "src/StarterPlayer/StarterPlayerScripts/ClickHandler.client.lua" },
+        "SoundManager": { "$path": "src/StarterPlayer/StarterPlayerScripts/SoundManager.client.lua" },
+        "Effects":      { "$path": "src/StarterPlayer/StarterPlayerScripts/Effects.lua" }
       }
     }
   }

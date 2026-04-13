@@ -1,19 +1,25 @@
 -- GameConfig.lua (ModuleScript)
 -- Single source of truth for all game balance values.
--- Both server and client scripts require this module.
 
 local GameConfig = {}
 
 -- ── Clicking ──────────────────────────────────────────────────────────────────
-GameConfig.BASE_COINS_PER_CLICK = 1    -- Before upgrades/rebirths
-GameConfig.CLICK_COOLDOWN       = 0.08 -- Minimum seconds between server-accepted clicks
+GameConfig.BASE_COINS_PER_CLICK = 1
+GameConfig.CLICK_COOLDOWN       = 0.08
+
+-- ── Lucky clicks ─────────────────────────────────────────────────────────────
+GameConfig.LUCKY_CHANCE = 0.05   -- 5% chance per click
+GameConfig.LUCKY_MULT   = 10     -- 10× coins when lucky
 
 -- ── Passive income ────────────────────────────────────────────────────────────
-GameConfig.PASSIVE_TICK = 1            -- Seconds between passive income ticks
+GameConfig.PASSIVE_TICK = 1
+
+-- ── Rebirth ───────────────────────────────────────────────────────────────────
+GameConfig.REBIRTH_BASE_COST = 1000   -- coins needed for first rebirth
+GameConfig.REBIRTH_COST_MULT = 3      -- cost multiplies by this each rebirth
+GameConfig.REBIRTH_BONUS     = 2      -- each rebirth doubles ALL income
 
 -- ── Eggs ─────────────────────────────────────────────────────────────────────
--- weight = relative hatch probability (higher = more common)
--- multi  = coins-per-second added by one of this pet when equipped
 GameConfig.EGGS = {
     {
         id    = "basic",
@@ -53,32 +59,23 @@ GameConfig.EGGS = {
     },
 }
 
--- ── Upgrades (each can be bought multiple times; cost = baseCost * costMult^level) ──
+-- ── Upgrades ─────────────────────────────────────────────────────────────────
 GameConfig.UPGRADES = {
-    {
-        id       = "click_power",
-        name     = "Click Power",
-        desc     = "+1 coin per click",
-        baseCost = 25,
-        costMult = 1.5,
-    },
-    {
-        id       = "auto_click",
-        name     = "Auto Clicker",
-        desc     = "1 free click per second",
-        baseCost = 100,
-        costMult = 2.0,
-    },
-    {
-        id       = "passive_boost",
-        name     = "Coin Magnet",
-        desc     = "2× passive income",
-        baseCost = 200,
-        costMult = 1.8,
-    },
+    { id = "click_power",   name = "Click Power",  desc = "+1 coin per click",       baseCost = 25,  costMult = 1.5 },
+    { id = "auto_click",    name = "Auto Clicker", desc = "1 free click per second",  baseCost = 100, costMult = 2.0 },
+    { id = "passive_boost", name = "Coin Magnet",  desc = "2× passive income",        baseCost = 200, costMult = 1.8 },
 }
 
--- ── Pets ──────────────────────────────────────────────────────────────────────
-GameConfig.MAX_PETS = 5   -- Maximum pets that give passive income at once
+GameConfig.MAX_PETS = 5
+
+-- ── Sound IDs (free Roblox audio – swap from Creator Store if desired) ────────
+GameConfig.SOUNDS = {
+    click   = 6042053626,
+    coin    = 4110933401,
+    hatch   = 4612371928,
+    upgrade = 3360757350,
+    rebirth = 1841458716,
+    lucky   = 4447436800,
+}
 
 return GameConfig
