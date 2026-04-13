@@ -63,6 +63,39 @@ local gui = Instance.new("ScreenGui")
 gui.Name="SimUI"; gui.ResetOnSpawn=false
 gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; gui.Parent=playerGui
 
+-- ── Objective bar (top-centre) ───────────────────────────────────────────────
+
+local objBar = mkFrame(gui, UDim2.new(0,440,0,38), UDim2.new(0.5,-220,0,14),
+    Color3.fromRGB(12,12,22), 0.15)
+corner(objBar, 10)
+stroke(objBar, Color3.fromRGB(255,215,0), 1.5, 0.35)
+local objLbl = mkLabel(objBar, "🟡  Click the golden orb to earn coins!",
+    UDim2.new(1,-12,1,0), UDim2.new(0,6,0,0),
+    Color3.fromRGB(255,240,140), Enum.Font.GothamBold)
+objLbl.TextScaled = true
+
+local function updateObjective()
+    local rebirthCost = math.floor(GameConfig.REBIRTH_BASE_COST *
+        (GameConfig.REBIRTH_COST_MUL or GameConfig.REBIRTH_COST_MULT) ^ state.rebirths)
+
+    if state.coins >= rebirthCost then
+        objLbl.Text = "✨  Ready to REBIRTH! — Walk to the purple pad"
+        stroke(objBar, Color3.fromRGB(200,100,255), 2, 0.2)
+    elseif #state.pets == 0 and state.coins >= GameConfig.EGGS[1].cost then
+        objLbl.Text = "🥚  Hatch your first pet! — Walk to an egg and click it"
+        stroke(objBar, Color3.fromRGB(255,180,60), 2, 0.2)
+    elseif #state.pets == 0 then
+        objLbl.Text = "🟡  Click the golden orb to earn coins!"
+        stroke(objBar, Color3.fromRGB(255,215,0), 1.5, 0.35)
+    elseif (state.upgrades["click_power"] or 0) == 0 then
+        objLbl.Text = "⬆  Buy an upgrade — walk to the blue pad!"
+        stroke(objBar, Color3.fromRGB(80,180,255), 2, 0.2)
+    else
+        objLbl.Text = "🏆  Keep hatching & upgrading — reach the top!"
+        stroke(objBar, Color3.fromRGB(255,215,0), 1.5, 0.35)
+    end
+end
+
 -- ── Coin counter (top-left) ───────────────────────────────────────────────────
 
 local coinBadge = mkFrame(gui, UDim2.new(0,230,0,68), UDim2.new(0,16,0,16))
@@ -167,11 +200,17 @@ petScroll.BackgroundTransparency=1; petScroll.ScrollBarThickness=3; petScroll.Pa
 local petLayout=Instance.new("UIListLayout"); petLayout.Padding=UDim.new(0,4); petLayout.Parent=petScroll
 
 local petRows={}
+local noPetsHint = mkLabel(petScroll,
+    "No pets yet!\nHatch an egg 🥚",
+    UDim2.new(1,-8,0,60), UDim2.new(0,4,0,4),
+    Color3.fromRGB(140,140,160), Enum.Font.Gotham)
+noPetsHint.TextScaled = true
 
 local function refreshPetList()
     for _,r in ipairs(petRows) do r:Destroy() end
     petRows={}
-    petScroll.CanvasSize=UDim2.new(0,0,0,#state.pets*36)
+    noPetsHint.Visible = (#state.pets == 0)
+    petScroll.CanvasSize=UDim2.new(0,0,0,math.max(#state.pets*36, 64))
     for i,pet in ipairs(state.pets) do
         local row=mkFrame(petScroll,UDim2.new(1,-4,0,32),UDim2.new(0,0,0,0),Color3.fromRGB(40,40,40),i>GameConfig.MAX_PETS and 0.65 or 0)
         corner(row,6)
@@ -248,6 +287,7 @@ SyncData.OnClientEvent:Connect(function(snap)
     end
 
     refreshPetList()
+    updateObjective()
 end)
 
 -- ── CPS display ───────────────────────────────────────────────────────────────

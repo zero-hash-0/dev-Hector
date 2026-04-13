@@ -38,7 +38,8 @@
         "ClickHandler":  { "$path": "src/StarterPlayer/StarterPlayerScripts/ClickHandler.client.lua" },
         "SoundManager":  { "$path": "src/StarterPlayer/StarterPlayerScripts/SoundManager.client.lua" },
         "Effects":       { "$path": "src/StarterPlayer/StarterPlayerScripts/Effects.lua" },
-        "WelcomeGui":    { "$path": "src/StarterPlayer/StarterPlayerScripts/WelcomeGui.client.lua" },
+        "WelcomeGui":       { "$path": "src/StarterPlayer/StarterPlayerScripts/WelcomeGui.client.lua" },
+        "WorldEffects":     { "$path": "src/StarterPlayer/StarterPlayerScripts/WorldEffects.client.lua" },
         "ProximityHandler": { "$path": "src/StarterPlayer/StarterPlayerScripts/ProximityHandler.client.lua" }
       }
     }
