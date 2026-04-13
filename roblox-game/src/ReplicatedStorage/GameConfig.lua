@@ -69,13 +69,14 @@ GameConfig.UPGRADES = {
 GameConfig.MAX_PETS = 5
 
 -- ── Sound IDs (free Roblox audio – swap from Creator Store if desired) ────────
+-- Built-in rbxasset:// sounds — always available, no HTTP 403 in Studio
 GameConfig.SOUNDS = {
-    click   = 6042053626,
-    coin    = 4110933401,
-    hatch   = 4612371928,
-    upgrade = 4612371928,  -- reuse hatch sound
-    rebirth = 1841458716,
-    lucky   = 1841458716,  -- reuse rebirth sound
+    click   = "rbxasset://sounds/electronicpingshort.wav",
+    coin    = "rbxasset://sounds/electronicpingshort.wav",
+    hatch   = "rbxasset://sounds/pop_mid.wav",
+    upgrade = "rbxasset://sounds/electronicpingshort.wav",
+    rebirth = "rbxasset://sounds/pop_mid.wav",
+    lucky   = "rbxasset://sounds/pop_mid.wav",
 }
 
 return GameConfig

@@ -34,7 +34,7 @@ local function stroke(p,col,th,tr) local s=Instance.new("UIStroke"); s.Color=col
 
 local function mkLabel(parent, text, size, pos, color, font, xalign)
     local l = Instance.new("TextLabel")
-    l.Size=size; l.Position=pos or UDim2.new(0,0,0,0)
+    l.Size=size or UDim2.new(1,0,1,0); l.Position=pos or UDim2.new(0,0,0,0)
     l.BackgroundTransparency=1; l.Font=font or Enum.Font.GothamBold
     l.TextScaled=true; l.TextColor3=color or Color3.fromRGB(255,255,255)
     l.Text=text

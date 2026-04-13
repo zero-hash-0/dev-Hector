@@ -15,7 +15,7 @@ local sounds: { [string]: Sound } = {}
 for name, id in pairs(GameConfig.SOUNDS) do
     local s = Instance.new("Sound")
     s.Name     = name
-    s.SoundId  = "rbxassetid://" .. id
+    s.SoundId  = id  -- already a full path (rbxasset://) or asset ID
     s.Volume   = (name == "click") and 0.35 or 0.6
     s.RollOffMaxDistance = 0
     s.Parent   = game:GetService("SoundService")
