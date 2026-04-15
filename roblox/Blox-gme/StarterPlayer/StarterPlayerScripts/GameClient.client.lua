@@ -1,37 +1,84 @@
 --!strict
 
--- Client: HUD updates, input for combat/movement, visual feedback.
+-- Input handler: attack, sprint, dash.
+-- Visual feedback: damage flash, hit markers.
+-- HUD is handled separately in HudClient.
 
-local Players            = game:GetService("Players")
-local UserInputService   = game:GetService("UserInputService")
-local ReplicatedStorage  = game:GetService("ReplicatedStorage")
+local Players          = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService     = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = Players.LocalPlayer
-local Camera      = workspace.CurrentCamera
+local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
 
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local MatchState    = Remotes:WaitForChild("MatchState")    :: RemoteEvent
-local CoreState     = Remotes:WaitForChild("CoreState")     :: RemoteEvent
-local CombatHit     = Remotes:WaitForChild("CombatHit")     :: RemoteEvent
+local Remotes       = ReplicatedStorage:WaitForChild("Remotes")
 local AttackRequest = Remotes:WaitForChild("AttackRequest") :: RemoteEvent
 local SprintRequest = Remotes:WaitForChild("SprintRequest") :: RemoteEvent
 local DashRequest   = Remotes:WaitForChild("DashRequest")   :: RemoteEvent
-local HUD           = Remotes:WaitForChild("HUD")           :: RemoteEvent
-local Alert         = Remotes:WaitForChild("Alert")         :: RemoteEvent
+local CombatHit     = Remotes:WaitForChild("CombatHit")     :: RemoteEvent
 
--- ── Input state ──────────────────────────────────────────────────────────────
-local isSprinting = false
-local attackCooldownActive = false
+-- ── Damage flash overlay ──────────────────────────────────────────────────────
+local flashGui = Instance.new("ScreenGui")
+flashGui.Name           = "DamageFlash"
+flashGui.IgnoreGuiInset = true
+flashGui.ResetOnSpawn   = false
+flashGui.Parent         = PlayerGui
 
--- ── Attack (F key) ───────────────────────────────────────────────────────────
-local function findNearestPlayer(): Player?
+local flashFrame = Instance.new("Frame")
+flashFrame.Size                = UDim2.new(1, 0, 1, 0)
+flashFrame.BackgroundColor3    = Color3.fromHex("#FF0000")
+flashFrame.BackgroundTransparency = 1
+flashFrame.BorderSizePixel     = 0
+flashFrame.Parent              = flashGui
+
+local function triggerDamageFlash()
+	flashFrame.BackgroundTransparency = 0.55
+	TweenService:Create(flashFrame,
+		TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundTransparency = 1 }
+	):Play()
+end
+
+-- ── Hit marker (brief cross on screen) ───────────────────────────────────────
+local hitGui = Instance.new("ScreenGui")
+hitGui.Name           = "HitMarker"
+hitGui.IgnoreGuiInset = true
+hitGui.ResetOnSpawn   = false
+hitGui.Parent         = PlayerGui
+
+local hitMarker = Instance.new("TextLabel")
+hitMarker.Size                   = UDim2.new(0, 60, 0, 60)
+hitMarker.Position               = UDim2.new(0.5, -30, 0.5, -30)
+hitMarker.BackgroundTransparency = 1
+hitMarker.Font                   = Enum.Font.GothamBold
+hitMarker.Text                   = "✕"
+hitMarker.TextColor3             = Color3.new(1, 1, 1)
+hitMarker.TextTransparency       = 1
+hitMarker.TextScaled             = true
+hitMarker.Parent                 = hitGui
+
+local function triggerHitMarker(ko: boolean)
+	hitMarker.TextColor3    = ko and Color3.fromHex("#FFD700") or Color3.new(1, 1, 1)
+	hitMarker.Text          = ko and "KO!" or "✕"
+	hitMarker.TextTransparency = 0
+	TweenService:Create(hitMarker,
+		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ TextTransparency = 1 }
+	):Play()
+end
+
+-- ── Nearest enemy lookup ──────────────────────────────────────────────────────
+local ATTACK_RANGE = 8  -- client-side pre-filter (server re-validates)
+
+local function findNearestEnemy(): Player?
 	local character = LocalPlayer.Character
 	if not character then return nil end
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if not root then return nil end
 
 	local nearest: Player? = nil
-	local nearestDist = math.huge
+	local nearestDist = ATTACK_RANGE
 
 	for _, player in Players:GetPlayers() do
 		if player == LocalPlayer then continue end
@@ -48,73 +95,51 @@ local function findNearestPlayer(): Player?
 	return nearest
 end
 
--- ── Sprint (Shift hold) ──────────────────────────────────────────────────────
-UserInputService.InputBegan:Connect(function(input, processed)
+-- ── Input state ───────────────────────────────────────────────────────────────
+local attackCooldown = false
+
+UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 	if processed then return end
 
-	-- Sprint on
-	if input.KeyCode == Enum.KeyCode.LeftShift then
-		isSprinting = true
-		SprintRequest:FireServer(true)
-	end
-
-	-- Attack
-	if input.KeyCode == Enum.KeyCode.F and not attackCooldownActive then
-		local target = findNearestPlayer()
+	-- Attack — F
+	if input.KeyCode == Enum.KeyCode.F and not attackCooldown then
+		local target = findNearestEnemy()
 		if target then
 			AttackRequest:FireServer(target)
-			attackCooldownActive = true
-			task.delay(0.4, function() attackCooldownActive = false end)
+			attackCooldown = true
+			task.delay(0.4, function() attackCooldown = false end)
 		end
 	end
 
-	-- Dash (Q + movement direction from camera look)
+	-- Sprint — Left Shift
+	if input.KeyCode == Enum.KeyCode.LeftShift then
+		SprintRequest:FireServer(true)
+	end
+
+	-- Dash — Q
 	if input.KeyCode == Enum.KeyCode.Q then
-		local move = UserInputService:GetKeysPressed()
-		local dir  = Camera.CFrame.LookVector * Vector3.new(1, 0, 1)
-		DashRequest:FireServer(dir.Unit)
+		local cam  = workspace.CurrentCamera
+		local look = cam.CFrame.LookVector
+		local dir  = Vector3.new(look.X, 0, look.Z).Unit
+		DashRequest:FireServer(dir)
 	end
 end)
 
-UserInputService.InputEnded:Connect(function(input, processed)
+UserInputService.InputEnded:Connect(function(input: InputObject, _processed: boolean)
 	if input.KeyCode == Enum.KeyCode.LeftShift then
-		isSprinting = false
 		SprintRequest:FireServer(false)
 	end
 end)
 
--- ── Server events ─────────────────────────────────────────────────────────────
-MatchState.OnClientEvent:Connect(function(data: { State: string, Time: number?, Winner: string? })
-	-- TODO: update match timer UI, state banner
-	print(string.format("[Match] %s", data.State), data.Time or "", data.Winner or "")
-end)
-
-CoreState.OnClientEvent:Connect(function(data: { Event: string, Carrier: string? })
-	if data.Event == "PickedUp" then
-		print(string.format("[Core] %s picked up the Core!", data.Carrier or "?"))
-	elseif data.Event == "Dropped" then
-		print("[Core] Core was dropped!")
-	elseif data.Event == "Returned" then
-		print("[Core] Core returned to center.")
-	end
-	-- TODO: update Core tracker arrow / HUD icon
-end)
-
+-- ── Server feedback ───────────────────────────────────────────────────────────
 CombatHit.OnClientEvent:Connect(function(data: { Attacker: string, Target: string, Damage: number?, KO: boolean? })
-	if data.KO then
-		print(string.format("[KO] %s knocked out %s!", data.Attacker, data.Target))
-	else
-		print(string.format("[Hit] %s hit %s for %d", data.Attacker, data.Target, data.Damage or 0))
+	local isAttacker = data.Attacker == LocalPlayer.DisplayName
+	local isTarget   = data.Target   == LocalPlayer.DisplayName
+
+	if isAttacker then
+		triggerHitMarker(data.KO == true)
 	end
-	-- TODO: screen flash / hit marker / KO banner
-end)
-
-HUD.OnClientEvent:Connect(function(data: { [string]: any })
-	-- TODO: sync HUD elements (health bar, Core status, match timer)
-	print("[HUD]", data)
-end)
-
-Alert.OnClientEvent:Connect(function(data: { Type: string, Message: string })
-	print(string.format("[%s] %s", data.Type, data.Message))
-	-- TODO: toast notification UI
+	if isTarget then
+		triggerDamageFlash()
+	end
 end)

@@ -3,11 +3,12 @@
 -- Entry point — wires all services for Blox-gme.
 -- Loop: Waiting → Countdown → Active (chase / fight / steal Core) → Ended
 
+local Players             = game:GetService("Players")
 local ReplicatedStorage   = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local RunService          = game:GetService("RunService")
 
--- Remotes
+-- ── Remotes ───────────────────────────────────────────────────────────────────
 local remotesFolder = Instance.new("Folder")
 remotesFolder.Name   = "Remotes"
 remotesFolder.Parent = ReplicatedStorage
@@ -20,22 +21,17 @@ local function remote(name: string): RemoteEvent
 end
 
 local Remotes = {
-	-- Match
 	MatchState    = remote("MatchState"),
-	-- Core
 	CoreState     = remote("CoreState"),
-	-- Combat
 	AttackRequest = remote("AttackRequest"),
 	CombatHit     = remote("CombatHit"),
-	-- Movement
 	SprintRequest = remote("SprintRequest"),
 	DashRequest   = remote("DashRequest"),
-	-- HUD / alerts
 	HUD           = remote("HUD"),
 	Alert         = remote("Alert"),
 }
 
--- Services
+-- ── Services ──────────────────────────────────────────────────────────────────
 local Services = ServerScriptService:WaitForChild("Services")
 
 local MatchService    = require(Services.MatchService)
@@ -45,8 +41,9 @@ local MovementService = require(Services.MovementService)
 local PlayerService   = require(Services.PlayerService)
 local WorldService    = require(Services.WorldService)
 
-local worldService    = WorldService.new()
-worldService:BuildMap()
+-- Build world first — escape pads come back for CoreService registration
+local worldService  = WorldService.new()
+local escapePads    = worldService:BuildMap()
 worldService:ApplyLighting()
 
 local matchService    = MatchService.new(Remotes)
@@ -55,31 +52,50 @@ local combatService   = CombatService.new(Remotes, coreService)
 local movementService = MovementService.new(Remotes)
 local playerService   = PlayerService.new(Remotes, matchService)
 
--- Wire match events
+-- Assign escape pads to players round-robin as they join
+local padIndex = 0
+Players.PlayerAdded:Connect(function(player)
+	padIndex = (padIndex % #escapePads) + 1
+	local pad = escapePads[padIndex]
+	coreService:RegisterEscapeZone(player, pad)
+	-- Tell client which pad is theirs
+	task.wait(1) -- wait for client to load remotes
+	Remotes.HUD:FireClient(player, {
+		Event   = "EscapeZone",
+		PadPos  = { X = pad.Position.X, Y = pad.Position.Y, Z = pad.Position.Z },
+		PadIndex = padIndex,
+	})
+end)
+
+-- ── Match events ──────────────────────────────────────────────────────────────
 matchService:OnStart(function()
 	coreService:SpawnCore()
 	playerService:RespawnAll()
+	Remotes.Alert:FireAllClients({ Type = "System", Message = "Match started — steal the Core!" })
 end)
 
 matchService:OnEnd(function(winner)
 	if winner then
 		Remotes.Alert:FireAllClients({
-			Type    = "System",
+			Type    = "Win",
 			Message = string.format("%s escaped with the Core!", winner.DisplayName),
 		})
 	else
-		Remotes.Alert:FireAllClients({ Type = "System", Message = "Time's up — no winner!" })
+		Remotes.Alert:FireAllClients({ Type = "System", Message = "Time's up — no winner." })
 	end
-	coreService:SpawnCore() -- reset Core for next round
+
+	-- Reassign pads for next round
+	padIndex = 0
+	coreService:SpawnCore()
 end)
 
--- Init all services
+-- ── Init ──────────────────────────────────────────────────────────────────────
 matchService:Init()
 combatService:Init()
 movementService:Init()
 playerService:Init()
 
--- Core escape check every frame
+-- Core escape check every physics step
 RunService.Heartbeat:Connect(function()
 	coreService:CheckEscape()
 end)
