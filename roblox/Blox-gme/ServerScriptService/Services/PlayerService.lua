@@ -1,41 +1,57 @@
 --!strict
 
--- Handles player join/leave lifecycle and initial data setup.
+-- Player lifecycle: join, leave, respawn, health init.
 
-local Players = game:GetService("Players")
+local Players           = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local GameConfig = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("GameConfig"))
 
 local PlayerService = {}
 PlayerService.__index = PlayerService
 
-function PlayerService.new(remotes: { [string]: RemoteEvent })
+function PlayerService.new(remotes: { [string]: RemoteEvent }, matchService: any)
 	local self = setmetatable({}, PlayerService)
-	self._remotes = remotes
-	self._playerData = {} :: { [number]: { [string]: any } }
+	self._remotes      = remotes
+	self._matchService = matchService
 	return self
 end
 
 function PlayerService:Init()
 	Players.PlayerAdded:Connect(function(player)
-		self:_onPlayerAdded(player)
+		self:_onAdded(player)
 	end)
-
 	Players.PlayerRemoving:Connect(function(player)
-		self:_onPlayerRemoving(player)
+		self:_onRemoving(player)
 	end)
 end
 
-function PlayerService:_onPlayerAdded(player: Player)
-	self._playerData[player.UserId] = {}
-	-- TODO: load data store, grant defaults, fire initial HUD update
+function PlayerService:_onAdded(player: Player)
+	player.CharacterAdded:Connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+		humanoid.MaxHealth = GameConfig.BASE_HEALTH
+		humanoid.Health    = GameConfig.BASE_HEALTH
+		humanoid.WalkSpeed = GameConfig.WALK_SPEED
+	end)
+
+	self._remotes.HUD:FireClient(player, { State = self._matchService:GetState() })
+	self._remotes.Alert:FireAllClients({
+		Type    = "System",
+		Message = string.format("%s joined", player.DisplayName),
+	})
 end
 
-function PlayerService:_onPlayerRemoving(player: Player)
-	-- TODO: save player data before cleanup
-	self._playerData[player.UserId] = nil
+function PlayerService:_onRemoving(player: Player)
+	self._remotes.Alert:FireAllClients({
+		Type    = "System",
+		Message = string.format("%s left", player.DisplayName),
+	})
 end
 
-function PlayerService:GetData(player: Player): { [string]: any }?
-	return self._playerData[player.UserId]
+function PlayerService:RespawnAll()
+	for _, player in Players:GetPlayers() do
+		player:LoadCharacter()
+	end
 end
 
 return PlayerService
