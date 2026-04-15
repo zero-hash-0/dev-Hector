@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+
+    <!-- Background radial -->
+    <radialGradient id="bg" cx="50%" cy="42%" r="68%">
+      <stop offset="0%"   stop-color="#1C1C4A"/>
+      <stop offset="100%" stop-color="#06060E"/>
+    </radialGradient>
+
+    <!-- Core sphere gradient -->
+    <radialGradient id="core-fill" cx="38%" cy="34%" r="65%">
+      <stop offset="0%"   stop-color="#FFF5A0"/>
+      <stop offset="40%"  stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#B87A00"/>
+    </radialGradient>
+
+    <!-- Core outer halo -->
+    <radialGradient id="core-halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#FFD700" stop-opacity="0.35"/>
+      <stop offset="55%"  stop-color="#FFD700" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Glow filter for core -->
+    <filter id="glow-core" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="b1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4"  result="b2"/>
+      <feMerge>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Soft glow for text -->
+    <filter id="glow-txt" x="-15%" y="-30%" width="130%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Clip to circle (Roblox icon format) -->
+    <clipPath id="circle">
+      <circle cx="256" cy="256" r="256"/>
+    </clipPath>
+
+  </defs>
+
+  <g clip-path="url(#circle)">
+
+    <!-- ── Background ──────────────────────────────────────────────────── -->
+    <rect width="512" height="512" fill="url(#bg)"/>
+
+    <!-- Subtle hex-grid background texture -->
+    <g opacity="0.055" stroke="#00FFFF" stroke-width="1" fill="none">
+      <line x1="0"   y1="64"  x2="512" y2="64"/>
+      <line x1="0"   y1="128" x2="512" y2="128"/>
+      <line x1="0"   y1="192" x2="512" y2="192"/>
+      <line x1="0"   y1="256" x2="512" y2="256"/>
+      <line x1="0"   y1="320" x2="512" y2="320"/>
+      <line x1="0"   y1="384" x2="512" y2="384"/>
+      <line x1="0"   y1="448" x2="512" y2="448"/>
+      <line x1="64"  y1="0" x2="64"  y2="512"/>
+      <line x1="128" y1="0" x2="128" y2="512"/>
+      <line x1="192" y1="0" x2="192" y2="512"/>
+      <line x1="256" y1="0" x2="256" y2="512"/>
+      <line x1="320" y1="0" x2="320" y2="512"/>
+      <line x1="384" y1="0" x2="384" y2="512"/>
+      <line x1="448" y1="0" x2="448" y2="512"/>
+    </g>
+
+    <!-- Diagonal light shaft from top-left -->
+    <polygon points="0,0 200,0 400,512 0,512"
+      fill="white" opacity="0.018"/>
+
+    <!-- ── Character silhouette — LEFT (carrier, running right) ────────── -->
+    <g fill="#08081A" opacity="0.95">
+      <!-- Head -->
+      <circle cx="146" cy="174" r="26"/>
+      <!-- Torso (leaning forward) -->
+      <path d="M 127 198 Q 124 248 130 272 L 162 272 Q 168 248 165 198 Z"/>
+      <!-- Right arm (forward, reaching toward core) -->
+      <path d="M 162 210 Q 192 202 208 212 Q 212 220 200 224 Q 184 218 162 226 Z"
+        rx="6"/>
+      <!-- Left arm (trailing back) -->
+      <path d="M 127 210 Q 106 218 102 234 Q 100 244 110 244 Q 120 238 130 226 Z"/>
+      <!-- Right leg (lifted, forward stride) -->
+      <path d="M 150 270 L 162 270 L 174 316 Q 176 332 164 334 Q 152 334 150 316 Z"
+        transform="rotate(-22 156 270)"/>
+      <!-- Left leg (back, extended) -->
+      <path d="M 130 270 L 142 270 L 140 318 Q 138 334 126 332 Q 114 330 116 314 Z"
+        transform="rotate(18 136 270)"/>
+    </g>
+
+    <!-- ── Core — hero element ─────────────────────────────────────────── -->
+    <!-- Outermost halo -->
+    <circle cx="256" cy="210" r="155" fill="url(#core-halo)"/>
+    <!-- Mid halo -->
+    <circle cx="256" cy="210" r="100" fill="#FFD700" opacity="0.10"/>
+    <!-- Core sphere -->
+    <circle cx="256" cy="210" r="76" fill="url(#core-fill)" filter="url(#glow-core)"/>
+    <!-- Inner ring detail (engraved look) -->
+    <circle cx="256" cy="210" r="60" fill="none" stroke="#CC8800" stroke-width="1.5" opacity="0.55"/>
+    <circle cx="256" cy="210" r="44" fill="none" stroke="#FFD700" stroke-width="1"   opacity="0.40"/>
+    <!-- Specular highlight -->
+    <ellipse cx="236" cy="190" rx="22" ry="14" fill="white" opacity="0.28"/>
+    <!-- Small secondary highlight -->
+    <circle cx="276" cy="224" r="8" fill="white" opacity="0.09"/>
+
+    <!-- ── Character silhouette — RIGHT (chasing, reaching) ───────────── -->
+    <g fill="#08081A" opacity="0.92">
+      <!-- Head -->
+      <circle cx="366" cy="170" r="26"/>
+      <!-- Torso (aggressive forward lean) -->
+      <path d="M 348 194 Q 344 244 350 268 L 382 268 Q 388 244 384 194 Z"/>
+      <!-- Left arm (extended back for balance) -->
+      <path d="M 384 208 Q 406 198 416 208 Q 420 218 408 222 Q 396 218 382 224 Z"/>
+      <!-- Right arm (reaching hard toward core) -->
+      <path d="M 348 206 Q 322 198 310 214 Q 308 224 320 226 Q 334 220 348 228 Z"/>
+      <!-- Right leg (driving back) -->
+      <path d="M 368 266 L 380 266 L 388 312 Q 390 328 378 330 Q 366 330 364 312 Z"
+        transform="rotate(20 374 266)"/>
+      <!-- Left leg (front, planted) -->
+      <path d="M 348 266 L 360 266 L 354 314 Q 350 330 338 328 Q 326 326 330 310 Z"
+        transform="rotate(-16 354 266)"/>
+    </g>
+
+    <!-- ── Ground plane shadow ─────────────────────────────────────────── -->
+    <ellipse cx="256" cy="298" rx="190" ry="10" fill="black" opacity="0.35"/>
+
+    <!-- ── Horizontal rule between core and text ──────────────────────── -->
+    <line x1="96" y1="318" x2="416" y2="318" stroke="#00FFFF" stroke-width="1.5" opacity="0.35"/>
+
+    <!-- ── Title: BLOX ─────────────────────────────────────────────────── -->
+    <text
+      x="256" y="384"
+      font-family="'Arial Black', 'Impact', 'Haettenschweiler', Arial, sans-serif"
+      font-size="96"
+      font-weight="900"
+      fill="#FFFFFF"
+      text-anchor="middle"
+      letter-spacing="10"
+      filter="url(#glow-txt)">BLOX</text>
+
+    <!-- ── Title: -GME (accent) ────────────────────────────────────────── -->
+    <text
+      x="256" y="462"
+      font-family="'Arial Black', 'Impact', 'Haettenschweiler', Arial, sans-serif"
+      font-size="76"
+      font-weight="900"
+      fill="#FFD700"
+      text-anchor="middle"
+      letter-spacing="16"
+      filter="url(#glow-txt)">-GME</text>
+
+    <!-- ── Corner bracket accents ─────────────────────────────────────── -->
+    <g stroke="#00FFFF" stroke-width="4" fill="none" stroke-linecap="square" opacity="0.65">
+      <path d="M 30 30 L 30 78 M 30 30 L 78 30"/>
+      <path d="M 482 30 L 482 78 M 482 30 L 434 30"/>
+      <path d="M 30 482 L 30 434 M 30 482 L 78 482"/>
+      <path d="M 482 482 L 482 434 M 482 482 L 434 482"/>
+    </g>
+
+    <!-- ── Particle accents ────────────────────────────────────────────── -->
+    <g fill="#00FFFF">
+      <circle cx="96"  cy="148" r="3" opacity="0.55"/>
+      <circle cx="112" cy="420" r="2" opacity="0.40"/>
+      <circle cx="418" cy="155" r="2" opacity="0.50"/>
+      <circle cx="400" cy="410" r="3" opacity="0.40"/>
+    </g>
+    <g fill="#FFD700">
+      <circle cx="74"  cy="288" r="2.5" opacity="0.50"/>
+      <circle cx="440" cy="290" r="2.5" opacity="0.45"/>
+      <circle cx="180" cy="72"  r="2"   opacity="0.40"/>
+      <circle cx="340" cy="72"  r="2"   opacity="0.40"/>
+    </g>
+    <g fill="#A855F7">
+      <circle cx="82"  cy="376" r="2" opacity="0.45"/>
+      <circle cx="432" cy="372" r="2" opacity="0.45"/>
+    </g>
+
+    <!-- ── Circular edge ring ──────────────────────────────────────────── -->
+    <circle cx="256" cy="256" r="252"
+      fill="none" stroke="#00FFFF" stroke-width="5" opacity="0.12"/>
+    <circle cx="256" cy="256" r="248"
+      fill="none" stroke="white" stroke-width="1.5" opacity="0.06"/>
+
+  </g>
+</svg>

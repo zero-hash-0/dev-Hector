@@ -1,0 +1,338 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+
+    <!-- Background gradient: dark left → slightly lighter right -->
+    <linearGradient id="bg-h" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#050510"/>
+      <stop offset="45%"  stop-color="#0C0C22"/>
+      <stop offset="100%" stop-color="#080818"/>
+    </linearGradient>
+
+    <!-- Vertical vignette -->
+    <linearGradient id="vignette-v" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="black" stop-opacity="0.55"/>
+      <stop offset="35%"  stop-color="black" stop-opacity="0"/>
+      <stop offset="65%"  stop-color="black" stop-opacity="0"/>
+      <stop offset="100%" stop-color="black" stop-opacity="0.65"/>
+    </linearGradient>
+
+    <!-- Horizontal vignette (edge darkening) -->
+    <linearGradient id="vignette-h" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="black" stop-opacity="0.6"/>
+      <stop offset="15%"  stop-color="black" stop-opacity="0"/>
+      <stop offset="85%"  stop-color="black" stop-opacity="0"/>
+      <stop offset="100%" stop-color="black" stop-opacity="0.55"/>
+    </linearGradient>
+
+    <!-- Core radial glow (large) -->
+    <radialGradient id="core-field" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#FFD700" stop-opacity="0.28"/>
+      <stop offset="40%"  stop-color="#FFD700" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Core sphere fill -->
+    <radialGradient id="core-sphere" cx="36%" cy="32%" r="66%">
+      <stop offset="0%"   stop-color="#FFF8C0"/>
+      <stop offset="35%"  stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#996600"/>
+    </radialGradient>
+
+    <!-- Glow filter — core -->
+    <filter id="f-core" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="b1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6"  result="b2"/>
+      <feMerge>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Glow filter — title text -->
+    <filter id="f-title" x="-10%" y="-30%" width="120%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Glow filter — character accents -->
+    <filter id="f-char" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Soft drop shadow for UI elements -->
+    <filter id="f-shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="black" flood-opacity="0.7"/>
+    </filter>
+
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- BACKGROUND                                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <rect width="1280" height="720" fill="url(#bg-h)"/>
+
+  <!-- Subtle grid lines -->
+  <g opacity="0.045" stroke="#4444AA" stroke-width="1" fill="none">
+    <!-- Horizontal -->
+    <line x1="0" y1="90"  x2="1280" y2="90"/>
+    <line x1="0" y1="180" x2="1280" y2="180"/>
+    <line x1="0" y1="270" x2="1280" y2="270"/>
+    <line x1="0" y1="360" x2="1280" y2="360"/>
+    <line x1="0" y1="450" x2="1280" y2="450"/>
+    <line x1="0" y1="540" x2="1280" y2="540"/>
+    <line x1="0" y1="630" x2="1280" y2="630"/>
+    <!-- Vertical -->
+    <line x1="160"  y1="0" x2="160"  y2="720"/>
+    <line x1="320"  y1="0" x2="320"  y2="720"/>
+    <line x1="480"  y1="0" x2="480"  y2="720"/>
+    <line x1="640"  y1="0" x2="640"  y2="720"/>
+    <line x1="800"  y1="0" x2="800"  y2="720"/>
+    <line x1="960"  y1="0" x2="960"  y2="720"/>
+    <line x1="1120" y1="0" x2="1120" y2="720"/>
+  </g>
+
+  <!-- Diagonal light shaft from Core toward top-right -->
+  <polygon points="500,360 1280,0 1280,180" fill="white" opacity="0.022"/>
+  <!-- Diagonal light shaft from Core toward bottom-right -->
+  <polygon points="500,360 1280,560 1280,720" fill="white" opacity="0.018"/>
+
+  <!-- Core light field (very large, diffuse) -->
+  <ellipse cx="500" cy="360" rx="420" ry="340" fill="url(#core-field)"/>
+
+  <!-- Arena floor line hint -->
+  <line x1="0" y1="600" x2="1280" y2="600" stroke="#1A1A44" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="640" cy="605" rx="560" ry="12" fill="black" opacity="0.30"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- THE CORE                                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Outermost glow ring -->
+  <circle cx="500" cy="330" r="220" fill="#FFD700" opacity="0.05"/>
+  <!-- Mid glow ring -->
+  <circle cx="500" cy="330" r="140" fill="#FFD700" opacity="0.08"/>
+  <!-- Core sphere body -->
+  <circle cx="500" cy="330" r="88" fill="url(#core-sphere)" filter="url(#f-core)"/>
+  <!-- Inner detail rings -->
+  <circle cx="500" cy="330" r="70" fill="none" stroke="#CC8800" stroke-width="2"   opacity="0.50"/>
+  <circle cx="500" cy="330" r="52" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.35"/>
+  <circle cx="500" cy="330" r="36" fill="none" stroke="#FFE55C" stroke-width="1"   opacity="0.25"/>
+  <!-- Specular highlight -->
+  <ellipse cx="472" cy="302" rx="26" ry="16" fill="white" opacity="0.30"/>
+  <!-- Secondary micro-highlight -->
+  <circle cx="524" cy="350" r="9"  fill="white" opacity="0.08"/>
+
+  <!-- Radial energy rays from core (8 rays) -->
+  <g stroke="#FFD700" stroke-width="1.5" opacity="0.18" stroke-linecap="round">
+    <line x1="500" y1="330" x2="500" y2="50"/>
+    <line x1="500" y1="330" x2="500" y2="610"/>
+    <line x1="500" y1="330" x2="220" y2="330"/>
+    <line x1="500" y1="330" x2="780" y2="330"/>
+    <line x1="500" y1="330" x2="302" y2="132"/>
+    <line x1="500" y1="330" x2="698" y2="528"/>
+    <line x1="500" y1="330" x2="302" y2="528"/>
+    <line x1="500" y1="330" x2="698" y2="132"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- CHARACTER SILHOUETTES                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- ── VIPER (green) — left, lunging toward Core ─────────────────────── -->
+  <g filter="url(#f-char)">
+    <!-- Color glow backing -->
+    <ellipse cx="238" cy="490" rx="48" ry="10" fill="#00FF88" opacity="0.20"/>
+
+    <g fill="#00FF88" opacity="0.92">
+      <!-- Head -->
+      <circle cx="268" cy="200" r="32"/>
+      <!-- Torso (aggressive lean toward core, ~20 deg) -->
+      <path d="M 244 230 Q 238 298 244 326 L 292 322 Q 298 294 292 226 Z"/>
+      <!-- Right arm stretched hard forward toward core -->
+      <path d="M 290 252 Q 330 238 358 250 Q 366 266 352 270 Q 326 262 288 272 Z"/>
+      <!-- Left arm trailing behind for balance -->
+      <path d="M 246 258 Q 210 250 196 264 Q 190 278 204 280 Q 220 272 248 276 Z"/>
+      <!-- Right leg (front, bent, planted) -->
+      <path d="M 266 320 L 284 320 L 292 386 Q 294 410 278 412 Q 262 412 258 388 Z"
+        transform="rotate(-18 276 320)"/>
+      <!-- Left leg (driving back, extended) -->
+      <path d="M 248 320 L 266 320 L 258 388 Q 254 412 238 408 Q 222 404 228 380 Z"
+        transform="rotate(24 257 320)"/>
+      <!-- Boot details (thick base) -->
+      <ellipse cx="266" cy="420" rx="20" ry="8" opacity="0.7"/>
+    </g>
+  </g>
+
+  <!-- ── REAPER (purple) — center, running WITH the Core (carrier) ─────── -->
+  <g filter="url(#f-char)">
+    <!-- Color glow backing (brightest — this is the star) -->
+    <ellipse cx="740" cy="494" rx="56" ry="12" fill="#A855F7" opacity="0.25"/>
+
+    <g fill="#A855F7" opacity="0.95">
+      <!-- Head -->
+      <circle cx="740" cy="170" r="36"/>
+      <!-- Torso (upright, powerful) -->
+      <path d="M 714 204 Q 708 282 714 314 L 766 310 Q 772 278 766 200 Z"/>
+      <!-- Right arm out to side for balance (carrying core gesture) -->
+      <path d="M 764 230 Q 804 218 828 232 Q 836 248 820 252 Q 798 244 762 254 Z"/>
+      <!-- Left arm bent, holding position -->
+      <path d="M 716 228 Q 682 220 666 238 Q 660 252 676 254 Q 694 246 718 250 Z"/>
+      <!-- Right leg (striding forward) -->
+      <path d="M 734 308 L 754 308 L 762 380 Q 764 406 746 408 Q 728 408 726 382 Z"
+        transform="rotate(-14 748 308)"/>
+      <!-- Left leg (pushing off behind) -->
+      <path d="M 726 308 L 746 308 L 738 382 Q 734 408 716 404 Q 698 400 704 374 Z"
+        transform="rotate(22 736 308)"/>
+      <!-- Boot details -->
+      <ellipse cx="740" cy="418" rx="24" ry="9" opacity="0.7"/>
+    </g>
+
+    <!-- Death mark skull floating above head -->
+    <text x="740" y="148"
+      font-family="Arial, sans-serif"
+      font-size="28"
+      text-anchor="middle"
+      fill="#A855F7"
+      opacity="0.70">💀</text>
+  </g>
+
+  <!-- ── SURGE (cyan-blue) — right, full sprint, catching up ───────────── -->
+  <g filter="url(#f-char)">
+    <!-- Color glow backing -->
+    <ellipse cx="1030" cy="490" rx="52" ry="11" fill="#00BFFF" opacity="0.22"/>
+
+    <g fill="#00BFFF" opacity="0.90">
+      <!-- Head -->
+      <circle cx="990" cy="196" r="32"/>
+      <!-- Torso (extreme forward lean, maximum sprint) -->
+      <path d="M 964 226 Q 958 298 964 326 L 1012 320 Q 1018 292 1012 222 Z"
+        transform="rotate(-12 988 274)"/>
+      <!-- Right arm (extreme forward reach — sprinting) -->
+      <path d="M 1010 248 Q 1056 226 1082 240 Q 1090 256 1074 260 Q 1048 252 1006 266 Z"/>
+      <!-- Left arm (far behind, full stride) -->
+      <path d="M 966 256 Q 924 248 908 264 Q 902 278 918 280 Q 938 270 968 276 Z"/>
+      <!-- Right leg (lifted high, full stride — forward) -->
+      <path d="M 978 316 L 998 316 L 1008 374 Q 1010 398 992 400 Q 974 400 972 374 Z"
+        transform="rotate(-30 990 316)"/>
+      <!-- Left leg (back, fully extended) -->
+      <path d="M 998 316 L 1016 316 L 1008 380 Q 1004 402 988 398 Q 972 394 978 370 Z"
+        transform="rotate(34 1007 316)"/>
+      <!-- Boot details -->
+      <ellipse cx="988" cy="412" rx="22" ry="8" opacity="0.7"/>
+    </g>
+
+    <!-- Speed trail lines behind SURGE -->
+    <g stroke="#00BFFF" stroke-width="2" opacity="0.25" stroke-linecap="round">
+      <line x1="1100" y1="280" x2="1240" y2="260"/>
+      <line x1="1100" y1="310" x2="1250" y2="310"/>
+      <line x1="1100" y1="340" x2="1240" y2="358"/>
+      <line x1="1108" y1="268" x2="1210" y2="252"/>
+      <line x1="1108" y1="352" x2="1210" y2="368"/>
+    </g>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LEFT PANEL — TITLE & TAGLINE                                           -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Thin vertical accent bar -->
+  <rect x="58" y="140" width="4" height="280" fill="#00FFFF" opacity="0.70" rx="2"/>
+
+  <!-- "BLOX" — main title, massive weight -->
+  <text
+    x="80" y="278"
+    font-family="'Arial Black', 'Impact', 'Haettenschweiler', Arial, sans-serif"
+    font-size="148"
+    font-weight="900"
+    fill="#FFFFFF"
+    letter-spacing="6"
+    filter="url(#f-title)">BLOX</text>
+
+  <!-- "-GME" — secondary title, gold -->
+  <text
+    x="80" y="400"
+    font-family="'Arial Black', 'Impact', 'Haettenschweiler', Arial, sans-serif"
+    font-size="120"
+    font-weight="900"
+    fill="#FFD700"
+    letter-spacing="10"
+    filter="url(#f-title)">-GME</text>
+
+  <!-- Horizontal rule -->
+  <line x1="80" y1="424" x2="440" y2="424" stroke="#00FFFF" stroke-width="2" opacity="0.50"/>
+
+  <!-- Tagline -->
+  <text
+    x="82" y="460"
+    font-family="'Arial Black', Arial, sans-serif"
+    font-size="22"
+    font-weight="700"
+    fill="#AAAACC"
+    letter-spacing="4">STEAL THE CORE.  ESCAPE.</text>
+
+  <!-- Character count badge -->
+  <rect x="80" y="484" width="180" height="36" rx="4" fill="#1A1A3A" opacity="0.75"/>
+  <text
+    x="170" y="508"
+    font-family="Arial, sans-serif"
+    font-size="16"
+    font-weight="700"
+    fill="#00FFFF"
+    text-anchor="middle"
+    letter-spacing="3">6 FIGHTERS</text>
+
+  <!-- Real-time PvP badge -->
+  <rect x="272" y="484" width="186" height="36" rx="4" fill="#1A1A3A" opacity="0.75"/>
+  <text
+    x="365" y="508"
+    font-family="Arial, sans-serif"
+    font-size="16"
+    font-weight="700"
+    fill="#FFD700"
+    text-anchor="middle"
+    letter-spacing="2">REAL-TIME PvP</text>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- VIGNETTE & EDGE POLISH                                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+  <rect width="1280" height="720" fill="url(#vignette-v)" pointer-events="none"/>
+  <rect width="1280" height="720" fill="url(#vignette-h)" pointer-events="none"/>
+
+  <!-- Corner bracket accents (top-right and bottom-right, game UI style) -->
+  <g stroke="#00FFFF" stroke-width="4" fill="none" stroke-linecap="square" opacity="0.55">
+    <path d="M 1248 16 L 1248 64 M 1248 16 L 1200 16"/>
+    <path d="M 1248 704 L 1248 656 M 1248 704 L 1200 704"/>
+    <path d="M 32 16 L 32 64 M 32 16 L 80 16"/>
+    <path d="M 32 704 L 32 656 M 32 704 L 80 704"/>
+  </g>
+
+  <!-- Top edge accent line -->
+  <line x1="0" y1="4" x2="1280" y2="4" stroke="#00FFFF" stroke-width="2.5" opacity="0.25"/>
+  <!-- Bottom edge accent line -->
+  <line x1="0" y1="716" x2="1280" y2="716" stroke="#00FFFF" stroke-width="2.5" opacity="0.25"/>
+
+  <!-- Scattered particle details -->
+  <g fill="#00FFFF">
+    <circle cx="164" cy="112" r="3" opacity="0.45"/>
+    <circle cx="420" cy="88"  r="2" opacity="0.35"/>
+    <circle cx="620" cy="64"  r="2" opacity="0.30"/>
+    <circle cx="860" cy="96"  r="3" opacity="0.35"/>
+    <circle cx="1160" cy="108" r="2" opacity="0.30"/>
+    <circle cx="180" cy="640" r="2" opacity="0.35"/>
+    <circle cx="1100" cy="636" r="3" opacity="0.35"/>
+  </g>
+  <g fill="#FFD700">
+    <circle cx="310" cy="96"  r="2.5" opacity="0.40"/>
+    <circle cx="700" cy="680" r="2.5" opacity="0.40"/>
+    <circle cx="1200" cy="300" r="2"  opacity="0.35"/>
+  </g>
+  <g fill="#A855F7">
+    <circle cx="600" cy="640" r="2"   opacity="0.40"/>
+    <circle cx="1050" cy="80" r="2.5" opacity="0.35"/>
+  </g>
+
+</svg>
