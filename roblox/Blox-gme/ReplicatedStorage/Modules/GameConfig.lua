@@ -7,7 +7,7 @@ local GameConfig = {}
 
 -- Match
 GameConfig.MAX_PLAYERS      = 12
-GameConfig.MIN_PLAYERS_START = 2   -- minimum to begin a match
+GameConfig.MIN_PLAYERS_START = 1   -- 1 = solo test mode | set to 2+ for live
 GameConfig.MATCH_DURATION   = 180  -- seconds
 GameConfig.COUNTDOWN        = 5    -- pre-match countdown seconds
 
