@@ -15,6 +15,12 @@ local BASH_CONE_DOT  = 0.3   -- cosine threshold for "in front"
 local SPARK_RANGE    = 14
 local PHANTOM_DIST   = 22
 local CLOAK_DURATION = 2.5
+local BLITZ_DURATION = 3
+local BLITZ_SPEED    = 42    -- 140% of sprint speed (~30)
+local MARK_DURATION  = 3
+local MARK_RANGE     = 16
+local MOMENTUM_TICK  = 0.5   -- speed gained per second sprinting
+local MOMENTUM_MAX   = 6     -- max bonus
 
 local AbilityService = {}
 AbilityService.__index = AbilityService
@@ -27,6 +33,9 @@ function AbilityService.new(remotes: { [string]: RemoteEvent }, combatService: a
 	self._cooldowns    = {} :: { [Player]: number }   -- last ability use tick
 	self._cloaked      = {} :: { [Player]: boolean }
 	self._sparkBonus   = {} :: { [Player]: boolean }  -- Live Wire first-hit bonus
+	self._blitzing     = {} :: { [Player]: boolean }  -- SURGE blitz active
+	self._momentumBonus = {} :: { [Player]: number }  -- SURGE accumulated speed
+	self._marked       = {} :: { [Player]: number }   -- REAPER mark expiry tick
 	return self
 end
 
@@ -38,6 +47,14 @@ end
 
 function AbilityService:IsCloaked(player: Player): boolean
 	return self._cloaked[player] == true
+end
+
+-- Called by CombatService to check if target is Death Marked (REAPER)
+function AbilityService:IsMarked(player: Player): boolean
+	local expiry = self._marked[player]
+	if expiry and tick() < expiry then return true end
+	self._marked[player] = nil
+	return false
 end
 
 -- Called by CombatService to check/consume the SPARK first-hit bonus
@@ -77,10 +94,13 @@ function AbilityService:Init()
 
 	-- Clean up on leave
 	Players.PlayerRemoving:Connect(function(player)
-		self._selections[player]  = nil
-		self._cooldowns[player]   = nil
-		self._cloaked[player]     = nil
-		self._sparkBonus[player]  = nil
+		self._selections[player]    = nil
+		self._cooldowns[player]     = nil
+		self._cloaked[player]       = nil
+		self._sparkBonus[player]    = nil
+		self._blitzing[player]      = nil
+		self._momentumBonus[player] = nil
+		self._marked[player]        = nil
 	end)
 end
 
@@ -104,6 +124,15 @@ function AbilityService:_applyPassive(player: Player, character: Model)
 	if charId == "VIPER" then
 		self:_startSlipTrail(player, character)
 	end
+
+	-- SURGE passive: momentum speed buildup while sprinting
+	if charId == "SURGE" then
+		self._momentumBonus[player] = 0
+		self:_startMomentumLoop(player, character, humanoid)
+	end
+
+	-- REAPER passive: heal on KO (wired via CombatService callback in Main)
+	-- Nothing to set up per-spawn here; handled in _handleKO hook
 
 	-- Nameplate billboard
 	self:_buildNameplate(player, character, cfg)
@@ -217,6 +246,10 @@ function AbilityService:_handleAbility(player: Player)
 		self:_abilityGhost(player, character)
 	elseif charId == "SPARK" then
 		self:_abilitySpark(player, root)
+	elseif charId == "SURGE" then
+		self:_abilitySurge(player, character)
+	elseif charId == "REAPER" then
+		self:_abilityReaper(player, root)
 	end
 
 	-- Tell all clients to play the effect
@@ -305,6 +338,155 @@ function AbilityService:_abilitySpark(player: Player, root: BasePart)
 		self._combat:ApplyStun(target)
 		tHum.Health -= 10
 	end
+end
+
+-- ── SURGE ─────────────────────────────────────────────────────────────────────
+
+function AbilityService:_startMomentumLoop(player: Player, character: Model, humanoid: Humanoid)
+	task.spawn(function()
+		while character.Parent and humanoid.Health > 0 do
+			task.wait(1)
+			if self._blitzing[player] then continue end
+			local isMoving = humanoid.MoveDirection.Magnitude > 0.1
+				and humanoid.WalkSpeed >= 20  -- sprinting threshold
+			if isMoving then
+				local bonus = math.min(
+					(self._momentumBonus[player] or 0) + MOMENTUM_TICK,
+					MOMENTUM_MAX
+				)
+				self._momentumBonus[player] = bonus
+				-- Apply on top of base sprint speed
+				humanoid.WalkSpeed = math.floor(20 * 1.05 + bonus)  -- base sprint * SURGE mult + momentum
+			else
+				-- Decay on stop
+				local bonus = math.max((self._momentumBonus[player] or 0) - MOMENTUM_TICK * 2, 0)
+				self._momentumBonus[player] = bonus
+			end
+		end
+	end)
+end
+
+function AbilityService:_abilitySurge(player: Player, character: Model)
+	if self._blitzing[player] then return end
+	self._blitzing[player] = true
+
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then self._blitzing[player] = nil return end
+
+	local origSpeed = humanoid.WalkSpeed
+	humanoid.WalkSpeed = BLITZ_SPEED
+
+	-- Collision knockback: poll nearby players while blitzing
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	task.spawn(function()
+		local elapsed   = 0
+		local hitAlready = {} :: { [Player]: boolean }
+		while elapsed < BLITZ_DURATION do
+			elapsed += task.wait(0.05)
+			if not root or not character.Parent then break end
+			for _, target in Players:GetPlayers() do
+				if target == player or hitAlready[target] then continue end
+				local tChar = target.Character
+				if not tChar then continue end
+				local tRoot = tChar:FindFirstChild("HumanoidRootPart") :: BasePart?
+				local tHum  = tChar:FindFirstChildOfClass("Humanoid")
+				if not tRoot or not tHum or tHum.Health <= 0 then continue end
+				if (root.Position - tRoot.Position).Magnitude > 5 then continue end
+
+				-- Knockback
+				local bv = Instance.new("BodyVelocity")
+				bv.Velocity  = (tRoot.Position - root.Position).Unit * 70 + Vector3.new(0, 15, 0)
+				bv.MaxForce  = Vector3.new(1e5, 1e5, 1e5)
+				bv.P         = 1e4
+				bv.Parent    = tRoot
+				game:GetService("Debris"):AddItem(bv, 0.2)
+				tHum.Health -= 12
+				hitAlready[target] = true
+
+				self._remotes.CombatHit:FireAllClients({
+					Attacker = player.DisplayName,
+					Target   = target.DisplayName,
+					Damage   = 12,
+					KO       = tHum.Health <= 0,
+				})
+				if tHum.Health <= 0 then
+					self._combat:_handleKO(self._combat, player, target)
+				end
+			end
+		end
+		self._blitzing[player] = nil
+		if character.Parent then
+			humanoid.WalkSpeed = origSpeed
+		end
+	end)
+end
+
+-- ── REAPER ────────────────────────────────────────────────────────────────────
+
+function AbilityService:_abilityReaper(player: Player, root: BasePart)
+	-- Mark nearest enemy within range
+	local nearest: Player? = nil
+	local nearestDist = MARK_RANGE
+
+	for _, target in Players:GetPlayers() do
+		if target == player then continue end
+		local tChar = target.Character
+		if not tChar then continue end
+		local tRoot = tChar:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not tRoot then continue end
+		local dist = (root.Position - tRoot.Position).Magnitude
+		if dist < nearestDist then
+			nearestDist = dist
+			nearest     = target
+		end
+	end
+
+	if not nearest then return end
+
+	self._marked[nearest] = tick() + MARK_DURATION
+
+	-- Visual indicator on the marked player (BillboardGui)
+	task.spawn(function()
+		local tChar = nearest and nearest.Character
+		if not tChar then return end
+		local tRoot = tChar:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not tRoot then return end
+
+		local bb = Instance.new("BillboardGui")
+		bb.Size        = UDim2.new(0, 60, 0, 60)
+		bb.StudsOffset = Vector3.new(0, 5, 0)
+		bb.AlwaysOnTop = true
+		bb.Parent      = tRoot
+
+		local skull = Instance.new("TextLabel")
+		skull.Size             = UDim2.new(1, 0, 1, 0)
+		skull.BackgroundTransparency = 1
+		skull.Font             = Enum.Font.GothamBold
+		skull.TextColor3       = Color3.fromHex("#A855F7")
+		skull.TextScaled       = true
+		skull.Text             = "💀"
+		skull.Parent           = bb
+
+		task.delay(MARK_DURATION, function() bb:Destroy() end)
+	end)
+
+	self._remotes.AbilityResult:FireAllClients({
+		Event    = "Effect",
+		Character = "REAPER",
+		Player   = player.DisplayName,
+		Target   = nearest.DisplayName,
+		Origin   = { X = root.Position.X, Y = root.Position.Y, Z = root.Position.Z },
+	})
+end
+
+-- REAPER soul harvest — called from Main.server.lua KO hook
+function AbilityService:OnKill(killer: Player)
+	if self._selections[killer] ~= "REAPER" then return end
+	local char = killer.Character
+	if not char then return end
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+	hum.Health = math.min(hum.Health + 25, hum.MaxHealth)
 end
 
 return AbilityService

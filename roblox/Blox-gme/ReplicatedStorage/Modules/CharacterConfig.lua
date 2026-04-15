@@ -80,7 +80,44 @@ CharacterConfig.Characters = {
 	},
 }
 
+	SURGE = {
+		DisplayName = "SURGE",
+		Tagline     = "Speed is the weapon.",
+		Color       = Color3.fromHex("#00BFFF"),
+		Description = "A momentum predator who turns raw speed into a weapon. Hits harder the longer she sprints.",
+		Passive     = {
+			Name        = "Momentum",
+			Description = "Gains +0.5 WalkSpeed per second while sprinting, up to +6.",
+		},
+		Ability = {
+			Name        = "Blitz Rush",
+			Description = "Sprint at 140% speed for 3s. Any player you collide with is knocked back.",
+			Cooldown    = 6,
+			Key         = "E",
+		},
+		Stats = { SpeedMult = 1.05, HealthMult = 0.88 },
+	},
+
+	REAPER = {
+		DisplayName = "REAPER",
+		Tagline     = "Mark. Hunt. Collect.",
+		Color       = Color3.fromHex("#A855F7"),
+		Description = "A calculating predator who marks targets and feeds on kills. Every KO makes him stronger.",
+		Passive     = {
+			Name        = "Soul Harvest",
+			Description = "Each KO restores 25 HP.",
+		},
+		Ability = {
+			Name        = "Death Mark",
+			Description = "Mark the nearest enemy — they take 50% more damage for 3s.",
+			Cooldown    = 6,
+			Key         = "E",
+		},
+		Stats = { SpeedMult = 0.95, HealthMult = 1.1 },
+	},
+}
+
 -- Deterministic order for UI display
-CharacterConfig.Order = { "VIPER", "TANK", "GHOST", "SPARK" }
+CharacterConfig.Order = { "VIPER", "TANK", "GHOST", "SPARK", "SURGE", "REAPER" }
 
 return CharacterConfig

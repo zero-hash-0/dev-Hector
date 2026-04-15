@@ -112,10 +112,13 @@ function CombatService:_handleAttack(attacker: Player, targetVal: any)
 	if not aRoot or not tRoot then return end
 	if (aRoot.Position - tRoot.Position).Magnitude > GameConfig.ATTACK_RANGE then return end
 
-	-- Damage (SPARK Live Wire bonus)
+	-- Damage (SPARK Live Wire bonus + REAPER Death Mark multiplier)
 	local damage = GameConfig.BASE_DAMAGE
 	if self._abilityService:ConsumeSparkBonus(attacker) then
 		damage += 8
+	end
+	if self._abilityService:IsMarked(target) then
+		damage = math.floor(damage * 1.5)
 	end
 
 	local humanoid = tChar:FindFirstChildOfClass("Humanoid")

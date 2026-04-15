@@ -197,6 +197,7 @@ local origKO = combatService._handleKO
 combatService._handleKO = function(self: any, attacker: Player, target: Player)
 	origKO(self, attacker, target)
 	progressionService:AddKill(attacker)
+	abilityService:OnKill(attacker)   -- REAPER soul harvest
 end
 
 -- ── Sudden death time expiry resolution ──────────────────────────────────────
