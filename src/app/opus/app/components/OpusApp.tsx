@@ -270,18 +270,49 @@ function TabIcon({ name, active }: { name: string; active: boolean }) {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 }
 
+// ─── Persistence ─────────────────────────────────────────────────────────────
+const STORAGE_KEY = "opus_tasks_v1";
+const TAB_KEY     = "opus_tab_v1";
+
+function loadPersistedTasks(): Task[] {
+  if (typeof window === "undefined") return SEED_TASKS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as Task[];
+  } catch { /* ignore */ }
+  return SEED_TASKS;
+}
+
+function loadPersistedTab(): "today"|"projects"|"focus"|"profile" {
+  if (typeof window === "undefined") return "today";
+  try {
+    const raw = localStorage.getItem(TAB_KEY);
+    if (raw && ["today","projects","focus","profile"].includes(raw))
+      return raw as "today"|"projects"|"focus"|"profile";
+  } catch { /* ignore */ }
+  return "today";
+}
+
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function OpusApp() {
-  const [tasks, setTasks]         = useState<Task[]>(SEED_TASKS);
-  const [activeTab, setActiveTab] = useState<"today"|"projects"|"focus"|"profile">("today");
+  const [tasks, setTasks]         = useState<Task[]>(loadPersistedTasks);
+  const [activeTab, setActiveTab] = useState<"today"|"projects"|"focus"|"profile">(loadPersistedTab);
   const [showAdd, setShowAdd]     = useState(false);
   const [laterOpen, setLaterOpen] = useState(false);
   const [gearRot, setGearRot]     = useState(0);
   const [fabRot, setFabRot]       = useState(false);
   const [time, setTime]           = useState(new Date());
-  const nextId = useRef(100);
+  const nextId = useRef(Math.max(100, ...loadPersistedTasks().map(t => t.id + 1)));
 
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 30000); return () => clearInterval(t); }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch { /* ignore */ }
+  }, [tasks]);
+
+  useEffect(() => {
+    try { localStorage.setItem(TAB_KEY, activeTab); } catch { /* ignore */ }
+  }, [activeTab]);
 
   const todayTasks = tasks.filter(t => t.schedule === "today");
   const pending    = todayTasks.filter(t => !t.done);
