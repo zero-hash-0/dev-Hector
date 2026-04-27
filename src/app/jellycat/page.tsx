@@ -21,7 +21,8 @@ export default function JellycatPage() {
   const filtered = items.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.series.toLowerCase().includes(search.toLowerCase())
+      item.series.toLowerCase().includes(search.toLowerCase()) ||
+      String(item.dexNumber ?? '').includes(search.trim())
     const matchesFilter = filter === 'all' || item.isFavorite
     return matchesSearch && matchesFilter
   })
@@ -47,7 +48,8 @@ export default function JellycatPage() {
   }
 
   const handleSave = (item: JellycatItem) => {
-    editing ? update(item) : add(item)
+    if (editing) update(item)
+    else add(item)
     setModalOpen(false)
     setEditing(null)
   }
@@ -66,12 +68,12 @@ export default function JellycatPage() {
         >
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="text-3xl">🧸</span>
+              <span className="text-3xl">⚡</span>
               <h1 className="text-3xl font-bold text-white tracking-tight">
-                My <span className="text-[#3DD6CE]">Jellycat</span> Collection
+                My <span className="text-[#3DD6CE]">Pokémon</span> Collection
               </h1>
             </div>
-            <p className="text-[#4A6580] text-sm pl-[52px]">Your soft toy portfolio</p>
+            <p className="text-[#4A6580] text-sm pl-[52px]">Your personal Pokédex and catch log</p>
           </div>
 
           <div className="flex gap-3 flex-wrap">
@@ -89,7 +91,7 @@ export default function JellycatPage() {
               onClick={openAdd}
               className="px-4 py-2 rounded-xl bg-[#3DD6CE] text-[#0A1320] text-sm font-bold hover:bg-[#2EC5BD] transition-colors"
             >
-              + Add Jellycat
+              + Add Pokémon
             </motion.button>
           </div>
         </motion.div>
@@ -116,7 +118,7 @@ export default function JellycatPage() {
           >
             <input
               type="text"
-              placeholder="Search by name or series…"
+              placeholder="Search by name, type, or Pokédex number…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="px-4 py-2 rounded-xl border border-[#1A3050] bg-[#0F1E32] text-white placeholder-[#2A4060] text-sm focus:outline-none focus:ring-2 focus:ring-[#3DD6CE]/30 w-64"
@@ -147,15 +149,15 @@ export default function JellycatPage() {
             transition={{ delay: 0.15 }}
             className="text-center py-28"
           >
-            <div className="text-7xl mb-5 select-none opacity-40">🧸</div>
-            <h2 className="text-xl font-semibold text-white mb-2">No Jellycats yet!</h2>
-            <p className="text-[#4A6580] text-sm mb-8">Start building your soft toy portfolio.</p>
+            <div className="text-7xl mb-5 select-none opacity-40">⚡</div>
+            <h2 className="text-xl font-semibold text-white mb-2">No Pokémon yet!</h2>
+            <p className="text-[#4A6580] text-sm mb-8">Start building your trainer collection.</p>
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={openAdd}
               className="px-6 py-3 rounded-xl bg-[#3DD6CE] text-[#0A1320] font-bold hover:bg-[#2EC5BD] transition-colors"
             >
-              Add your first Jellycat
+              Add your first Pokémon
             </motion.button>
           </motion.div>
         ) : filtered.length === 0 ? (
@@ -181,6 +183,7 @@ export default function JellycatPage() {
       </div>
 
       <AddModal
+        key={`${modalOpen}-${editing?.id ?? 'new'}`}
         open={modalOpen}
         item={editing}
         onClose={() => {

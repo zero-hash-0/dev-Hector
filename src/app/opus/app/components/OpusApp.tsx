@@ -25,6 +25,8 @@ const TAG_COLORS: Record<Tag, { bg: string; text: string }> = {
 };
 const PRIORITY_COLORS = { high: "#ff5555", mid: "#f5a623", low: "#6c6c7e" };
 
+const STORAGE_KEY = "opus-demo-tasks-v1";
+
 const SEED_TASKS: Task[] = [
   { id: 1, title: "Write proposal draft",  tag: "Work",  time: "today", schedule: "today", done: false, priority: "high" },
   { id: 2, title: "Review Q2 metrics",     tag: "Work",  schedule: "today", done: false, priority: "mid"  },
@@ -36,6 +38,28 @@ const SEED_TASKS: Task[] = [
   { id: 8, title: "Plan sprint backlog",   tag: "Work",  schedule: "later", done: false, priority: "mid"  },
   { id: 9, title: "Finish SwiftUI book",   tag: "Learn", schedule: "later", done: false, priority: "low"  },
 ];
+
+function loadInitialTasks(): Task[] {
+  if (typeof window === "undefined") return SEED_TASKS;
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return SEED_TASKS;
+
+    const parsed = JSON.parse(raw) as Task[];
+    if (!Array.isArray(parsed) || parsed.length === 0) return SEED_TASKS;
+
+    return parsed;
+  } catch {
+    return SEED_TASKS;
+  }
+}
+
+function getNextTaskId(tasks: Task[]) {
+  const maxId = tasks.reduce((max, task) => Math.max(max, task.id), 0);
+  return maxId + 1;
+}
+
 
 // ─── SVG Llama Icon ───────────────────────────────────────────────────────────
 function LlamaIcon({ size = 48 }: { size?: number }) {
@@ -203,7 +227,7 @@ function AddTaskSheet({ open, onClose, onAdd }: {
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState<Tag>("Work");
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { if (open) { setTitle(""); setTimeout(() => inputRef.current?.focus(), 320); } }, [open]);
+  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 320); }, [open]);
   const submit = () => { if (!title.trim()) return; onAdd(title.trim(), tag); onClose(); };
   return (
     <>
@@ -272,16 +296,24 @@ function TabIcon({ name, active }: { name: string; active: boolean }) {
 
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function OpusApp() {
-  const [tasks, setTasks]         = useState<Task[]>(SEED_TASKS);
+  const [tasks, setTasks]         = useState<Task[]>(() => loadInitialTasks());
   const [activeTab, setActiveTab] = useState<"today"|"projects"|"focus"|"profile">("today");
   const [showAdd, setShowAdd]     = useState(false);
   const [laterOpen, setLaterOpen] = useState(false);
   const [gearRot, setGearRot]     = useState(0);
   const [fabRot, setFabRot]       = useState(false);
   const [time, setTime]           = useState(new Date());
-  const nextId = useRef(100);
+  const nextId = useRef(getNextTaskId(tasks));
 
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 30000); return () => clearInterval(t); }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    } catch {
+      // Ignore storage write failures
+    }
+  }, [tasks]);
 
   const todayTasks = tasks.filter(t => t.schedule === "today");
   const pending    = todayTasks.filter(t => !t.done);
@@ -518,7 +550,7 @@ export default function OpusApp() {
         </div>
       </div>
 
-      <AddTaskSheet open={showAdd} onClose={() => { setShowAdd(false); setFabRot(false); }} onAdd={addTask}/>
+      <AddTaskSheet key={showAdd ? "open" : "closed"} open={showAdd} onClose={() => { setShowAdd(false); setFabRot(false); }} onAdd={addTask}/>
     </div>
   );
 }

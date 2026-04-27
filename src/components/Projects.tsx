@@ -17,18 +17,18 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    name:      "Opus",
-    dir:       "opus/",
+    name:      "Pokédex Vault",
+    dir:       "pokemon-vault/",
     status:    "BETA",
     statusClr: "#DA7756",
     perms:     "drwxr-xr-x",
-    type:      "iOS App",
-    size:      "4.2M",
+    type:      "Web + Mobile",
+    size:      "6.1M",
     modified:  "Mar 2024",
-    desc:      "Task manager for iOS built around momentum, not just lists. Home screen widgets, lock screen glanceable data, recurring tasks, and a streak system that keeps you in flow. 25 founding member spots available.",
-    tech:      ["Swift", "SwiftUI", "WidgetKit", "Next.js", "TypeScript"],
-    link:      "/beta",
-    linkLabel: "join beta",
+    desc:      "Pokémon collection manager with Pokédex lookup, favorites, notes, and shareable trainer collections. Built for quick capture logging and clean visual browsing.",
+    tech:      ["Next.js", "TypeScript", "Framer Motion", "PokeAPI", "LocalStorage"],
+    link:      "/jellycat",
+    linkLabel: "open app",
   },
   {
     name:      "Strata",
