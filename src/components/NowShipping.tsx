@@ -31,11 +31,11 @@ export default function NowShipping() {
 
         <div className="flex flex-wrap gap-3">
           <a
-            href="/jellycat"
+            href="/dexledger"
             className="text-xs px-4 py-1.5 rounded border transition-all duration-200"
             style={{ borderColor: 'rgba(218,119,86,0.45)', color: '#DA7756' }}
           >
-            ./open-collection-app →
+            ./open-dexledger-site →
           </a>
         </div>
       </div>

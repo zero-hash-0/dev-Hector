@@ -27,8 +27,8 @@ const PROJECTS: Project[] = [
     modified:  "Mar 2024",
     desc:      "Pokémon collection manager with Pokédex lookup, favorites, notes, and shareable trainer collections. Built for quick capture logging and clean visual browsing.",
     tech:      ["Next.js", "TypeScript", "Framer Motion", "PokeAPI", "LocalStorage"],
-    link:      "/jellycat",
-    linkLabel: "open app",
+    link:      "/dexledger",
+    linkLabel: "open website",
   },
   {
     name:      "Strata",
