@@ -1,0 +1,876 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Neon Compound</title>
+<style>
+  :root {
+    --midnight: #140d2d;
+    --surface: #0a0b11;
+    --cyan: #46f0ff;
+    --magenta: #ff46c4;
+    --lime: #99ff56;
+    --blue: #2854ff;
+    --line: #e6eeff;
+    --dim: #8a93b8;
+    --panel: rgba(10, 11, 17, 0.88);
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--surface);
+    color: var(--line);
+    font-family: var(--display);
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+  }
+  #game {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+  }
+  .hud {
+    position: fixed;
+    top: calc(10px + env(safe-area-inset-top));
+    left: calc(10px + env(safe-area-inset-left));
+    background: var(--panel);
+    border: 1px solid rgba(70, 240, 255, 0.45);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    line-height: 1.65;
+    pointer-events: none;
+    z-index: 5;
+    min-width: 138px;
+  }
+  .hud b { color: var(--lime); font-weight: 600; }
+  .hud .cap { color: var(--dim); }
+  #eventRow { color: var(--dim); }
+  #eventRow.live { color: #ffd65a; }
+  #banner {
+    position: fixed;
+    top: calc(10px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 6;
+    pointer-events: none;
+    width: min(78vw, 420px);
+  }
+  .alert {
+    background: var(--panel);
+    border: 1px solid rgba(255, 70, 196, 0.55);
+    color: var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-align: center;
+    animation: alertIn 200ms ease-out;
+    max-width: 100%;
+  }
+  .alert.good { border-color: rgba(153, 255, 86, 0.55); }
+  .alert.event { border-color: rgba(255, 214, 90, 0.65); color: #ffd65a; }
+  @keyframes alertIn { from { opacity: 0; transform: translateY(-6px); } }
+  .alert.out { transition: opacity 400ms; opacity: 0; }
+
+  .btn {
+    position: fixed;
+    z-index: 7;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--panel);
+    color: var(--line);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+  }
+  .btn:active { transform: scale(0.93); }
+  .btn:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
+  #hitBtn {
+    right: calc(18px + env(safe-area-inset-right));
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    border-color: var(--magenta);
+    color: var(--magenta);
+    box-shadow: 0 0 18px rgba(255, 70, 196, 0.35);
+  }
+  #shopBtn {
+    right: calc(100px + env(safe-area-inset-right));
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 18px rgba(70, 240, 255, 0.3);
+  }
+  #stick {
+    position: fixed;
+    z-index: 6;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(70, 240, 255, 0.4);
+    background: rgba(20, 13, 45, 0.35);
+    display: none;
+    pointer-events: none;
+  }
+  #knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(70, 240, 255, 0.35);
+    border: 1.5px solid var(--cyan);
+    transform: translate(-50%, -50%);
+  }
+
+  #shop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(340px, 92vw);
+    background: var(--panel);
+    border-left: 1px solid rgba(70, 240, 255, 0.4);
+    z-index: 10;
+    transform: translateX(105%);
+    transition: transform 220ms ease-out;
+    display: flex;
+    flex-direction: column;
+    padding: calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));
+  }
+  #shop.open { transform: translateX(0); }
+  @media (prefers-reduced-motion: reduce) {
+    #shop { transition: none; }
+    .alert { animation: none; }
+  }
+  #shopHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  #shopHead h2 {
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    color: var(--cyan);
+  }
+  #closeShop {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(230, 238, 255, 0.3);
+    background: none;
+    color: var(--line);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  #shopMoney {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--lime);
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  #shopList { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .shopHeader {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: var(--dim);
+    margin-top: 6px;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(22, 28, 52, 0.85);
+    border: 1px solid rgba(230, 238, 255, 0.12);
+    border-radius: 10px;
+    padding: 9px 10px;
+  }
+  .swatch { width: 14px; height: 14px; border-radius: 4px; flex: none; box-shadow: 0 0 8px currentColor; }
+  .card .info { flex: 1; min-width: 0; }
+  .card .name { font-size: 13px; font-weight: 700; }
+  .card .sub { font-size: 11px; color: var(--dim); font-family: var(--mono); }
+  .buy {
+    flex: none;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--lime);
+    color: var(--lime);
+    background: none;
+  }
+  .buy:disabled { border-color: var(--dim); color: var(--dim); opacity: 0.6; }
+  .buy.max { border-color: transparent; color: var(--dim); }
+
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: radial-gradient(ellipse at 50% 30%, var(--midnight), var(--surface) 75%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 24px;
+  }
+  #intro h1 {
+    font-size: clamp(30px, 9vw, 56px);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
+    text-wrap: balance;
+    color: var(--line);
+    text-shadow: 0 0 24px rgba(70, 240, 255, 0.65);
+  }
+  #intro h1 span { color: var(--magenta); text-shadow: 0 0 24px rgba(255, 70, 196, 0.65); }
+  #intro p {
+    max-width: 34ch;
+    color: var(--dim);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  #startBtn {
+    margin-top: 8px;
+    font-family: var(--display);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    font-size: 16px;
+    color: var(--surface);
+    background: var(--cyan);
+    border: none;
+    border-radius: 12px;
+    padding: 14px 34px;
+    box-shadow: 0 0 28px rgba(70, 240, 255, 0.55);
+  }
+  #startBtn:active { transform: scale(0.96); }
+  .keysHint { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+</style>
+
+<canvas id="game"></canvas>
+
+<div class="hud" aria-live="off">
+  <div>$ <b id="money">0</b> <span class="cap" id="rate"></span></div>
+  <div><span class="cap">STORED</span> <span id="storage">0/6</span></div>
+  <div id="eventRow"><span class="cap">EVENT</span> <span id="eventName">—</span></div>
+</div>
+<div id="banner"></div>
+
+<div id="stick"><div id="knob"></div></div>
+<button class="btn" id="hitBtn" aria-label="Attack">HIT</button>
+<button class="btn" id="shopBtn" aria-label="Open shop">SHOP</button>
+
+<div id="shop" role="dialog" aria-label="Shop">
+  <div id="shopHead"><h2>NEON SHOP</h2><button id="closeShop" aria-label="Close shop">✕</button></div>
+  <div id="shopMoney"></div>
+  <div id="shopList"></div>
+</div>
+
+<div id="intro">
+  <h1>NEON<br><span>COMPOUND</span></h1>
+  <p>Steal brainrots from rival compounds, haul them home, bank them, and out-earn three ruthless bots. They will steal back.</p>
+  <button id="startBtn">ENTER THE COMPOUND</button>
+  <p class="keysHint">touch: joystick + buttons &nbsp;·&nbsp; keys: WASD · F hit · B shop</p>
+</div>
+
+<script>
+"use strict";
+
+// ---------- config (mirrors the Roblox GameConfig/BrainrotConfig) ----------
+const RARITY_COLORS = {
+  Common: "#cdd7e1", Uncommon: "#7dec74", Rare: "#46d4ff",
+  Epic: "#cc7aff", Legendary: "#ffa64a", Mythic: "#ff4cb4",
+};
+const BRAINROTS = [
+  { id: "ScreamingCube",      name: "Screaming Cube",      rarity: "Common",    cost: 20,  income: 3,  shape: "square",  r: 11 },
+  { id: "GlitchOrb",          name: "Glitch Orb",          rarity: "Rare",      cost: 80,  income: 9,  shape: "circle",  r: 12 },
+  { id: "DancingNoobIdol",    name: "Dancing Noob Idol",   rarity: "Epic",      cost: 160, income: 16, shape: "diamond", r: 13 },
+  { id: "CryingEmojiCore",    name: "Crying Emoji Core",   rarity: "Legendary", cost: 300, income: 28, shape: "circle",  r: 14 },
+  { id: "UnstableBananaRelic",name: "Unstable Banana Relic",rarity: "Mythic",   cost: 640, income: 52, shape: "tri",     r: 15 },
+];
+const UPGRADES = [
+  { id: "StorageSlots",  name: "Storage Slots",  desc: "raise compound capacity", tiers: [ { cost: 120, delta: 2 }, { cost: 240, delta: 2 }, { cost: 480, delta: 3 } ] },
+  { id: "IncomeBoost",   name: "Income Boost",   desc: "multiply passive income", tiers: [ { cost: 160, mult: 1.15 }, { cost: 350, mult: 1.35 } ] },
+  { id: "CarrySpeed",    name: "Carry Servos",   desc: "move faster while carrying", tiers: [ { cost: 200, mult: 0.82 }, { cost: 450, mult: 0.92 } ] },
+];
+const WORLD = 1500, BASE_R = 132, PAD_R = 30;
+const PLAYER_SPEED = 205, CARRY_MULT = 0.72, STEAL_HOLD = 0.45;
+const HIT_RANGE = 78, HIT_CD = 0.6, EVENT_GAP = 90;
+const SAVE_KEY = "neonCompoundSave_v1";
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- state ----------
+const bases = [];   // {i, x, y, padX, padY, color, name, isPlayer, slots, stored:[item]}
+const items = [];   // {def, owner:baseIdx|-1, x, y, state:"stored"|"carried"|"ground", carrier, slot, progress}
+const bots = [];
+const particles = [];
+let player, camX = 0, camY = 0, shake = 0;
+let money = 150, upgradeLv = { StorageSlots: 0, IncomeBoost: 0, CarrySpeed: 0 };
+let activeEvent = null, eventTimer = EVENT_GAP * 0.6, running = false, last = 0;
+
+const BASE_DEFS = [
+  { name: "YOU",    color: "#46f0ff", isPlayer: true },
+  { name: "VEX-9",  color: "#ff46c4" },
+  { name: "GLITCH", color: "#99ff56" },
+  { name: "NOIZ",   color: "#ff9442" },
+];
+for (let i = 0; i < 4; i++) {
+  const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+  const x = WORLD / 2 + Math.cos(a) * 470, y = WORLD / 2 + Math.sin(a) * 470;
+  const toC = Math.atan2(WORLD / 2 - y, WORLD / 2 - x);
+  bases.push({ i, x, y, padX: x + Math.cos(toC) * (BASE_R - 34), padY: y + Math.sin(toC) * (BASE_R - 34),
+    ...BASE_DEFS[i], slots: 6, stored: [] });
+}
+
+function spawnItem(defId, baseIdx) {
+  const def = BRAINROTS.find(b => b.id === defId);
+  const base = bases[baseIdx];
+  const item = { def, owner: baseIdx, state: "stored", carrier: null, x: 0, y: 0, progress: 0 };
+  base.stored.push(item); items.push(item);
+  layoutBase(base);
+  return item;
+}
+function layoutBase(base) {
+  base.stored.forEach((it, n) => {
+    const col = n % 3, row = Math.floor(n / 3);
+    it.x = base.x - 34 + col * 34; it.y = base.y - 10 + row * 34;
+  });
+}
+
+// ---------- persistence ----------
+function save() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      money, upgradeLv, owned: bases[0].stored.map(it => it.def.id),
+    }));
+  } catch (e) { /* private browsing: session-only progress */ }
+}
+function load() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) {}
+  if (data && typeof data.money === "number") {
+    money = Math.max(0, Math.floor(data.money));
+    for (const u of UPGRADES) {
+      const lv = data.upgradeLv && data.upgradeLv[u.id];
+      if (typeof lv === "number") upgradeLv[u.id] = Math.min(Math.max(0, lv), u.tiers.length);
+    }
+    const owned = Array.isArray(data.owned) && data.owned.length ? data.owned : ["ScreamingCube", "GlitchOrb"];
+    owned.slice(0, 20).forEach(id => { if (BRAINROTS.some(b => b.id === id)) spawnItem(id, 0); });
+  } else {
+    spawnItem("ScreamingCube", 0); spawnItem("GlitchOrb", 0);
+  }
+  bases[0].slots = 6 + UPGRADES[0].tiers.slice(0, upgradeLv.StorageSlots).reduce((s, t) => s + t.delta, 0);
+  // rivals start stocked
+  spawnItem("ScreamingCube", 1); spawnItem("GlitchOrb", 1); spawnItem("DancingNoobIdol", 1);
+  spawnItem("ScreamingCube", 2); spawnItem("GlitchOrb", 2); spawnItem("CryingEmojiCore", 2);
+  spawnItem("GlitchOrb", 3); spawnItem("DancingNoobIdol", 3); spawnItem("UnstableBananaRelic", 3);
+}
+
+// ---------- audio ----------
+let AC = null;
+function beep(freq, dur, type, vol, slide) {
+  if (!AC) return;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type || "square"; o.frequency.value = freq;
+  if (slide) o.frequency.exponentialRampToValueAtTime(slide, AC.currentTime + dur);
+  g.gain.value = vol || 0.04;
+  g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + dur);
+  o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + dur);
+}
+const sfx = {
+  steal: () => beep(340, 0.18, "square", 0.05, 700),
+  deposit: () => { beep(523, 0.12, "square", 0.05); setTimeout(() => beep(784, 0.16, "square", 0.05), 90); },
+  buy: () => beep(660, 0.09, "triangle", 0.06),
+  hit: () => beep(140, 0.14, "sawtooth", 0.07, 60),
+  event: () => { [440, 554, 659].forEach((f, n) => setTimeout(() => beep(f, 0.14, "triangle", 0.05), n * 100)); },
+  deny: () => beep(180, 0.12, "sawtooth", 0.04),
+};
+
+// ---------- alerts ----------
+const bannerEl = document.getElementById("banner");
+function alertMsg(text, cls) {
+  const el = document.createElement("div");
+  el.className = "alert" + (cls ? " " + cls : "");
+  el.textContent = text;
+  bannerEl.appendChild(el);
+  while (bannerEl.children.length > 3) bannerEl.firstChild.remove();
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 450); }, 2600);
+}
+
+// ---------- entities ----------
+player = { x: 0, y: 0, vx: 0, vy: 0, carrying: null, hitCd: 0, face: 0 };
+player.x = bases[0].x; player.y = bases[0].y + BASE_R + 40;
+
+for (let i = 1; i < 4; i++) {
+  bots.push({ base: i, x: bases[i].x, y: bases[i].y, state: "home", timer: 3 + i * 4,
+    target: null, carrying: null, stun: 0, speed: 150 + i * 8 });
+}
+
+function incomeMult() {
+  const tier = upgradeLv.IncomeBoost;
+  const personal = tier > 0 ? UPGRADES[1].tiers[tier - 1].mult : 1;
+  return personal * (activeEvent && activeEvent.id === "double" ? 2 : 1);
+}
+function carryMult() {
+  const tier = upgradeLv.CarrySpeed;
+  return tier > 0 ? UPGRADES[2].tiers[tier - 1].mult : CARRY_MULT;
+}
+function stealHold() { return activeEvent && activeEvent.id === "vault" ? 0.06 : STEAL_HOLD; }
+
+// ---------- events ----------
+const EVENTS = [
+  { id: "double", name: "DOUBLE INCOME", dur: 45 },
+  { id: "vault",  name: "VAULT DOORS OPEN", dur: 22 },
+  { id: "chaos",  name: "CHAOS MINUTE", dur: 45 },
+];
+function tickEvents(dt) {
+  eventTimer -= dt;
+  if (activeEvent) {
+    if (eventTimer <= 0) {
+      alertMsg(activeEvent.name + " ended", "event");
+      activeEvent = null; eventTimer = EVENT_GAP;
+    }
+  } else if (eventTimer <= 0) {
+    activeEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+    eventTimer = activeEvent.dur;
+    alertMsg("WORLD EVENT: " + activeEvent.name, "event");
+    sfx.event();
+  }
+}
+
+// ---------- stealing / deposit ----------
+function removeFromBase(item) {
+  const base = bases[item.owner];
+  if (base) { const k = base.stored.indexOf(item); if (k >= 0) base.stored.splice(k, 1); layoutBase(base); }
+}
+function tryPlayerSteal(dt) {
+  if (player.carrying) return;
+  let best = null, bestD = 46;
+  for (const it of items) {
+    if (it.state !== "stored" && it.state !== "ground") continue;
+    if (it.state === "stored" && it.owner === 0) continue;
+    const d = Math.hypot(it.x - player.x, it.y - player.y);
+    if (d < bestD) { best = it; bestD = d; }
+  }
+  for (const it of items) if (it !== best && it.progress > 0) it.progress = 0;
+  if (!best) return;
+  best.progress += dt;
+  if (best.progress >= stealHold()) {
+    best.progress = 0;
+    if (best.state === "stored") removeFromBase(best);
+    best.state = "carried"; best.carrier = "player"; player.carrying = best;
+    alertMsg("Stole " + best.def.name + "!", "good");
+    sfx.steal();
+    burst(best.x, best.y, RARITY_COLORS[best.def.rarity], 10);
+  }
+}
+let fullAlertCd = 0;
+function tryPlayerDeposit(dt) {
+  fullAlertCd = Math.max(0, fullAlertCd - dt);
+  const b = bases[0];
+  if (!player.carrying) return;
+  if (Math.hypot(player.x - b.padX, player.y - b.padY) > PAD_R + 14) return;
+  if (b.stored.length >= b.slots) {
+    if (fullAlertCd === 0) { alertMsg("Storage full — buy Storage Slots", ""); sfx.deny(); fullAlertCd = 3; }
+    return;
+  }
+  const it = player.carrying;
+  player.carrying = null; it.carrier = null; it.state = "stored"; it.owner = 0;
+  b.stored.push(it); layoutBase(b);
+  alertMsg("Banked " + it.def.name, "good");
+  sfx.deposit(); burst(b.padX, b.padY, "#99ff56", 16);
+  save();
+}
+function playerHit() {
+  if (player.hitCd > 0) return;
+  player.hitCd = HIT_CD;
+  shake = reduceMotion ? 0 : 6;
+  sfx.hit();
+  burst(player.x + Math.cos(player.face) * 40, player.y + Math.sin(player.face) * 40, "#ff46c4", 8);
+  for (const bot of bots) {
+    if (Math.hypot(bot.x - player.x, bot.y - player.y) < HIT_RANGE) {
+      bot.stun = 1.4;
+      const a = Math.atan2(bot.y - player.y, bot.x - player.x);
+      bot.x += Math.cos(a) * 46; bot.y += Math.sin(a) * 46;
+      if (bot.carrying) {
+        const it = bot.carrying;
+        bot.carrying = null; it.carrier = null; it.state = "ground";
+        it.x = bot.x; it.y = bot.y;
+        alertMsg("Interrupted " + bases[bot.base].name + "!", "good");
+      }
+    }
+  }
+}
+
+// ---------- bots ----------
+function botThink(bot, dt) {
+  const home = bases[bot.base];
+  if (bot.stun > 0) { bot.stun -= dt; return; }
+  const chaos = activeEvent && activeEvent.id === "chaos";
+  const speed = bot.speed * (chaos ? 1.45 : 1) * (bot.carrying ? 0.8 : 1);
+
+  if (bot.state === "home") {
+    bot.timer -= dt * (chaos ? 2 : 1);
+    if (bot.timer <= 0) {
+      const pool = items.filter(it =>
+        (it.state === "stored" && it.owner !== bot.base) || it.state === "ground");
+      if (pool.length) {
+        pool.sort((a, b) => (b.def.income + (b.owner === 0 ? 25 : 0)) - (a.def.income + (a.owner === 0 ? 25 : 0)));
+        bot.target = pool[Math.floor(Math.random() * Math.min(3, pool.length))];
+        bot.state = "raid";
+      } else bot.timer = 4;
+    }
+    return;
+  }
+  if (bot.state === "raid") {
+    const t = bot.target;
+    if (!t || (t.state !== "stored" && t.state !== "ground")) { bot.state = "return"; return; }
+    const d = Math.hypot(t.x - bot.x, t.y - bot.y);
+    if (d < 20) {
+      if (t.state === "stored") removeFromBase(t);
+      if (t.owner === 0) alertMsg(bases[bot.base].name + " stole your " + t.def.name + "!", "");
+      t.state = "carried"; t.carrier = bot; bot.carrying = t; bot.state = "return";
+    } else {
+      bot.x += ((t.x - bot.x) / d) * speed * dt;
+      bot.y += ((t.y - bot.y) / d) * speed * dt;
+    }
+    return;
+  }
+  // return home
+  const d = Math.hypot(home.padX - bot.x, home.padY - bot.y);
+  if (d < 24) {
+    if (bot.carrying && home.stored.length < home.slots) {
+      const it = bot.carrying;
+      bot.carrying = null; it.carrier = null; it.state = "stored"; it.owner = bot.base;
+      home.stored.push(it); layoutBase(home);
+    } else if (bot.carrying) {
+      const it = bot.carrying; bot.carrying = null; it.carrier = null;
+      it.state = "ground"; it.x = bot.x + 30; it.y = bot.y;
+    }
+    bot.state = "home"; bot.timer = (chaos ? 3 : 7) + Math.random() * 8;
+  } else {
+    bot.x += ((home.padX - bot.x) / d) * speed * dt;
+    bot.y += ((home.padY - bot.y) / d) * speed * dt;
+  }
+}
+
+// ---------- income ----------
+let incomeAcc = 0;
+function tickIncome(dt) {
+  incomeAcc += dt;
+  if (incomeAcc < 1) return;
+  incomeAcc -= 1;
+  const gain = bases[0].stored.reduce((s, it) => s + it.def.income, 0);
+  if (gain > 0) money += Math.round(gain * incomeMult());
+}
+
+// ---------- particles ----------
+function burst(x, y, color, n) {
+  if (reduceMotion) n = Math.min(n, 4);
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, s = 40 + Math.random() * 120;
+    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.5 + Math.random() * 0.3, color });
+  }
+}
+
+// ---------- input ----------
+const keys = {};
+addEventListener("keydown", e => {
+  keys[e.key.toLowerCase()] = true;
+  if (e.key.toLowerCase() === "f") playerHit();
+  if (e.key.toLowerCase() === "b") toggleShop();
+});
+addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
+
+const stickEl = document.getElementById("stick"), knobEl = document.getElementById("knob");
+let joyId = null, joyOx = 0, joyOy = 0, joyX = 0, joyY = 0;
+const canvas = document.getElementById("game");
+canvas.addEventListener("pointerdown", e => {
+  if (joyId !== null) return;
+  joyId = e.pointerId; joyOx = e.clientX; joyOy = e.clientY; joyX = joyY = 0;
+  stickEl.style.display = "block";
+  stickEl.style.left = (joyOx - 55) + "px"; stickEl.style.top = (joyOy - 55) + "px";
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove", e => {
+  if (e.pointerId !== joyId) return;
+  const dx = e.clientX - joyOx, dy = e.clientY - joyOy;
+  const d = Math.hypot(dx, dy), max = 48;
+  const k = d > max ? max / d : 1;
+  joyX = (dx * k) / max; joyY = (dy * k) / max;
+  knobEl.style.transform = `translate(calc(-50% + ${dx * k}px), calc(-50% + ${dy * k}px))`;
+});
+function joyEnd(e) {
+  if (e.pointerId !== joyId) return;
+  joyId = null; joyX = joyY = 0;
+  stickEl.style.display = "none";
+  knobEl.style.transform = "translate(-50%,-50%)";
+}
+canvas.addEventListener("pointerup", joyEnd);
+canvas.addEventListener("pointercancel", joyEnd);
+
+document.getElementById("hitBtn").addEventListener("pointerdown", e => { e.preventDefault(); playerHit(); });
+document.getElementById("shopBtn").addEventListener("click", toggleShop);
+document.getElementById("closeShop").addEventListener("click", toggleShop);
+
+// ---------- shop ----------
+const shopEl = document.getElementById("shop");
+function toggleShop() {
+  shopEl.classList.toggle("open");
+  if (shopEl.classList.contains("open")) renderShop();
+}
+let shopRenderedMoney = -1;
+function renderShop() {
+  shopRenderedMoney = money;
+  document.getElementById("shopMoney").textContent = "$" + money.toLocaleString();
+  const list = document.getElementById("shopList");
+  list.innerHTML = "";
+  const head1 = document.createElement("div");
+  head1.className = "shopHeader"; head1.textContent = "BRAINROTS";
+  list.appendChild(head1);
+  for (const def of BRAINROTS) {
+    const full = bases[0].stored.length >= bases[0].slots;
+    list.appendChild(card(RARITY_COLORS[def.rarity], def.name,
+      def.rarity + " · +$" + def.income + "/s",
+      "$" + def.cost, money >= def.cost && !full, () => {
+        if (bases[0].stored.length >= bases[0].slots) { alertMsg("Storage full", ""); sfx.deny(); return; }
+        money -= def.cost; spawnItem(def.id, 0);
+        sfx.buy(); save(); renderShop();
+      }));
+  }
+  const head2 = document.createElement("div");
+  head2.className = "shopHeader"; head2.textContent = "UPGRADES";
+  list.appendChild(head2);
+  for (const u of UPGRADES) {
+    const lv = upgradeLv[u.id], next = u.tiers[lv];
+    if (!next) {
+      list.appendChild(card("#99ff56", u.name + " · MAX", u.desc, "MAX", false, null, true));
+    } else {
+      list.appendChild(card("#e6eeff", u.name + " · " + lv + "/" + u.tiers.length,
+        u.desc, "$" + next.cost, money >= next.cost, () => {
+          money -= next.cost; upgradeLv[u.id]++;
+          if (u.id === "StorageSlots") bases[0].slots += next.delta;
+          sfx.buy(); save(); renderShop();
+        }));
+    }
+  }
+}
+function card(color, name, sub, price, canBuy, onBuy, maxed) {
+  const el = document.createElement("div");
+  el.className = "card";
+  const sw = document.createElement("div");
+  sw.className = "swatch"; sw.style.background = color; sw.style.color = color;
+  const info = document.createElement("div"); info.className = "info";
+  const n = document.createElement("div"); n.className = "name"; n.textContent = name;
+  const s = document.createElement("div"); s.className = "sub"; s.textContent = sub;
+  info.append(n, s);
+  const btn = document.createElement("button");
+  btn.className = "buy" + (maxed ? " max" : ""); btn.textContent = price;
+  btn.disabled = !canBuy;
+  if (onBuy) btn.addEventListener("click", onBuy);
+  el.append(sw, info, btn);
+  return el;
+}
+
+// ---------- render ----------
+const ctx = canvas.getContext("2d");
+let vw = 0, vh = 0;
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  vw = innerWidth; vh = innerHeight;
+  canvas.width = vw * dpr; canvas.height = vh * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener("resize", resize);
+resize();
+
+function drawItem(it, t) {
+  const c = RARITY_COLORS[it.def.rarity];
+  const bob = it.state === "stored" ? Math.sin(t * 2 + it.x) * 3 : 0;
+  ctx.save();
+  ctx.translate(it.x, it.y + bob);
+  ctx.rotate(t * (0.6 + it.def.income * 0.02));
+  ctx.shadowColor = c; ctx.shadowBlur = 14;
+  ctx.fillStyle = c;
+  const r = it.def.r;
+  if (it.def.shape === "square") ctx.fillRect(-r, -r, r * 2, r * 2);
+  else if (it.def.shape === "diamond") {
+    ctx.beginPath(); ctx.moveTo(0, -r * 1.2); ctx.lineTo(r, 0); ctx.lineTo(0, r * 1.2); ctx.lineTo(-r, 0); ctx.fill();
+  } else if (it.def.shape === "tri") {
+    ctx.beginPath(); ctx.moveTo(0, -r * 1.2); ctx.lineTo(r, r); ctx.lineTo(-r, r); ctx.fill();
+  } else { ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); }
+  ctx.restore();
+  if (it.progress > 0) {
+    ctx.beginPath();
+    ctx.strokeStyle = "#e6eeff"; ctx.lineWidth = 3;
+    ctx.arc(it.x, it.y, it.def.r + 9, -Math.PI / 2, -Math.PI / 2 + (it.progress / stealHold()) * Math.PI * 2);
+    ctx.stroke();
+  }
+}
+function drawRunner(x, y, color, carrying, stunned, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.shadowColor = color; ctx.shadowBlur = 16;
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(0, 0, 15, 0, 7); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#0a0b11";
+  ctx.beginPath(); ctx.arc(0, -2, 6, 0, 7); ctx.fill();
+  if (stunned) {
+    ctx.strokeStyle = "#ffd65a"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, 21 + Math.sin(t * 10) * 2, 0, 7); ctx.stroke();
+  }
+  ctx.restore();
+  if (carrying) { carrying.x = x; carrying.y = y - 30; }
+}
+
+function frame(now) {
+  requestAnimationFrame(frame);
+  const t = now / 1000;
+  let dt = Math.min((now - last) / 1000, 0.05); last = now;
+  if (!running) dt = 0;
+
+  if (running) {
+    // player movement
+    let mx = joyX, my = joyY;
+    if (keys.w || keys.arrowup) my -= 1;
+    if (keys.s || keys.arrowdown) my += 1;
+    if (keys.a || keys.arrowleft) mx -= 1;
+    if (keys.d || keys.arrowright) mx += 1;
+    const ml = Math.hypot(mx, my);
+    if (ml > 1) { mx /= ml; my /= ml; }
+    const sp = PLAYER_SPEED * (player.carrying ? carryMult() : 1);
+    player.x += mx * sp * dt; player.y += my * sp * dt;
+    player.x = Math.max(30, Math.min(WORLD - 30, player.x));
+    player.y = Math.max(30, Math.min(WORLD - 30, player.y));
+    if (ml > 0.1) player.face = Math.atan2(my, mx);
+    player.hitCd = Math.max(0, player.hitCd - dt);
+    if (player.carrying) { player.carrying.x = player.x; player.carrying.y = player.y - 30; }
+
+    tryPlayerSteal(dt);
+    tryPlayerDeposit(dt);
+    for (const bot of bots) botThink(bot, dt);
+    tickIncome(dt);
+    tickEvents(dt);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+    shake = Math.max(0, shake - dt * 24);
+  }
+
+  camX += (player.x - camX) * 0.08; camY += (player.y - camY) * 0.08;
+
+  // ---- draw ----
+  ctx.fillStyle = "#0a0b11";
+  ctx.fillRect(0, 0, vw, vh);
+  ctx.save();
+  const sx = shake ? (Math.random() - 0.5) * shake : 0;
+  ctx.translate(vw / 2 - camX + sx, vh / 2 - camY + sx);
+
+  // arena + grid
+  ctx.fillStyle = "#140d2d";
+  ctx.fillRect(0, 0, WORLD, WORLD);
+  ctx.strokeStyle = "rgba(70,240,255,0.07)";
+  ctx.lineWidth = 1;
+  for (let g = 0; g <= WORLD; g += 100) {
+    ctx.beginPath(); ctx.moveTo(g, 0); ctx.lineTo(g, WORLD); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, g); ctx.lineTo(WORLD, g); ctx.stroke();
+  }
+  ctx.strokeStyle = "#2854ff"; ctx.lineWidth = 4;
+  ctx.shadowColor = "#2854ff"; ctx.shadowBlur = 18;
+  ctx.strokeRect(0, 0, WORLD, WORLD);
+  ctx.shadowBlur = 0;
+
+  // bases
+  for (const b of bases) {
+    ctx.strokeStyle = b.color; ctx.lineWidth = 2.5;
+    ctx.shadowColor = b.color; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.arc(b.x, b.y, BASE_R, 0, 7); ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = b.color;
+    ctx.beginPath(); ctx.arc(b.x, b.y, BASE_R, 0, 7); ctx.fill();
+    ctx.globalAlpha = 1;
+    // deposit pad
+    ctx.strokeStyle = b.color; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(b.padX, b.padY, PAD_R + Math.sin(t * 3) * 2, 0, 7); ctx.stroke();
+    ctx.font = "700 11px " + "ui-monospace, Menlo, monospace";
+    ctx.fillStyle = b.color; ctx.textAlign = "center";
+    ctx.fillText("BANK", b.padX, b.padY + 4);
+    ctx.font = "900 15px system-ui, sans-serif";
+    ctx.fillText(b.name + " · " + b.stored.length + "/" + b.slots, b.x, b.y - BASE_R - 12);
+  }
+
+  for (const it of items) drawItem(it, t);
+  for (const bot of bots) drawRunner(bot.x, bot.y, bases[bot.base].color, bot.carrying, bot.stun > 0, t);
+  drawRunner(player.x, player.y, "#e6eeff", player.carrying, false, t);
+  if (player.hitCd > HIT_CD - 0.12) {
+    ctx.strokeStyle = "rgba(255,70,196,0.8)"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(player.x, player.y, HIT_RANGE * (1 - (player.hitCd - (HIT_CD - 0.12)) / 0.12), 0, 7);
+    ctx.stroke();
+  }
+
+  for (const p of particles) {
+    ctx.globalAlpha = Math.max(0, p.life * 2);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  // HUD refresh
+  if (shopEl.classList.contains("open") && shopRenderedMoney !== money) renderShop();
+  document.getElementById("money").textContent = money.toLocaleString();
+  const rate = Math.round(bases[0].stored.reduce((s, it) => s + it.def.income, 0) * incomeMult());
+  document.getElementById("rate").textContent = rate ? "+" + rate + "/s" : "";
+  document.getElementById("storage").textContent = bases[0].stored.length + "/" + bases[0].slots;
+  const evRow = document.getElementById("eventRow");
+  if (activeEvent) {
+    evRow.classList.add("live");
+    document.getElementById("eventName").textContent = activeEvent.name + " " + Math.ceil(eventTimer) + "s";
+  } else {
+    evRow.classList.remove("live");
+    document.getElementById("eventName").textContent = "in " + Math.ceil(eventTimer) + "s";
+  }
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  document.getElementById("intro").remove();
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  running = true;
+});
+addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+
+load();
+requestAnimationFrame(frame);
+</script>
