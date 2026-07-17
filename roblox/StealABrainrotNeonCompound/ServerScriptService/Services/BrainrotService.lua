@@ -25,7 +25,7 @@ local function makePrompt(part: BasePart)
 	prompt.ActionText = "Steal"
 	prompt.ObjectText = "Brainrot"
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.HoldDuration = 0.25
+	prompt.HoldDuration = workspace:GetAttribute("InstantSteals") == true and 0 or 0.25
 	prompt.RequiresLineOfSight = false
 	prompt.MaxActivationDistance = 10
 	prompt.Parent = part
@@ -69,18 +69,27 @@ function BrainrotService:CreateBrainrotModel(def, base, slotIndex)
 	return model
 end
 
-function BrainrotService:GrantStarterSet(player: Player)
+function BrainrotService:SpawnForBase(player: Player, brainrotId: string)
 	local base = self.BaseService:GetPlayerBase(player)
-	if not base then
+	local def = BrainrotConfig[brainrotId]
+	if not base or not def then
 		return
 	end
 	self.BrainrotsByBase[base] = self.BrainrotsByBase[base] or {}
-	for _, brainrotId in ipairs(BrainrotConfig.StarterSet) do
-		local def = BrainrotConfig[brainrotId]
-		local model = self:CreateBrainrotModel(def, base, #self.BrainrotsByBase[base] + 1)
-		table.insert(self.BrainrotsByBase[base], model)
-	end
+	local model = self:CreateBrainrotModel(def, base, #self.BrainrotsByBase[base] + 1)
+	table.insert(self.BrainrotsByBase[base], model)
 	self:PushStorageCount(player)
+end
+
+function BrainrotService:GrantStarterSet(player: Player)
+	for _, brainrotId in ipairs(BrainrotConfig.StarterSet) do
+		self:SpawnForBase(player, brainrotId)
+	end
+end
+
+function BrainrotService:GetStoredCount(base): number
+	local list = self.BrainrotsByBase[base]
+	return list and #list or 0
 end
 
 function BrainrotService:PushStorageCount(player: Player)
@@ -117,7 +126,11 @@ function BrainrotService:StartIncomeLoop()
 						end
 					end
 					if income > 0 then
-						self.CurrencyService:Add(owner, income)
+						local personal = owner:GetAttribute("IncomeMultiplier")
+						local global = workspace:GetAttribute("GlobalIncomeMultiplier")
+						local multiplier = (typeof(personal) == "number" and personal or 1)
+							* (typeof(global) == "number" and global or 1)
+						self.CurrencyService:Add(owner, math.floor(income * multiplier + 0.5))
 					end
 				end
 			end

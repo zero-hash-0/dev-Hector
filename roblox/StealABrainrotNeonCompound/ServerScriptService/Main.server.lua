@@ -36,6 +36,7 @@ local Remotes = {
 	StealRequest = ensureRemote("StealRequest"),
 	DepositRequest = ensureRemote("DepositRequest"),
 	AttackRequest = ensureRemote("AttackRequest"),
+	ShopRequest = ensureRemote("ShopRequest"),
 }
 
 local Services = ServerScriptService:WaitForChild("Services")
@@ -47,6 +48,7 @@ local RaidService = require(Services.RaidService)
 local CombatService = require(Services.CombatService)
 local EventService = require(Services.EventService)
 local WorldService = require(Services.WorldService)
+local ShopService = require(Services.ShopService)
 
 local baseService = BaseService.new()
 baseService:StartSingleton()
@@ -71,6 +73,9 @@ combatService:Init()
 
 local eventService = EventService.new(Remotes)
 eventService:Init()
+
+local shopService = ShopService.new(baseService, brainrotService, currencyService, Remotes)
+shopService:Init()
 
 Players.PlayerAdded:Connect(function(player)
 	local base = baseService:ClaimBase(player)

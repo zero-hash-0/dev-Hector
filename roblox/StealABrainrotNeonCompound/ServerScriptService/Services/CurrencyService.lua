@@ -37,4 +37,16 @@ function CurrencyService:Add(player: Player, amount: number)
 	self.Remotes.HUD:FireClient(player, { Money = total })
 end
 
+function CurrencyService:Spend(player: Player, amount: number): boolean
+	local balance = self:Get(player)
+	if balance < amount then
+		return false
+	end
+	local total = balance - amount
+	self.Balances[player] = total
+	player:SetAttribute("Money", total)
+	self.Remotes.HUD:FireClient(player, { Money = total })
+	return true
+end
+
 return CurrencyService

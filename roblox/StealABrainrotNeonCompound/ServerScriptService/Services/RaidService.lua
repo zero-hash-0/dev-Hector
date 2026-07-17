@@ -99,6 +99,15 @@ function RaidService:TryDeposit(player: Player)
 	local dist = (player.Character.HumanoidRootPart.Position - base.DepositPad.Position).Magnitude
 	if dist > 12 then return end
 
+	local stored = self.BrainrotService.BrainrotsByBase[base]
+	if stored and #stored >= base.StorageSlots then
+		self.Remotes.Alert:FireClient(player, {
+			Type = "System",
+			Message = "Storage full — upgrade Storage Slots to deposit more",
+		})
+		return
+	end
+
 	local previousOwner = self.BrainrotService:GetOwner(carrying)
 	if previousOwner then
 		local oldBase = self.BaseService:GetPlayerBase(previousOwner)
