@@ -31,10 +31,32 @@ This folder contains a Roblox-first architecture and scripts for a polished mult
 
 ## Controls
 
+Desktop:
+
 - `E` on a brainrot prompt: steal/pickup
 - `Q`: deposit currently carried brainrot (while inside your base deposit zone)
 - `F`: short-range interrupt attack
 - `B`: toggle the shop (buy brainrots and upgrades)
+
+Mobile (touch): steal prompts show a tap button automatically, and the same
+actions appear as on-screen touch buttons (`BANK`, `HIT`, `SHOP`) via
+ContextActionService. The HUD shrinks and the shop panel clamps to 85% of the
+screen height on phones.
+
+## Building & Testing on Mobile
+
+The repo includes a [Rojo](https://rojo.space) project (`default.project.json`)
+and a prebuilt place file (`NeonCompound.rbxlx`).
+
+1. **Open in Studio**: download `NeonCompound.rbxlx` and open it in Roblox
+   Studio (or run `rojo build . -o NeonCompound.rbxlx` yourself after edits).
+2. **Emulate first**: in Studio, Test tab -> Device, pick a phone preset, and
+   playtest with touch emulation.
+3. **Publish**: File -> Publish to Roblox, then in Game Settings enable the
+   experience for Phone/Tablet devices and set it public or private-with-access.
+4. **Play on your phone**: open the Roblox mobile app, find the experience on
+   your profile (Creations), and join. For DataStore saves to work in Studio
+   tests, enable "Studio Access to API Services" in Game Settings -> Security.
 
 ## Progression
 

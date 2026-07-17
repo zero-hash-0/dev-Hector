@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 
 local localPlayer = Players.LocalPlayer
@@ -62,7 +63,18 @@ local hintLabel = makeLabel(panel, "Hint", 6)
 hintLabel.Font = Enum.Font.Gotham
 hintLabel.TextSize = 15
 hintLabel.TextColor3 = Color3.fromRGB(150, 165, 200)
-hintLabel.Text = "E steal | Q deposit | F attack | B shop"
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+	hintLabel.Text = "Tap prompts to steal | buttons: bank, attack, shop"
+else
+	hintLabel.Text = "E steal | Q deposit | F attack | B shop"
+end
+
+-- Phones don't have room for the full-size HUD panel.
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+	local hudScale = Instance.new("UIScale")
+	hudScale.Scale = 0.72
+	hudScale.Parent = panel
+end
 
 local alert = Instance.new("TextLabel")
 alert.Size = UDim2.new(0.5, 0, 0, 44)
@@ -118,9 +130,15 @@ end)
 
 local shopPanel = Instance.new("Frame")
 shopPanel.Name = "ShopPanel"
-shopPanel.Size = UDim2.fromOffset(340, 470)
+-- Height is 85% of the screen, capped at 470px, so the panel fits phone
+-- viewports instead of running off the bottom edge.
+shopPanel.Size = UDim2.new(0, 340, 0.85, 0)
 shopPanel.AnchorPoint = Vector2.new(1, 0)
 shopPanel.Position = UDim2.new(1, -16, 0, 16)
+
+local shopSizeConstraint = Instance.new("UISizeConstraint")
+shopSizeConstraint.MaxSize = Vector2.new(340, 470)
+shopSizeConstraint.Parent = shopPanel
 shopPanel.BackgroundColor3 = Color3.fromRGB(9, 14, 30)
 shopPanel.BackgroundTransparency = 0.08
 shopPanel.Visible = false
@@ -294,19 +312,56 @@ for _, upgradeId in ipairs(UpgradeConfig.Order) do
 	end)
 end
 
-UserInputService.InputBegan:Connect(function(input, gp)
-	if gp then return end
-	if input.KeyCode == Enum.KeyCode.F then
-		remotes.AttackRequest:FireServer()
-	elseif input.KeyCode == Enum.KeyCode.Q then
-		remotes.DepositRequest:FireServer()
-	elseif input.KeyCode == Enum.KeyCode.B then
-		shopPanel.Visible = not shopPanel.Visible
-		if shopPanel.Visible then
-			renderShop()
-		end
+-- ContextActionService gives every action a keyboard key AND an on-screen
+-- touch button on mobile (third argument true), so the same bindings cover
+-- desktop and phones. Steal already works on touch via ProximityPrompts.
+
+local function toggleShop()
+	shopPanel.Visible = not shopPanel.Visible
+	if shopPanel.Visible then
+		renderShop()
 	end
-end)
+end
+
+local shopClose = Instance.new("TextButton")
+shopClose.Size = UDim2.fromOffset(28, 28)
+shopClose.AnchorPoint = Vector2.new(1, 0)
+shopClose.Position = UDim2.new(1, -8, 0, 5)
+shopClose.BackgroundColor3 = Color3.fromRGB(16, 22, 44)
+shopClose.Font = Enum.Font.GothamBold
+shopClose.TextSize = 16
+shopClose.TextColor3 = Color3.fromRGB(229, 238, 255)
+shopClose.Text = "X"
+shopClose.Parent = shopPanel
+Instance.new("UICorner", shopClose).CornerRadius = UDim.new(0, 8)
+shopClose.Activated:Connect(toggleShop)
+
+ContextActionService:BindAction("NeonAttack", function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		remotes.AttackRequest:FireServer()
+	end
+	return Enum.ContextActionResult.Pass
+end, true, Enum.KeyCode.F)
+ContextActionService:SetTitle("NeonAttack", "HIT")
+ContextActionService:SetPosition("NeonAttack", UDim2.new(1, -76, 0, 10))
+
+ContextActionService:BindAction("NeonDeposit", function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		remotes.DepositRequest:FireServer()
+	end
+	return Enum.ContextActionResult.Pass
+end, true, Enum.KeyCode.Q)
+ContextActionService:SetTitle("NeonDeposit", "BANK")
+ContextActionService:SetPosition("NeonDeposit", UDim2.new(1, -146, 0, 40))
+
+ContextActionService:BindAction("NeonShop", function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		toggleShop()
+	end
+	return Enum.ContextActionResult.Pass
+end, true, Enum.KeyCode.B)
+ContextActionService:SetTitle("NeonShop", "SHOP")
+ContextActionService:SetPosition("NeonShop", UDim2.new(1, -216, 0, 10))
 
 render()
 

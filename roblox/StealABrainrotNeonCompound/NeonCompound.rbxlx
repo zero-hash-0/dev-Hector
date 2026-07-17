@@ -1,0 +1,1731 @@
+<roblox version="4">
+  <Item class="ReplicatedStorage" referent="0">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="1">
+      <Properties>
+        <string name="Name">Modules</string>
+      </Properties>
+      <Item class="ModuleScript" referent="2">
+        <Properties>
+          <string name="Name">BrainrotConfig</string>
+          <string name="Source"><![CDATA[--!strict
+
+local BrainrotConfig = {
+	ScreamingCube = {
+		Id = "ScreamingCube",
+		DisplayName = "Screaming Cube",
+		Rarity = "Common",
+		BaseValue = 20,
+		IncomePerSecond = 3,
+		Shape = Enum.PartType.Block,
+		Size = Vector3.new(2.4, 2.4, 2.4),
+		SpinSpeed = 24,
+	},
+	GlitchOrb = {
+		Id = "GlitchOrb",
+		DisplayName = "Glitch Orb",
+		Rarity = "Rare",
+		BaseValue = 80,
+		IncomePerSecond = 9,
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(2.8, 2.8, 2.8),
+		SpinSpeed = 38,
+	},
+	DancingNoobIdol = {
+		Id = "DancingNoobIdol",
+		DisplayName = "Dancing Noob Idol",
+		Rarity = "Epic",
+		BaseValue = 160,
+		IncomePerSecond = 16,
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(2.3, 3.6, 2.3),
+		SpinSpeed = 55,
+	},
+	CryingEmojiCore = {
+		Id = "CryingEmojiCore",
+		DisplayName = "Crying Emoji Core",
+		Rarity = "Legendary",
+		BaseValue = 300,
+		IncomePerSecond = 28,
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(3.2, 3.2, 3.2),
+		SpinSpeed = 67,
+	},
+	UnstableBananaRelic = {
+		Id = "UnstableBananaRelic",
+		DisplayName = "Unstable Banana Relic",
+		Rarity = "Mythic",
+		BaseValue = 640,
+		IncomePerSecond = 52,
+		Shape = Enum.PartType.Block,
+		Size = Vector3.new(1.8, 4.2, 1.8),
+		SpinSpeed = 86,
+	},
+}
+
+BrainrotConfig.StarterSet = {
+	"ScreamingCube",
+	"GlitchOrb",
+}
+
+return BrainrotConfig
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="3">
+        <Properties>
+          <string name="Name">GameConfig</string>
+          <string name="Source"><![CDATA[--!strict
+
+local GameConfig = {
+	MaxPlayers = 6,
+	IncomeTickSeconds = 1,
+	CarrySpeedMultiplier = 0.72,
+	CarryJumpPowerMultiplier = 0.85,
+	AttackCooldown = 0.6,
+	AttackRange = 9,
+	AttackDamage = 5,
+	BaseRadius = 140,
+	CompoundSize = Vector3.new(56, 1, 56),
+	StorageSlotsDefault = 6,
+	WorldCenter = Vector3.new(0, 0, 0),
+	Palette = {
+		Midnight = Color3.fromRGB(20, 13, 45),
+		ElectricBlue = Color3.fromRGB(40, 84, 255),
+		NeonCyan = Color3.fromRGB(70, 240, 255),
+		HotMagenta = Color3.fromRGB(255, 70, 196),
+		ToxicLime = Color3.fromRGB(153, 255, 86),
+		DarkSurface = Color3.fromRGB(10, 11, 17),
+		BrightLine = Color3.fromRGB(230, 238, 255),
+	},
+	TeamAccents = {
+		Color3.fromRGB(70, 240, 255),
+		Color3.fromRGB(255, 70, 196),
+		Color3.fromRGB(153, 255, 86),
+		Color3.fromRGB(255, 148, 66),
+		Color3.fromRGB(155, 95, 255),
+		Color3.fromRGB(255, 73, 73),
+	},
+	RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" },
+	RarityColors = {
+		Common = Color3.fromRGB(205, 215, 225),
+		Uncommon = Color3.fromRGB(125, 236, 116),
+		Rare = Color3.fromRGB(70, 212, 255),
+		Epic = Color3.fromRGB(204, 122, 255),
+		Legendary = Color3.fromRGB(255, 166, 74),
+		Mythic = Color3.fromRGB(255, 76, 180),
+	},
+}
+
+return GameConfig
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="4">
+        <Properties>
+          <string name="Name">UpgradeConfig</string>
+          <string name="Source"><![CDATA[--!strict
+
+local UpgradeConfig = {
+	StorageSlots = {
+		DisplayName = "Storage Slots",
+		Description = "More room for brainrots in your compound",
+		Tiers = {
+			{ Cost = 120, Delta = 2 },
+			{ Cost = 240, Delta = 2 },
+			{ Cost = 480, Delta = 3 },
+		},
+	},
+	IncomeBoost = {
+		DisplayName = "Income Boost",
+		Description = "Multiplies all passive income from your brainrots",
+		Tiers = {
+			{ Cost = 160, Multiplier = 1.15 },
+			{ Cost = 350, Multiplier = 1.35 },
+		},
+	},
+	CarryStability = {
+		DisplayName = "Carry Stability",
+		Description = "Chance to hold on to a carried brainrot when hit",
+		Tiers = {
+			{ Cost = 200, DropResistChance = 0.15 },
+			{ Cost = 450, DropResistChance = 0.3 },
+		},
+	},
+}
+
+UpgradeConfig.Order = { "StorageSlots", "IncomeBoost", "CarryStability" }
+
+return UpgradeConfig
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="5">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Script" referent="6">
+      <Properties>
+        <string name="Name">Main</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[--!strict
+
+-- Bootstraps all systems for the STEAL A BRAINROT: NEON COMPOUND vertical slice.
+-- Services are wired here so each module can stay focused and easy to expand.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+local function ensureFolder(parent: Instance, name: string)
+	local folder = parent:FindFirstChild(name)
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = name
+		folder.Parent = parent
+	end
+	return folder
+end
+
+local modulesFolder = ensureFolder(ReplicatedStorage, "Modules")
+local remotesFolder = ensureFolder(ReplicatedStorage, "Remotes")
+
+local function ensureRemote(name: string)
+	local remote = remotesFolder:FindFirstChild(name)
+	if not remote then
+		remote = Instance.new("RemoteEvent")
+		remote.Name = name
+		remote.Parent = remotesFolder
+	end
+	return remote
+end
+
+local Remotes = {
+	HUD = ensureRemote("HUD"),
+	Alert = ensureRemote("Alert"),
+	StealRequest = ensureRemote("StealRequest"),
+	DepositRequest = ensureRemote("DepositRequest"),
+	AttackRequest = ensureRemote("AttackRequest"),
+	ShopRequest = ensureRemote("ShopRequest"),
+}
+
+local Services = ServerScriptService:WaitForChild("Services")
+
+local BaseService = require(Services.BaseService)
+local CurrencyService = require(Services.CurrencyService)
+local BrainrotService = require(Services.BrainrotService)
+local RaidService = require(Services.RaidService)
+local CombatService = require(Services.CombatService)
+local EventService = require(Services.EventService)
+local WorldService = require(Services.WorldService)
+local ShopService = require(Services.ShopService)
+local DataService = require(Services.DataService)
+
+local baseService = BaseService.new()
+baseService:StartSingleton()
+baseService:Init()
+
+local worldService = WorldService.new()
+worldService:BuildMapBlockout()
+worldService:ApplyLighting()
+
+local currencyService = CurrencyService.new(Remotes)
+currencyService:Init()
+
+local brainrotService = BrainrotService.new(baseService, currencyService, Remotes)
+brainrotService:StartIncomeLoop()
+
+local raidService = RaidService.new(baseService, brainrotService, Remotes)
+raidService:StartSingleton()
+raidService:Init()
+
+local combatService = CombatService.new(raidService, Remotes)
+combatService:Init()
+
+local eventService = EventService.new(Remotes)
+eventService:Init()
+
+local shopService = ShopService.new(baseService, brainrotService, currencyService, Remotes)
+shopService:Init()
+
+local dataService = DataService.new()
+dataService:Init()
+
+local function buildLeaderstats(player: Player)
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+
+	local moneyStat = Instance.new("IntValue")
+	moneyStat.Name = "Money"
+	moneyStat.Parent = leaderstats
+
+	local brainrotStat = Instance.new("IntValue")
+	brainrotStat.Name = "Brainrots"
+	brainrotStat.Parent = leaderstats
+
+	player:GetAttributeChangedSignal("Money"):Connect(function()
+		local money = player:GetAttribute("Money")
+		moneyStat.Value = typeof(money) == "number" and money or 0
+	end)
+
+	leaderstats.Parent = player
+end
+
+Players.PlayerAdded:Connect(function(player)
+	buildLeaderstats(player)
+
+	-- LoadProfile yields on the DataStore, so claim the base afterwards to
+	-- avoid holding a compound for a player who disconnects mid-load.
+	local profile = dataService:LoadProfile(player)
+	if player.Parent ~= Players then
+		return
+	end
+
+	local base = baseService:ClaimBase(player)
+	if not base then
+		Remotes.Alert:FireClient(player, { Type = "System", Message = "All compounds occupied. Queueing..." })
+		return
+	end
+
+	currencyService:SetBalance(player, profile.Money)
+	shopService:ApplySavedUpgrades(player, profile.Upgrades)
+	brainrotService:GrantStarterSet(player)
+	Remotes.HUD:FireClient(player, {
+		BaseName = string.format("Compound %d", base.Index),
+		Carrying = "None",
+	})
+	Remotes.Alert:FireAllClients({
+		Type = "System",
+		Message = string.format("%s entered the Neon Compound", player.DisplayName),
+	})
+end)
+]]></string>
+      </Properties>
+    </Item>
+    <Item class="Folder" referent="7">
+      <Properties>
+        <string name="Name">Services</string>
+      </Properties>
+      <Item class="ModuleScript" referent="8">
+        <Properties>
+          <string name="Name">BaseService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local GameConfig = require(ReplicatedStorage.Modules.GameConfig)
+
+local BaseService = {}
+BaseService.__index = BaseService
+
+function BaseService.new()
+	local self = setmetatable({}, BaseService)
+	self.BasesByPlayer = {}
+	self.OpenBases = {}
+	self.BaseFolder = workspace:FindFirstChild("Compounds") or Instance.new("Folder")
+	self.BaseFolder.Name = "Compounds"
+	self.BaseFolder.Parent = workspace
+	return self
+end
+
+local function makeLabel(parent: Instance, text: string, color: Color3)
+	local bb = Instance.new("BillboardGui")
+	bb.Size = UDim2.fromOffset(220, 64)
+	bb.AlwaysOnTop = true
+	bb.StudsOffset = Vector3.new(0, 8, 0)
+	bb.Parent = parent
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 0.2
+	label.BackgroundColor3 = Color3.fromRGB(10, 10, 22)
+	label.TextColor3 = color
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamBlack
+	label.Text = text
+	label.Parent = bb
+end
+
+function BaseService:BuildCompound(index: number)
+	local angle = ((index - 1) / GameConfig.MaxPlayers) * math.pi * 2
+	local center = GameConfig.WorldCenter + Vector3.new(math.cos(angle) * GameConfig.BaseRadius, 0, math.sin(angle) * GameConfig.BaseRadius)
+
+	local model = Instance.new("Model")
+	model.Name = string.format("Compound_%d", index)
+
+	local floor = Instance.new("Part")
+	floor.Name = "Floor"
+	floor.Anchored = true
+	floor.Material = Enum.Material.Metal
+	floor.Color = GameConfig.Palette.DarkSurface
+	floor.Size = GameConfig.CompoundSize
+	floor.Position = center
+	floor.Parent = model
+
+	local gate = Instance.new("Part")
+	gate.Name = "Gate"
+	gate.Anchored = true
+	gate.Size = Vector3.new(18, 12, 2)
+	gate.Position = center + Vector3.new(0, 6, -GameConfig.CompoundSize.Z * 0.5 + 1)
+	gate.Material = Enum.Material.Neon
+	gate.Color = GameConfig.Palette.ElectricBlue
+	gate.Parent = model
+
+	local storageAnchor = Instance.new("Part")
+	storageAnchor.Name = "StorageAnchor"
+	storageAnchor.Transparency = 1
+	storageAnchor.Anchored = true
+	storageAnchor.CanCollide = false
+	storageAnchor.Size = Vector3.new(2, 2, 2)
+	storageAnchor.Position = center + Vector3.new(0, 2, 6)
+	storageAnchor.Parent = model
+
+	local depositPad = Instance.new("Part")
+	depositPad.Name = "DepositPad"
+	depositPad.Shape = Enum.PartType.Cylinder
+	depositPad.Orientation = Vector3.new(0, 0, 90)
+	depositPad.Anchored = true
+	depositPad.Material = Enum.Material.Neon
+	depositPad.Color = GameConfig.Palette.NeonCyan
+	depositPad.Size = Vector3.new(1.4, 8, 8)
+	depositPad.Position = center + Vector3.new(-16, 0.7, 0)
+	depositPad.Parent = model
+
+	model.PrimaryPart = floor
+	model.Parent = self.BaseFolder
+
+	makeLabel(gate, "UNCLAIMED", GameConfig.Palette.BrightLine)
+
+	return {
+		Index = index,
+		Model = model,
+		Center = center,
+		Owner = nil,
+		StorageAnchor = storageAnchor,
+		DepositPad = depositPad,
+		StorageSlots = GameConfig.StorageSlotsDefault,
+	}
+end
+
+function BaseService:Init()
+	for i = 1, GameConfig.MaxPlayers do
+		table.insert(self.OpenBases, self:BuildCompound(i))
+	end
+end
+
+function BaseService:ClaimBase(player: Player)
+	if self.BasesByPlayer[player] then
+		return self.BasesByPlayer[player]
+	end
+	local base = table.remove(self.OpenBases, 1)
+	if not base then
+		return nil
+	end
+	base.Owner = player
+	self.BasesByPlayer[player] = base
+	base.Model.Gate.Color = GameConfig.TeamAccents[((base.Index - 1) % #GameConfig.TeamAccents) + 1]
+	local labelGui = base.Model.Gate:FindFirstChildOfClass("BillboardGui")
+	if labelGui and labelGui:FindFirstChildOfClass("TextLabel") then
+		labelGui.TextLabel.Text = player.DisplayName .. "'s Compound"
+		labelGui.TextLabel.TextColor3 = base.Model.Gate.Color
+	end
+	player:SetAttribute("BaseIndex", base.Index)
+	return base
+end
+
+function BaseService:GetPlayerBase(player: Player)
+	return self.BasesByPlayer[player]
+end
+
+function BaseService:ReleaseBase(player: Player)
+	local base = self.BasesByPlayer[player]
+	if not base then
+		return
+	end
+	base.Owner = nil
+	self.BasesByPlayer[player] = nil
+	base.Model.Gate.Color = GameConfig.Palette.ElectricBlue
+	table.insert(self.OpenBases, base)
+end
+
+Players.PlayerRemoving:Connect(function(player)
+	if BaseService.Instance then
+		BaseService.Instance:ReleaseBase(player)
+	end
+end)
+
+function BaseService:StartSingleton()
+	BaseService.Instance = self
+end
+
+return BaseService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="9">
+        <Properties>
+          <string name="Name">BrainrotService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local BrainrotConfig = require(ReplicatedStorage.Modules.BrainrotConfig)
+local GameConfig = require(ReplicatedStorage.Modules.GameConfig)
+
+local BrainrotService = {}
+BrainrotService.__index = BrainrotService
+
+function BrainrotService.new(baseService, currencyService, remotes)
+	local self = setmetatable({}, BrainrotService)
+	self.BaseService = baseService
+	self.CurrencyService = currencyService
+	self.Remotes = remotes
+	self.BrainrotsByBase = {}
+	self.ActiveIncome = {}
+	return self
+end
+
+local function makePrompt(part: BasePart)
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Steal"
+	prompt.ObjectText = "Brainrot"
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = workspace:GetAttribute("InstantSteals") == true and 0 or 0.25
+	prompt.RequiresLineOfSight = false
+	prompt.MaxActivationDistance = 10
+	prompt.Parent = part
+	return prompt
+end
+
+function BrainrotService:CreateBrainrotModel(def, base, slotIndex)
+	local model = Instance.new("Model")
+	model.Name = def.Id
+
+	local core = Instance.new("Part")
+	core.Name = "Core"
+	core.Anchored = true
+	core.Shape = def.Shape
+	core.Material = Enum.Material.Neon
+	core.Size = def.Size
+	core.Color = GameConfig.RarityColors[def.Rarity]
+	core.Parent = model
+
+	local slotOffset = Vector3.new(((slotIndex - 1) % 3) * 8 - 8, 2.4, math.floor((slotIndex - 1) / 3) * 8)
+	core.Position = base.StorageAnchor.Position + slotOffset
+
+	local rarityRing = Instance.new("Highlight")
+	rarityRing.FillTransparency = 0.86
+	rarityRing.OutlineColor = GameConfig.RarityColors[def.Rarity]
+	rarityRing.Parent = model
+
+	local prompt = makePrompt(core)
+	prompt.ObjectText = def.DisplayName
+
+	model:SetAttribute("BrainrotId", def.Id)
+	model:SetAttribute("Rarity", def.Rarity)
+	model:SetAttribute("Income", def.IncomePerSecond)
+	model:SetAttribute("Value", def.BaseValue)
+	model:SetAttribute("OwnerUserId", base.Owner and base.Owner.UserId or 0)
+	CollectionService:AddTag(model, "Brainrot")
+
+	model.Parent = workspace:FindFirstChild("Brainrots") or Instance.new("Folder", workspace)
+	model.Parent.Name = "Brainrots"
+
+	return model
+end
+
+function BrainrotService:SpawnForBase(player: Player, brainrotId: string)
+	local base = self.BaseService:GetPlayerBase(player)
+	local def = BrainrotConfig[brainrotId]
+	if not base or not def then
+		return
+	end
+	self.BrainrotsByBase[base] = self.BrainrotsByBase[base] or {}
+	local model = self:CreateBrainrotModel(def, base, #self.BrainrotsByBase[base] + 1)
+	table.insert(self.BrainrotsByBase[base], model)
+	self:PushStorageCount(player)
+end
+
+function BrainrotService:GrantStarterSet(player: Player)
+	for _, brainrotId in ipairs(BrainrotConfig.StarterSet) do
+		self:SpawnForBase(player, brainrotId)
+	end
+end
+
+function BrainrotService:GetStoredCount(base): number
+	local list = self.BrainrotsByBase[base]
+	return list and #list or 0
+end
+
+function BrainrotService:PushStorageCount(player: Player)
+	local base = self.BaseService:GetPlayerBase(player)
+	if not base then return end
+	local list = self.BrainrotsByBase[base] or {}
+	self.Remotes.HUD:FireClient(player, {
+		Storage = #list,
+		StorageSlots = base.StorageSlots,
+	})
+
+	local leaderstats = player:FindFirstChild("leaderstats")
+	local brainrotStat = leaderstats and leaderstats:FindFirstChild("Brainrots")
+	if brainrotStat and brainrotStat:IsA("IntValue") then
+		brainrotStat.Value = #list
+	end
+end
+
+function BrainrotService:GetOwner(model: Model): Player?
+	local ownerId = model:GetAttribute("OwnerUserId")
+	if typeof(ownerId) ~= "number" then return nil end
+	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+		if plr.UserId == ownerId then return plr end
+	end
+	return nil
+end
+
+function BrainrotService:StartIncomeLoop()
+	self.ActiveIncome = self.ActiveIncome or {}
+	task.spawn(function()
+		while true do
+			task.wait(GameConfig.IncomeTickSeconds)
+			for base, list in pairs(self.BrainrotsByBase) do
+				local owner = base.Owner
+				if owner and list then
+					local income = 0
+					for _, model in ipairs(list) do
+						if model.Parent then
+							income += model:GetAttribute("Income") or 0
+						end
+					end
+					if income > 0 then
+						local personal = owner:GetAttribute("IncomeMultiplier")
+						local global = workspace:GetAttribute("GlobalIncomeMultiplier")
+						local multiplier = (typeof(personal) == "number" and personal or 1)
+							* (typeof(global) == "number" and global or 1)
+						self.CurrencyService:Add(owner, math.floor(income * multiplier + 0.5))
+					end
+				end
+			end
+		end
+	end)
+
+	RunService.Heartbeat:Connect(function(timeStep)
+		for _, tagged in ipairs(CollectionService:GetTagged("Brainrot")) do
+			local core = tagged:FindFirstChild("Core")
+			if core and core:IsA("BasePart") and not tagged:GetAttribute("CarriedBy") then
+				local spin = BrainrotConfig[tagged:GetAttribute("BrainrotId")].SpinSpeed
+				core.CFrame *= CFrame.Angles(0, math.rad(spin * timeStep), 0)
+			end
+		end
+	end)
+end
+
+return BrainrotService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="10">
+        <Properties>
+          <string name="Name">CombatService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local GameConfig = require(ReplicatedStorage.Modules.GameConfig)
+
+local CombatService = {}
+CombatService.__index = CombatService
+
+function CombatService.new(raidService, remotes)
+	local self = setmetatable({}, CombatService)
+	self.RaidService = raidService
+	self.Remotes = remotes
+	self.LastAttackAt = {}
+	return self
+end
+
+function CombatService:Init()
+	self.Remotes.AttackRequest.OnServerEvent:Connect(function(player)
+		self:TryAttack(player)
+	end)
+end
+
+function CombatService:TryAttack(attacker: Player)
+	local chaos = workspace:GetAttribute("ChaosMode") == true
+	local cooldown = chaos and GameConfig.AttackCooldown * 0.5 or GameConfig.AttackCooldown
+	local damage = chaos and GameConfig.AttackDamage * 2 or GameConfig.AttackDamage
+
+	local now = os.clock()
+	if (self.LastAttackAt[attacker] or 0) + cooldown > now then return end
+	self.LastAttackAt[attacker] = now
+
+	local character = attacker.Character
+	if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+	local root = character.HumanoidRootPart
+
+	for _, victim in ipairs(game:GetService("Players"):GetPlayers()) do
+		if victim ~= attacker and victim.Character and victim.Character:FindFirstChild("HumanoidRootPart") then
+			local targetRoot = victim.Character.HumanoidRootPart
+			if (targetRoot.Position - root.Position).Magnitude <= GameConfig.AttackRange then
+				local humanoid = victim.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid:TakeDamage(damage)
+					targetRoot.AssemblyLinearVelocity += (targetRoot.Position - root.Position).Unit * 18 + Vector3.new(0, 8, 0)
+				end
+				if self.RaidService.CarriedByPlayer[victim] then
+					local dropResist = victim:GetAttribute("DropResistChance")
+					if typeof(dropResist) == "number" and math.random() < dropResist then
+						self.Remotes.Alert:FireAllClients({
+							Type = "Interrupt",
+							Message = string.format("%s held on to their brainrot!", victim.DisplayName),
+						})
+					else
+						self.RaidService:DropCarried(victim)
+						self.Remotes.Alert:FireAllClients({
+							Type = "Interrupt",
+							Message = string.format("%s interrupted %s", attacker.DisplayName, victim.DisplayName),
+						})
+					end
+				end
+			end
+		end
+	end
+end
+
+return CombatService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="11">
+        <Properties>
+          <string name="Name">CurrencyService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local Players = game:GetService("Players")
+
+local CurrencyService = {}
+CurrencyService.__index = CurrencyService
+
+function CurrencyService.new(remotes)
+	local self = setmetatable({}, CurrencyService)
+	self.Balances = {}
+	self.Remotes = remotes
+	return self
+end
+
+function CurrencyService:Init()
+	Players.PlayerRemoving:Connect(function(player)
+		self.Balances[player] = nil
+	end)
+end
+
+-- Starting balance comes from the player's saved profile (see DataService),
+-- so there is no PlayerAdded default here.
+function CurrencyService:SetBalance(player: Player, amount: number)
+	self.Balances[player] = amount
+	player:SetAttribute("Money", amount)
+	self.Remotes.HUD:FireClient(player, { Money = amount })
+end
+
+function CurrencyService:Get(player: Player): number
+	return self.Balances[player] or 0
+end
+
+function CurrencyService:Add(player: Player, amount: number)
+	local total = self:Get(player) + amount
+	self.Balances[player] = total
+	player:SetAttribute("Money", total)
+	self.Remotes.HUD:FireClient(player, { Money = total })
+end
+
+function CurrencyService:Spend(player: Player, amount: number): boolean
+	local balance = self:Get(player)
+	if balance < amount then
+		return false
+	end
+	local total = balance - amount
+	self.Balances[player] = total
+	player:SetAttribute("Money", total)
+	self.Remotes.HUD:FireClient(player, { Money = total })
+	return true
+end
+
+return CurrencyService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="12">
+        <Properties>
+          <string name="Name">DataService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UpgradeConfig = require(ReplicatedStorage.Modules.UpgradeConfig)
+
+local STORE_NAME = "NeonCompound_v1"
+local AUTOSAVE_SECONDS = 120
+local DEFAULT_MONEY = 150
+
+local DataService = {}
+DataService.__index = DataService
+
+function DataService.new()
+	local self = setmetatable({}, DataService)
+	local ok, store = pcall(function()
+		return DataStoreService:GetDataStore(STORE_NAME)
+	end)
+	-- Studio without API access (and some test setups) can't reach DataStores;
+	-- the game then runs with session-only progress instead of erroring.
+	self.Store = ok and store or nil
+	return self
+end
+
+local function keyFor(player: Player): string
+	return "player_" .. player.UserId
+end
+
+function DataService:LoadProfile(player: Player)
+	local profile = { Money = DEFAULT_MONEY, Upgrades = {} }
+	if not self.Store then
+		return profile
+	end
+	local ok, saved = pcall(function()
+		return self.Store:GetAsync(keyFor(player))
+	end)
+	if ok and typeof(saved) == "table" then
+		if typeof(saved.Money) == "number" then
+			profile.Money = math.max(0, math.floor(saved.Money))
+		end
+		if typeof(saved.Upgrades) == "table" then
+			for _, upgradeId in ipairs(UpgradeConfig.Order) do
+				local level = saved.Upgrades[upgradeId]
+				if typeof(level) == "number" and level > 0 then
+					profile.Upgrades[upgradeId] = math.floor(level)
+				end
+			end
+		end
+	end
+	return profile
+end
+
+function DataService:SaveProfile(player: Player)
+	if not self.Store then
+		return
+	end
+	local money = player:GetAttribute("Money")
+	local payload = {
+		Money = typeof(money) == "number" and math.floor(money) or DEFAULT_MONEY,
+		Upgrades = {},
+	}
+	for _, upgradeId in ipairs(UpgradeConfig.Order) do
+		local level = player:GetAttribute("Upgrade_" .. upgradeId)
+		if typeof(level) == "number" and level > 0 then
+			payload.Upgrades[upgradeId] = level
+		end
+	end
+	pcall(function()
+		self.Store:SetAsync(keyFor(player), payload)
+	end)
+end
+
+function DataService:Init()
+	Players.PlayerRemoving:Connect(function(player)
+		task.spawn(function()
+			self:SaveProfile(player)
+		end)
+	end)
+
+	task.spawn(function()
+		while true do
+			task.wait(AUTOSAVE_SECONDS)
+			for _, player in ipairs(Players:GetPlayers()) do
+				self:SaveProfile(player)
+			end
+		end
+	end)
+
+	game:BindToClose(function()
+		for _, player in ipairs(Players:GetPlayers()) do
+			self:SaveProfile(player)
+		end
+	end)
+end
+
+return DataService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="13">
+        <Properties>
+          <string name="Name">EventService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local CollectionService = game:GetService("CollectionService")
+
+local EventService = {}
+EventService.__index = EventService
+
+local function setAllPromptHoldDurations(duration: number)
+	for _, model in ipairs(CollectionService:GetTagged("Brainrot")) do
+		local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
+		if prompt then
+			prompt.HoldDuration = duration
+		end
+	end
+end
+
+function EventService.new(remotes)
+	local self = setmetatable({}, EventService)
+	self.Remotes = remotes
+	self.EventPool = {
+		{
+			Name = "Double Income",
+			Duration = 45,
+			Start = function()
+				workspace:SetAttribute("GlobalIncomeMultiplier", 2)
+			end,
+			Stop = function()
+				workspace:SetAttribute("GlobalIncomeMultiplier", 1)
+			end,
+		},
+		{
+			Name = "Vault Doors Open",
+			Duration = 30,
+			Start = function()
+				workspace:SetAttribute("InstantSteals", true)
+				setAllPromptHoldDurations(0)
+			end,
+			Stop = function()
+				workspace:SetAttribute("InstantSteals", false)
+				setAllPromptHoldDurations(0.25)
+			end,
+		},
+		{
+			Name = "Chaos Minute",
+			Duration = 60,
+			Start = function()
+				workspace:SetAttribute("ChaosMode", true)
+			end,
+			Stop = function()
+				workspace:SetAttribute("ChaosMode", false)
+			end,
+		},
+	}
+	return self
+end
+
+function EventService:Init()
+	task.spawn(function()
+		while true do
+			task.wait(180)
+			local picked = self.EventPool[math.random(1, #self.EventPool)]
+			self.Remotes.Alert:FireAllClients({
+				Type = "Event",
+				Message = string.format("WORLD EVENT: %s (%ss)", picked.Name, picked.Duration),
+			})
+			self.Remotes.HUD:FireAllClients({ Event = picked.Name })
+			picked.Start()
+			task.wait(picked.Duration)
+			picked.Stop()
+			self.Remotes.HUD:FireAllClients({ Event = "None" })
+			self.Remotes.Alert:FireAllClients({
+				Type = "Event",
+				Message = string.format("%s has ended", picked.Name),
+			})
+		end
+	end)
+end
+
+return EventService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="14">
+        <Properties>
+          <string name="Name">RaidService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local GameConfig = require(ReplicatedStorage.Modules.GameConfig)
+
+local RaidService = {}
+RaidService.__index = RaidService
+
+function RaidService.new(baseService, brainrotService, remotes)
+	local self = setmetatable({}, RaidService)
+	self.BaseService = baseService
+	self.BrainrotService = brainrotService
+	self.Remotes = remotes
+	self.CarriedByPlayer = {}
+	return self
+end
+
+function RaidService:Init()
+	self.Remotes.StealRequest.OnServerEvent:Connect(function(player, brainrotModel)
+		self:TryPickup(player, brainrotModel)
+	end)
+
+	self.Remotes.DepositRequest.OnServerEvent:Connect(function(player)
+		self:TryDeposit(player)
+	end)
+end
+
+function RaidService:ApplyCarryStats(player: Player, carrying: boolean)
+	local character = player.Character
+	if not character then return end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+	if carrying then
+		humanoid.WalkSpeed = 16 * GameConfig.CarrySpeedMultiplier
+		humanoid.JumpPower = 50 * GameConfig.CarryJumpPowerMultiplier
+	else
+		humanoid.WalkSpeed = 16
+		humanoid.JumpPower = 50
+	end
+end
+
+function RaidService:TryPickup(player: Player, brainrotModel: Model)
+	if not brainrotModel or self.CarriedByPlayer[player] then return end
+	if brainrotModel:GetAttribute("CarriedBy") then return end
+	local owner = self.BrainrotService:GetOwner(brainrotModel)
+	if owner == player then return end
+	brainrotModel:SetAttribute("CarriedBy", player.UserId)
+	self.CarriedByPlayer[player] = brainrotModel
+
+	local core = brainrotModel:FindFirstChild("Core")
+	if core and core:IsA("BasePart") and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+		core.Anchored = false
+		core.CanCollide = false
+		local weld = Instance.new("WeldConstraint")
+		weld.Name = "CarryWeld"
+		weld.Part0 = core
+		weld.Part1 = player.Character.HumanoidRootPart
+		weld.Parent = core
+		core.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+	end
+
+	self:ApplyCarryStats(player, true)
+	self.Remotes.Alert:FireAllClients({
+		Type = "Steal",
+		Message = string.format("%s stole %s!", player.DisplayName, brainrotModel.Name),
+	})
+	self.Remotes.HUD:FireClient(player, { Carrying = brainrotModel.Name })
+end
+
+function RaidService:DropCarried(player: Player)
+	local model = self.CarriedByPlayer[player]
+	if not model then return end
+	self.CarriedByPlayer[player] = nil
+	model:SetAttribute("CarriedBy", nil)
+
+	local core = model:FindFirstChild("Core")
+	if core and core:IsA("BasePart") then
+		local weld = core:FindFirstChild("CarryWeld")
+		if weld then weld:Destroy() end
+		core.Anchored = true
+		core.CanCollide = true
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			core.Position = player.Character.HumanoidRootPart.Position + Vector3.new(0, 1, -4)
+		end
+	end
+
+	self:ApplyCarryStats(player, false)
+	self.Remotes.HUD:FireClient(player, { Carrying = "None" })
+end
+
+function RaidService:TryDeposit(player: Player)
+	local carrying = self.CarriedByPlayer[player]
+	local base = self.BaseService:GetPlayerBase(player)
+	if not carrying or not base or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+		return
+	end
+	local dist = (player.Character.HumanoidRootPart.Position - base.DepositPad.Position).Magnitude
+	if dist > 12 then return end
+
+	local stored = self.BrainrotService.BrainrotsByBase[base]
+	if stored and #stored >= base.StorageSlots then
+		self.Remotes.Alert:FireClient(player, {
+			Type = "System",
+			Message = "Storage full — upgrade Storage Slots to deposit more",
+		})
+		return
+	end
+
+	local previousOwner = self.BrainrotService:GetOwner(carrying)
+	if previousOwner then
+		local oldBase = self.BaseService:GetPlayerBase(previousOwner)
+		if oldBase and self.BrainrotService.BrainrotsByBase[oldBase] then
+			local kept = {}
+			for _, item in ipairs(self.BrainrotService.BrainrotsByBase[oldBase]) do
+				if item ~= carrying then table.insert(kept, item) end
+			end
+			self.BrainrotService.BrainrotsByBase[oldBase] = kept
+			self.BrainrotService:PushStorageCount(previousOwner)
+		end
+	end
+
+	self.CarriedByPlayer[player] = nil
+	carrying:SetAttribute("OwnerUserId", player.UserId)
+	carrying:SetAttribute("CarriedBy", nil)
+	local core = carrying:FindFirstChild("Core")
+	if core and core:IsA("BasePart") then
+		local weld = core:FindFirstChild("CarryWeld")
+		if weld then weld:Destroy() end
+		core.Anchored = true
+		core.CanCollide = true
+		core.Position = base.StorageAnchor.Position + Vector3.new(math.random(-8, 8), 2.4, math.random(-8, 8))
+	end
+	self.BrainrotService.BrainrotsByBase[base] = self.BrainrotService.BrainrotsByBase[base] or {}
+	table.insert(self.BrainrotService.BrainrotsByBase[base], carrying)
+	self.BrainrotService:PushStorageCount(player)
+	self:ApplyCarryStats(player, false)
+	self.Remotes.HUD:FireClient(player, { Carrying = "None" })
+	self.Remotes.Alert:FireAllClients({
+		Type = "Deposit",
+		Message = string.format("%s secured %s", player.DisplayName, carrying.Name),
+	})
+end
+
+Players.PlayerRemoving:Connect(function(player)
+	if RaidService.Instance then
+		RaidService.Instance:DropCarried(player)
+	end
+end)
+
+function RaidService:StartSingleton()
+	RaidService.Instance = self
+end
+
+return RaidService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="15">
+        <Properties>
+          <string name="Name">ShopService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local BrainrotConfig = require(ReplicatedStorage.Modules.BrainrotConfig)
+local UpgradeConfig = require(ReplicatedStorage.Modules.UpgradeConfig)
+
+local ShopService = {}
+ShopService.__index = ShopService
+
+function ShopService.new(baseService, brainrotService, currencyService, remotes)
+	local self = setmetatable({}, ShopService)
+	self.BaseService = baseService
+	self.BrainrotService = brainrotService
+	self.CurrencyService = currencyService
+	self.Remotes = remotes
+	return self
+end
+
+function ShopService:Init()
+	self.Remotes.ShopRequest.OnServerEvent:Connect(function(player, action, id)
+		if typeof(action) ~= "string" or typeof(id) ~= "string" then
+			return
+		end
+		if action == "BuyBrainrot" then
+			self:TryBuyBrainrot(player, id)
+		elseif action == "BuyUpgrade" then
+			self:TryBuyUpgrade(player, id)
+		end
+	end)
+end
+
+function ShopService:AlertPlayer(player: Player, message: string)
+	self.Remotes.Alert:FireClient(player, { Type = "Shop", Message = message })
+end
+
+function ShopService:TryBuyBrainrot(player: Player, brainrotId: string)
+	local def = BrainrotConfig[brainrotId]
+	if typeof(def) ~= "table" or def.Id ~= brainrotId then
+		return
+	end
+	local base = self.BaseService:GetPlayerBase(player)
+	if not base then
+		return
+	end
+	if self.BrainrotService:GetStoredCount(base) >= base.StorageSlots then
+		self:AlertPlayer(player, "Storage full — upgrade Storage Slots first")
+		return
+	end
+	if not self.CurrencyService:Spend(player, def.BaseValue) then
+		self:AlertPlayer(player, string.format("Need $%d for %s", def.BaseValue, def.DisplayName))
+		return
+	end
+	self.BrainrotService:SpawnForBase(player, brainrotId)
+	self.Remotes.Alert:FireAllClients({
+		Type = "Shop",
+		Message = string.format("%s bought %s", player.DisplayName, def.DisplayName),
+	})
+end
+
+function ShopService:TryBuyUpgrade(player: Player, upgradeId: string)
+	local upgrade = UpgradeConfig[upgradeId]
+	if typeof(upgrade) ~= "table" or not upgrade.Tiers then
+		return
+	end
+	local attributeName = "Upgrade_" .. upgradeId
+	local level = player:GetAttribute(attributeName)
+	if typeof(level) ~= "number" then
+		level = 0
+	end
+	local nextTier = upgrade.Tiers[level + 1]
+	if not nextTier then
+		self:AlertPlayer(player, upgrade.DisplayName .. " is already maxed")
+		return
+	end
+	if not self.CurrencyService:Spend(player, nextTier.Cost) then
+		self:AlertPlayer(player, string.format("Need $%d for %s", nextTier.Cost, upgrade.DisplayName))
+		return
+	end
+	player:SetAttribute(attributeName, level + 1)
+	self:ApplyUpgrade(player, upgradeId, nextTier)
+	self:AlertPlayer(player, string.format("%s upgraded to tier %d", upgrade.DisplayName, level + 1))
+end
+
+-- Re-applies a saved profile's upgrade levels on join. StorageSlots deltas are
+-- cumulative across tiers; IncomeBoost/CarryStability just land on the final
+-- tier's value since ApplyUpgrade overwrites the attribute each time.
+function ShopService:ApplySavedUpgrades(player: Player, upgrades)
+	for _, upgradeId in ipairs(UpgradeConfig.Order) do
+		local level = upgrades[upgradeId]
+		if typeof(level) == "number" and level > 0 then
+			local upgrade = UpgradeConfig[upgradeId]
+			local cappedLevel = math.min(level, #upgrade.Tiers)
+			player:SetAttribute("Upgrade_" .. upgradeId, cappedLevel)
+			for tierIndex = 1, cappedLevel do
+				self:ApplyUpgrade(player, upgradeId, upgrade.Tiers[tierIndex])
+			end
+		end
+	end
+end
+
+function ShopService:ApplyUpgrade(player: Player, upgradeId: string, tier)
+	if upgradeId == "StorageSlots" then
+		local base = self.BaseService:GetPlayerBase(player)
+		if base then
+			base.StorageSlots += tier.Delta
+			self.BrainrotService:PushStorageCount(player)
+		end
+	elseif upgradeId == "IncomeBoost" then
+		player:SetAttribute("IncomeMultiplier", tier.Multiplier)
+	elseif upgradeId == "CarryStability" then
+		player:SetAttribute("DropResistChance", tier.DropResistChance)
+	end
+end
+
+return ShopService
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="16">
+        <Properties>
+          <string name="Name">WorldService</string>
+          <string name="Source"><![CDATA[--!strict
+
+local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local GameConfig = require(ReplicatedStorage.Modules.GameConfig)
+
+local WorldService = {}
+WorldService.__index = WorldService
+
+function WorldService.new()
+	return setmetatable({}, WorldService)
+end
+
+local function neonLine(parent: Instance, size: Vector3, cframe: CFrame, color: Color3)
+	local p = Instance.new("Part")
+	p.Anchored = true
+	p.CanCollide = false
+	p.Material = Enum.Material.Neon
+	p.Color = color
+	p.Size = size
+	p.CFrame = cframe
+	p.Parent = parent
+end
+
+function WorldService:BuildMapBlockout()
+	local world = Instance.new("Folder")
+	world.Name = "NeonWorld"
+	world.Parent = workspace
+
+	local ground = Instance.new("Part")
+	ground.Name = "RaidFloor"
+	ground.Anchored = true
+	ground.Material = Enum.Material.Slate
+	ground.Color = GameConfig.Palette.Midnight
+	ground.Size = Vector3.new(420, 1, 420)
+	ground.Position = Vector3.new(0, -1, 0)
+	ground.Parent = world
+
+	local plaza = Instance.new("Part")
+	plaza.Name = "CentralPlaza"
+	plaza.Anchored = true
+	plaza.Material = Enum.Material.Metal
+	plaza.Color = GameConfig.Palette.DarkSurface
+	plaza.Size = Vector3.new(90, 2, 90)
+	plaza.Position = Vector3.new(0, 0, 0)
+	plaza.Parent = world
+
+	local reactor = Instance.new("Part")
+	reactor.Shape = Enum.PartType.Ball
+	reactor.Name = "MemeReactor"
+	reactor.Anchored = true
+	reactor.Material = Enum.Material.Neon
+	reactor.Color = GameConfig.Palette.HotMagenta
+	reactor.Size = Vector3.new(14, 14, 14)
+	reactor.Position = Vector3.new(0, 10, 0)
+	reactor.Parent = world
+
+	for i = 1, 8 do
+		local angle = (i / 8) * math.pi * 2
+		local pos = Vector3.new(math.cos(angle) * 58, 0.1, math.sin(angle) * 58)
+		neonLine(world, Vector3.new(16, 0.2, 2), CFrame.new(pos) * CFrame.Angles(0, angle, 0), GameConfig.Palette.NeonCyan)
+	end
+
+	for i = 1, 20 do
+		local b = Instance.new("Part")
+		b.Name = "SkylineBlock"
+		b.Anchored = true
+		b.Material = Enum.Material.SmoothPlastic
+		b.Color = Color3.fromRGB(18, 20, 38)
+		b.Size = Vector3.new(math.random(14, 28), math.random(30, 80), math.random(14, 28))
+		b.Position = Vector3.new(math.random(-200, 200), b.Size.Y * 0.5 - 1, math.random(-200, 200))
+		b.Parent = world
+	end
+end
+
+function WorldService:ApplyLighting()
+	Lighting.ClockTime = 21.2
+	Lighting.Brightness = 2
+	Lighting.Ambient = Color3.fromRGB(22, 20, 38)
+	Lighting.OutdoorAmbient = Color3.fromRGB(15, 16, 30)
+	Lighting.FogColor = Color3.fromRGB(27, 16, 48)
+	Lighting.FogStart = 120
+	Lighting.FogEnd = 520
+
+	local bloom = Lighting:FindFirstChildOfClass("BloomEffect") or Instance.new("BloomEffect")
+	bloom.Intensity = 0.65
+	bloom.Size = 42
+	bloom.Threshold = 1.3
+	bloom.Parent = Lighting
+
+	local colorCorrection = Lighting:FindFirstChildOfClass("ColorCorrectionEffect") or Instance.new("ColorCorrectionEffect")
+	colorCorrection.Saturation = 0.18
+	colorCorrection.Contrast = 0.12
+	colorCorrection.TintColor = Color3.fromRGB(210, 220, 255)
+	colorCorrection.Parent = Lighting
+end
+
+return WorldService
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="17">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="18">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="19">
+        <Properties>
+          <string name="Name">GameClient</string>
+          <string name="Source"><![CDATA[--!strict
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
+
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local modules = ReplicatedStorage:WaitForChild("Modules")
+
+local BrainrotConfig = require(modules.BrainrotConfig)
+local UpgradeConfig = require(modules.UpgradeConfig)
+local GameConfig = require(modules.GameConfig)
+
+local function makeLabel(parent: Instance, name: string, order: number)
+	local label = Instance.new("TextLabel")
+	label.Name = name
+	label.Size = UDim2.new(1, 0, 0, 32)
+	label.Position = UDim2.fromOffset(0, (order - 1) * 34)
+	label.BackgroundTransparency = 1
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Font = Enum.Font.GothamBold
+	label.TextColor3 = Color3.fromRGB(229, 238, 255)
+	label.TextSize = 21
+	label.Text = name .. ": --"
+	label.Parent = parent
+	return label
+end
+
+local screen = Instance.new("ScreenGui")
+screen.Name = "HUD"
+screen.ResetOnSpawn = false
+screen.Parent = playerGui
+
+local panel = Instance.new("Frame")
+panel.Name = "MainPanel"
+panel.Size = UDim2.fromOffset(360, 240)
+panel.Position = UDim2.fromOffset(16, 16)
+panel.BackgroundColor3 = Color3.fromRGB(9, 14, 30)
+panel.BackgroundTransparency = 0.15
+panel.Parent = screen
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = panel
+
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(73, 228, 255)
+stroke.Transparency = 0.2
+stroke.Parent = panel
+
+local moneyLabel = makeLabel(panel, "Money", 1)
+local storageLabel = makeLabel(panel, "Storage", 2)
+local carryLabel = makeLabel(panel, "Carry", 3)
+local baseLabel = makeLabel(panel, "Base", 4)
+local eventLabel = makeLabel(panel, "Event", 5)
+
+local hintLabel = makeLabel(panel, "Hint", 6)
+hintLabel.Font = Enum.Font.Gotham
+hintLabel.TextSize = 15
+hintLabel.TextColor3 = Color3.fromRGB(150, 165, 200)
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+	hintLabel.Text = "Tap prompts to steal | buttons: bank, attack, shop"
+else
+	hintLabel.Text = "E steal | Q deposit | F attack | B shop"
+end
+
+-- Phones don't have room for the full-size HUD panel.
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+	local hudScale = Instance.new("UIScale")
+	hudScale.Scale = 0.72
+	hudScale.Parent = panel
+end
+
+local alert = Instance.new("TextLabel")
+alert.Size = UDim2.new(0.5, 0, 0, 44)
+alert.AnchorPoint = Vector2.new(0.5, 0)
+alert.Position = UDim2.fromScale(0.5, 0.04)
+alert.BackgroundColor3 = Color3.fromRGB(255, 72, 158)
+alert.BackgroundTransparency = 0.18
+alert.TextColor3 = Color3.new(1, 1, 1)
+alert.Font = Enum.Font.GothamBlack
+alert.TextScaled = true
+alert.Text = ""
+alert.Visible = false
+alert.Parent = screen
+
+Instance.new("UICorner", alert).CornerRadius = UDim.new(0, 10)
+
+local hudState = {
+	Money = 0,
+	Storage = 0,
+	StorageSlots = 0,
+	Carrying = "None",
+	BaseName = "Unassigned",
+	Event = "None",
+}
+
+local function render()
+	moneyLabel.Text = string.format("Money: $%d", hudState.Money)
+	storageLabel.Text = string.format("Storage: %d/%d", hudState.Storage, hudState.StorageSlots)
+	carryLabel.Text = string.format("Carry: %s", hudState.Carrying)
+	baseLabel.Text = string.format("Base: %s", hudState.BaseName)
+	eventLabel.Text = string.format("Event: %s", hudState.Event)
+	eventLabel.TextColor3 = hudState.Event ~= "None" and Color3.fromRGB(255, 214, 90) or Color3.fromRGB(229, 238, 255)
+end
+
+remotes.HUD.OnClientEvent:Connect(function(payload)
+	for key, value in pairs(payload) do
+		hudState[key] = value
+	end
+	render()
+end)
+
+remotes.Alert.OnClientEvent:Connect(function(payload)
+	alert.Text = payload.Message
+	alert.Visible = true
+	task.delay(2.2, function()
+		if alert.Text == payload.Message then
+			alert.Visible = false
+		end
+	end)
+end)
+
+-- Shop panel -----------------------------------------------------------------
+
+local shopPanel = Instance.new("Frame")
+shopPanel.Name = "ShopPanel"
+-- Height is 85% of the screen, capped at 470px, so the panel fits phone
+-- viewports instead of running off the bottom edge.
+shopPanel.Size = UDim2.new(0, 340, 0.85, 0)
+shopPanel.AnchorPoint = Vector2.new(1, 0)
+shopPanel.Position = UDim2.new(1, -16, 0, 16)
+
+local shopSizeConstraint = Instance.new("UISizeConstraint")
+shopSizeConstraint.MaxSize = Vector2.new(340, 470)
+shopSizeConstraint.Parent = shopPanel
+shopPanel.BackgroundColor3 = Color3.fromRGB(9, 14, 30)
+shopPanel.BackgroundTransparency = 0.08
+shopPanel.Visible = false
+shopPanel.Parent = screen
+
+Instance.new("UICorner", shopPanel).CornerRadius = UDim.new(0, 12)
+
+local shopStroke = Instance.new("UIStroke")
+shopStroke.Thickness = 2
+shopStroke.Color = Color3.fromRGB(255, 72, 158)
+shopStroke.Transparency = 0.2
+shopStroke.Parent = shopPanel
+
+local shopTitle = Instance.new("TextLabel")
+shopTitle.Size = UDim2.new(1, 0, 0, 36)
+shopTitle.BackgroundTransparency = 1
+shopTitle.Font = Enum.Font.GothamBlack
+shopTitle.TextColor3 = Color3.fromRGB(229, 238, 255)
+shopTitle.TextSize = 22
+shopTitle.Text = "NEON SHOP"
+shopTitle.Parent = shopPanel
+
+local shopList = Instance.new("ScrollingFrame")
+shopList.Size = UDim2.new(1, -16, 1, -48)
+shopList.Position = UDim2.fromOffset(8, 42)
+shopList.BackgroundTransparency = 1
+shopList.BorderSizePixel = 0
+shopList.ScrollBarThickness = 4
+shopList.CanvasSize = UDim2.new(0, 0, 0, 0)
+shopList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+shopList.Parent = shopPanel
+
+local shopLayout = Instance.new("UIListLayout")
+shopLayout.Padding = UDim.new(0, 6)
+shopLayout.SortOrder = Enum.SortOrder.LayoutOrder
+shopLayout.Parent = shopList
+
+local function makeShopRow(order: number, title: string, subtitle: string, accent: Color3, buttonText: string?, onBuy: (() -> ())?)
+	local row = Instance.new("Frame")
+	row.Size = UDim2.new(1, -6, 0, 54)
+	row.LayoutOrder = order
+	row.BackgroundColor3 = Color3.fromRGB(16, 22, 44)
+	row.BackgroundTransparency = 0.1
+	row.Parent = shopList
+
+	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.new(1, -92, 0, 24)
+	nameLabel.Position = UDim2.fromOffset(10, 4)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	nameLabel.Font = Enum.Font.GothamBold
+	nameLabel.TextSize = 17
+	nameLabel.TextColor3 = accent
+	nameLabel.Text = title
+	nameLabel.Parent = row
+
+	local subLabel = Instance.new("TextLabel")
+	subLabel.Size = UDim2.new(1, -92, 0, 20)
+	subLabel.Position = UDim2.fromOffset(10, 28)
+	subLabel.BackgroundTransparency = 1
+	subLabel.TextXAlignment = Enum.TextXAlignment.Left
+	subLabel.Font = Enum.Font.Gotham
+	subLabel.TextSize = 14
+	subLabel.TextColor3 = Color3.fromRGB(150, 165, 200)
+	subLabel.Text = subtitle
+	subLabel.Parent = row
+
+	if buttonText and onBuy then
+		local buy = Instance.new("TextButton")
+		buy.Size = UDim2.fromOffset(72, 34)
+		buy.AnchorPoint = Vector2.new(1, 0.5)
+		buy.Position = UDim2.new(1, -8, 0.5, 0)
+		buy.BackgroundColor3 = Color3.fromRGB(255, 72, 158)
+		buy.Font = Enum.Font.GothamBold
+		buy.TextSize = 15
+		buy.TextColor3 = Color3.new(1, 1, 1)
+		buy.Text = buttonText
+		buy.Parent = row
+		Instance.new("UICorner", buy).CornerRadius = UDim.new(0, 8)
+		buy.Activated:Connect(onBuy)
+	end
+
+	return row
+end
+
+local function makeShopHeader(order: number, text: string)
+	local header = Instance.new("TextLabel")
+	header.Size = UDim2.new(1, -6, 0, 26)
+	header.LayoutOrder = order
+	header.BackgroundTransparency = 1
+	header.TextXAlignment = Enum.TextXAlignment.Left
+	header.Font = Enum.Font.GothamBlack
+	header.TextSize = 16
+	header.TextColor3 = Color3.fromRGB(73, 228, 255)
+	header.Text = text
+	header.Parent = shopList
+end
+
+local sortedBrainrots = {}
+for _, def in pairs(BrainrotConfig) do
+	if typeof(def) == "table" and def.Id then
+		table.insert(sortedBrainrots, def)
+	end
+end
+table.sort(sortedBrainrots, function(a, b)
+	return a.BaseValue < b.BaseValue
+end)
+
+local function renderShop()
+	for _, child in ipairs(shopList:GetChildren()) do
+		if child:IsA("Frame") or child:IsA("TextLabel") then
+			child:Destroy()
+		end
+	end
+
+	local order = 0
+	order += 1
+	makeShopHeader(order, "BRAINROTS")
+	for _, def in ipairs(sortedBrainrots) do
+		order += 1
+		makeShopRow(
+			order,
+			def.DisplayName,
+			string.format("%s | +$%d/s", def.Rarity, def.IncomePerSecond),
+			GameConfig.RarityColors[def.Rarity],
+			string.format("$%d", def.BaseValue),
+			function()
+				remotes.ShopRequest:FireServer("BuyBrainrot", def.Id)
+			end
+		)
+	end
+
+	order += 1
+	makeShopHeader(order, "UPGRADES")
+	for _, upgradeId in ipairs(UpgradeConfig.Order) do
+		local upgrade = UpgradeConfig[upgradeId]
+		local level = localPlayer:GetAttribute("Upgrade_" .. upgradeId) or 0
+		local nextTier = upgrade.Tiers[level + 1]
+		order += 1
+		if nextTier then
+			makeShopRow(
+				order,
+				string.format("%s (Tier %d/%d)", upgrade.DisplayName, level, #upgrade.Tiers),
+				upgrade.Description,
+				Color3.fromRGB(229, 238, 255),
+				string.format("$%d", nextTier.Cost),
+				function()
+					remotes.ShopRequest:FireServer("BuyUpgrade", upgradeId)
+				end
+			)
+		else
+			makeShopRow(
+				order,
+				string.format("%s (MAX)", upgrade.DisplayName),
+				upgrade.Description,
+				Color3.fromRGB(153, 255, 86),
+				nil,
+				nil
+			)
+		end
+	end
+end
+
+for _, upgradeId in ipairs(UpgradeConfig.Order) do
+	localPlayer:GetAttributeChangedSignal("Upgrade_" .. upgradeId):Connect(function()
+		if shopPanel.Visible then
+			renderShop()
+		end
+	end)
+end
+
+-- ContextActionService gives every action a keyboard key AND an on-screen
+-- touch button on mobile (third argument true), so the same bindings cover
+-- desktop and phones. Steal already works on touch via ProximityPrompts.
+
+local function toggleShop()
+	shopPanel.Visible = not shopPanel.Visible
+	if shopPanel.Visible then
+		renderShop()
+	end
+end
+
+local shopClose = Instance.new("TextButton")
+shopClose.Size = UDim2.fromOffset(28, 28)
+shopClose.AnchorPoint = Vector2.new(1, 0)
+shopClose.Position = UDim2.new(1, -8, 0, 5)
+shopClose.BackgroundColor3 = Color3.fromRGB(16, 22, 44)
+shopClose.Font = Enum.Font.GothamBold
+shopClose.TextSize = 16
+shopClose.TextColor3 = Color3.fromRGB(229, 238, 255)
+shopClose.Text = "X"
+shopClose.Parent = shopPanel
+Instance.new("UICorner", shopClose).CornerRadius = UDim.new(0, 8)
+shopClose.Activated:Connect(toggleShop)
+
+ContextActionService:BindAction("NeonAttack", function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		remotes.AttackRequest:FireServer()
+	end
+	return Enum.ContextActionResult.Pass
+end, true, Enum.KeyCode.F)
+ContextActionService:SetTitle("NeonAttack", "HIT")
+ContextActionService:SetPosition("NeonAttack", UDim2.new(1, -76, 0, 10))
+
+ContextActionService:BindAction("NeonDeposit", function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		remotes.DepositRequest:FireServer()
+	end
+	return Enum.ContextActionResult.Pass
+end, true, Enum.KeyCode.Q)
+ContextActionService:SetTitle("NeonDeposit", "BANK")
+ContextActionService:SetPosition("NeonDeposit", UDim2.new(1, -146, 0, 40))
+
+ContextActionService:BindAction("NeonShop", function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		toggleShop()
+	end
+	return Enum.ContextActionResult.Pass
+end, true, Enum.KeyCode.B)
+ContextActionService:SetTitle("NeonShop", "SHOP")
+ContextActionService:SetPosition("NeonShop", UDim2.new(1, -216, 0, 10))
+
+render()
+
+ProximityPromptService.PromptTriggered:Connect(function(prompt)
+	local brainrotModel = prompt.Parent and prompt.Parent.Parent
+	if brainrotModel and brainrotModel:IsA("Model") then
+		remotes.StealRequest:FireServer(brainrotModel)
+	end
+end)
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
