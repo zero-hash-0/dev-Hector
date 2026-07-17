@@ -100,6 +100,12 @@ function BrainrotService:PushStorageCount(player: Player)
 		Storage = #list,
 		StorageSlots = base.StorageSlots,
 	})
+
+	local leaderstats = player:FindFirstChild("leaderstats")
+	local brainrotStat = leaderstats and leaderstats:FindFirstChild("Brainrots")
+	if brainrotStat and brainrotStat:IsA("IntValue") then
+		brainrotStat.Value = #list
+	end
 end
 
 function BrainrotService:GetOwner(model: Model): Player?

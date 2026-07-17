@@ -82,6 +82,23 @@ function ShopService:TryBuyUpgrade(player: Player, upgradeId: string)
 	self:AlertPlayer(player, string.format("%s upgraded to tier %d", upgrade.DisplayName, level + 1))
 end
 
+-- Re-applies a saved profile's upgrade levels on join. StorageSlots deltas are
+-- cumulative across tiers; IncomeBoost/CarryStability just land on the final
+-- tier's value since ApplyUpgrade overwrites the attribute each time.
+function ShopService:ApplySavedUpgrades(player: Player, upgrades)
+	for _, upgradeId in ipairs(UpgradeConfig.Order) do
+		local level = upgrades[upgradeId]
+		if typeof(level) == "number" and level > 0 then
+			local upgrade = UpgradeConfig[upgradeId]
+			local cappedLevel = math.min(level, #upgrade.Tiers)
+			player:SetAttribute("Upgrade_" .. upgradeId, cappedLevel)
+			for tierIndex = 1, cappedLevel do
+				self:ApplyUpgrade(player, upgradeId, upgrade.Tiers[tierIndex])
+			end
+		end
+	end
+end
+
 function ShopService:ApplyUpgrade(player: Player, upgradeId: string, tier)
 	if upgradeId == "StorageSlots" then
 		local base = self.BaseService:GetPlayerBase(player)

@@ -49,6 +49,7 @@ local CombatService = require(Services.CombatService)
 local EventService = require(Services.EventService)
 local WorldService = require(Services.WorldService)
 local ShopService = require(Services.ShopService)
+local DataService = require(Services.DataService)
 
 local baseService = BaseService.new()
 baseService:StartSingleton()
@@ -77,13 +78,47 @@ eventService:Init()
 local shopService = ShopService.new(baseService, brainrotService, currencyService, Remotes)
 shopService:Init()
 
+local dataService = DataService.new()
+dataService:Init()
+
+local function buildLeaderstats(player: Player)
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+
+	local moneyStat = Instance.new("IntValue")
+	moneyStat.Name = "Money"
+	moneyStat.Parent = leaderstats
+
+	local brainrotStat = Instance.new("IntValue")
+	brainrotStat.Name = "Brainrots"
+	brainrotStat.Parent = leaderstats
+
+	player:GetAttributeChangedSignal("Money"):Connect(function()
+		local money = player:GetAttribute("Money")
+		moneyStat.Value = typeof(money) == "number" and money or 0
+	end)
+
+	leaderstats.Parent = player
+end
+
 Players.PlayerAdded:Connect(function(player)
+	buildLeaderstats(player)
+
+	-- LoadProfile yields on the DataStore, so claim the base afterwards to
+	-- avoid holding a compound for a player who disconnects mid-load.
+	local profile = dataService:LoadProfile(player)
+	if player.Parent ~= Players then
+		return
+	end
+
 	local base = baseService:ClaimBase(player)
 	if not base then
 		Remotes.Alert:FireClient(player, { Type = "System", Message = "All compounds occupied. Queueing..." })
 		return
 	end
 
+	currencyService:SetBalance(player, profile.Money)
+	shopService:ApplySavedUpgrades(player, profile.Upgrades)
 	brainrotService:GrantStarterSet(player)
 	Remotes.HUD:FireClient(player, {
 		BaseName = string.format("Compound %d", base.Index),

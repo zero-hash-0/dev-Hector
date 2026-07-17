@@ -13,17 +13,17 @@ function CurrencyService.new(remotes)
 end
 
 function CurrencyService:Init()
-	Players.PlayerAdded:Connect(function(player)
-		self.Balances[player] = 150
-		player:SetAttribute("Money", 150)
-		self.Remotes.HUD:FireClient(player, {
-			Money = 150,
-		})
-	end)
-
 	Players.PlayerRemoving:Connect(function(player)
 		self.Balances[player] = nil
 	end)
+end
+
+-- Starting balance comes from the player's saved profile (see DataService),
+-- so there is no PlayerAdded default here.
+function CurrencyService:SetBalance(player: Player, amount: number)
+	self.Balances[player] = amount
+	player:SetAttribute("Money", amount)
+	self.Remotes.HUD:FireClient(player, { Money = amount })
 end
 
 function CurrencyService:Get(player: Player): number
