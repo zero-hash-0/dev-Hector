@@ -40,7 +40,7 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl select-none opacity-60">
-            🧸
+            ⚡
           </div>
         )}
 
@@ -60,9 +60,13 @@ export function JellycatCard({ item, readOnly, onEdit, onDelete, onToggleFavorit
 
       {/* Info */}
       <div className="p-4">
-        <h3 className="font-semibold text-white text-sm leading-tight mb-2 truncate">
+        <h3 className="font-semibold text-white text-sm leading-tight mb-1 truncate">
           {item.name}
         </h3>
+
+        {item.dexNumber && (
+          <p className="text-xs text-[#7A96B4] mb-2">#{item.dexNumber.toString().padStart(4, '0')}</p>
+        )}
 
         <div className="flex flex-wrap gap-1.5 mb-2">
           {item.series && (

@@ -8,7 +8,7 @@ export function StatsBar({ items }: { items: JellycatItem[] }) {
   const stats = [
     { label: 'Total', value: items.length },
     { label: 'Favourites', value: favorites },
-    { label: 'Series', value: series },
+    { label: 'Types', value: series },
     ...(totalValue > 0
       ? [{ label: 'Collection Value', value: `$${totalValue.toFixed(0)}` }]
       : []),

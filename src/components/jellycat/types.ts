@@ -2,6 +2,7 @@ export interface JellycatItem {
   id: string
   name: string
   series: string
+  dexNumber: number | null
   size: 'tiny' | 'small' | 'medium' | 'large' | 'huge' | ''
   imageUrl: string
   acquiredDate: string

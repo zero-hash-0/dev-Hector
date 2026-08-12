@@ -1,21 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { type JellycatItem, encodeCollection } from './types'
 
 const STORAGE_KEY = 'jellycat-collection'
 
-export function useCollection() {
-  const [items, setItems] = useState<JellycatItem[]>([])
-  const [loaded, setLoaded] = useState(false)
+function loadInitialItems(): JellycatItem[] {
+  if (typeof window === 'undefined') return []
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) setItems(JSON.parse(raw))
-    } catch {}
-    setLoaded(true)
-  }, [])
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+
+    const parsed = JSON.parse(raw) as JellycatItem[]
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+export function useCollection() {
+  const [items, setItems] = useState<JellycatItem[]>(() => loadInitialItems())
 
   const save = (next: JellycatItem[]) => {
     setItems(next)
@@ -39,5 +44,5 @@ export function useCollection() {
     return `${window.location.origin}/jellycat/share/${encoded}`
   }
 
-  return { items, loaded, add, update, remove, toggleFavorite, getShareUrl }
+  return { items, loaded: true, add, update, remove, toggleFavorite, getShareUrl }
 }
